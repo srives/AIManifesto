@@ -444,7 +444,7 @@ const shorterQuestions = [
       "Memory files"
     ],
     answer: 2,
-    explanation: "<strong>Hooks.</strong> This is a critical distinction. CLAUDE.md, skills, and memory files are all documents that get loaded and read — none execute code that get loaded into context &mdash; they inform behavior but don't execute anything. Hooks are the only mechanism that runs actual shell commands. They fire on events (tool use, session start) and execute real code on your machine."
+    explanation: "<strong>Hooks.</strong> This is a critical distinction. CLAUDE.md, skills, and memory files are all documents that get loaded and read — none of them execute code. They inform Claude's behavior but don't run anything on your machine. Hooks are the only mechanism that runs actual shell commands. They fire on events (tool use, session start) and execute real code on your machine."
   },
   {
     question: "A session in Claude Code persists data at:",
@@ -886,11 +886,11 @@ const largerQuestions = [
     choices: [
       "CLAUDE.md is dropped first since it's configuration",
       "Everything is compressed equally",
-      "Conversation history is summarized first; CLAUDE.md and recently-loaded skills are preserved",
-      "Skills are dropped and reloaded on demand"
+      "Conversation history is summarized; CLAUDE.md survives because it reloads from the file; skills may be silently lost",
+      "Skills are dropped and automatically reloaded"
     ],
     answer: 2,
-    explanation: "<strong>Conversation history is summarized first.</strong> CLAUDE.md and recently-loaded content tend to be preserved because they're relevant to ongoing work. Older conversation turns &mdash; especially ones that resulted in completed tasks &mdash; are summarized. The system tries to keep the most actionable content in the window. It's like how an OS pages out least-recently-used memory pages first."
+    explanation: "<strong>They behave differently.</strong> Conversation history gets summarized/compressed. CLAUDE.md survives compaction because it is reloaded from the actual file at the start of each session — it's not stored in conversation history. Skills, however, can be silently dropped. They were loaded into context as conversation content, and compaction can compress them away. Claude will NOT automatically re-read the skill file after compaction. This is a documented real-world problem. If a skill is critical, re-invoke it after compacting, or move its key rules into CLAUDE.md."
   },
   {
     question: "Scenario: You need Claude to follow a very specific multi-step deployment procedure for your legacy system. The procedure has 30 steps with conditional branches. What's the best mechanism?",

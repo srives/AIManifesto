@@ -400,7 +400,7 @@
     <div class="chapter-number">Chapter IV</div>
     <h2>Skills (SKILL.md Files)</h2>
 
-    <p>A skill is a markdown document that teaches Claude how to do something. It does not execute. It does not run as a process. It is loaded into Claude's context window &mdash; added to the conversation as instructions &mdash; and Claude follows those instructions when performing relevant tasks.</p>
+    <p>A skill is a markdown document that reminds Claude how to do something — which it will remember until the next <code>/compact</code> (or the session ends). It does not execute. It does not run as a process. It is loaded into Claude's context window &mdash; added to the conversation as instructions &mdash; and Claude follows those instructions for as long as the content remains in context.</p>
 
     <p>This is the concept most people get wrong. Skills are not plugins. They are not scripts. They are <em>documents that inform behavior</em>.</p>
 
@@ -441,7 +441,7 @@
     <div class="chapter-number">Chapter V</div>
     <h2>Slash Commands</h2>
 
-    <p>Slash commands are custom prompts stored as files. When you type <code>/foo</code> in Claude Code, it finds the file <code>foo.md</code> in your commands directory and sends its contents as a prompt. That's it. No magic, no runtime, no API call &mdash; just a file whose contents become your prompt.</p>
+    <p><strong>Slash commands are pre-canned prompts.</strong> You write a prompt once, save it as a file, give it a name. When you type <code>/foo</code>, Claude reads the file <code>foo.md</code> and sends its contents exactly as if you had typed that entire prompt yourself. That's it. No magic, no runtime, no API call &mdash; just a saved prompt with a short name.</p>
 
     <div class="analogy">Like a stored procedure in SQL. You define it once with a name and a body. When you call it by name, the body executes. Slash commands are the same: the name is the filename, the body is the file contents, and "execution" means "the contents are sent as a prompt." Or like PowerShell aliases: you type a short name, it expands to the full command.</div>
 
