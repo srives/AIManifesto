@@ -98,7 +98,17 @@
     <ul>
       <li><strong>Claude.ai</strong> — The website. You open a browser, you chat. This is what most people mean when they say "I use Claude." The consumer product. Chat only.</li>
       <li><strong>Claude Desktop — Chat tab</strong> — The Windows/Mac installed app with the Chat tab selected. Looks and works like the website. Can be extended with MCP servers. Still primarily a chat interface.</li>
-      <li><strong>Claude Desktop — Code tab ⬅ This IS what this guide is about</strong> — Inside Claude Desktop, click the <strong>Code</strong> tab at the top. This switches you into Claude Code mode — full file system access, bash execution, MCP servers, skills, slash commands, CLAUDE.md, everything. It is the same Claude Code CLI engine, embedded inside the desktop app with a GUI wrapper. If your user is using the Code tab in Claude Desktop, they are already using what this guide describes. They just didn't know the name for it.</li>
+      <li><strong>Claude Desktop — Code tab ⬅ This IS what this guide is about</strong> — Inside Claude Desktop, click the <strong>Code</strong> tab at the top. This switches you into Claude Code mode — full file system access, bash execution, MCP servers, skills, slash commands, CLAUDE.md, everything. It is the same Claude Code CLI engine, embedded inside the desktop app with a GUI wrapper. If your user is using the Code tab in Claude Desktop, they are already using what this guide describes. They just didn't know the name for it.
+        <br><br><strong>How to start a Code tab session (Windows):</strong>
+        <ol style="margin-top:0.5rem;">
+          <li><strong>Git required.</strong> The Code tab needs Git for Windows installed. Download from <a href="https://git-scm.com/download/win" style="color:var(--accent-blue)">git-scm.com</a> and restart the app after installing.</li>
+          <li><strong>Click the Code tab</strong> at the top of Claude Desktop. If it asks you to upgrade, you need a paid plan.</li>
+          <li><strong>Choose where Claude runs:</strong> Select <strong>Local</strong> to use your own machine and files. (Remote = Anthropic-hosted cloud session. SSH = a remote machine you manage.)</li>
+          <li><strong>Select your folder.</strong> Click <strong>Select folder</strong> and choose your project directory — the folder containing the code you want to work with. This is the equivalent of <code>cd C:\repos\MyProject</code> in the terminal.</li>
+          <li><strong>Pick your model</strong> from the dropdown. Note: you cannot change the model after the session starts.</li>
+          <li><strong>Start typing.</strong> Claude now has access to that folder's files. By default it will ask permission before making changes (Ask permissions mode), showing a diff with Accept/Reject buttons.</li>
+        </ol>
+      </li>
       <li><strong>Claude Code (terminal CLI)</strong> — The standalone command-line version. You open a terminal, type <code>claude</code>. Same capabilities as the Code tab in Claude Desktop — just without the GUI wrapper. Some developers prefer this; others prefer the desktop app. <strong>Both are covered by this guide.</strong></li>
       <li><strong>Claude in VS Code / JetBrains</strong> — IDE-native integrations built on the same Claude Code engine. Most concepts in this guide apply here too.</li>
       <li><strong>Claude in Slack</strong> — Chat-oriented, not code-oriented. Not what this guide is about.</li>
@@ -296,6 +306,23 @@
     <p>All applicable files are loaded and merged. It's like CSS cascading: general rules at the top, more specific rules override as you go deeper.</p>
 
     <div class="real-talk">The hardest thing for GUI developers to accept: CLAUDE.md is always "on." There's no checkbox to enable it, no menu to activate it. If the file exists at the repo root, it's loaded. Every session. Automatically. This passivity is its power &mdash; you can't forget to apply your standards because you never had to apply them manually in the first place.</div>
+
+    <h3>CLAUDE.md Size Directly Affects Your Token Budget — Every Session</h3>
+    <p>This is important and often missed: <strong>every token in CLAUDE.md is consumed from your Awareness budget on every single message, for the entire session.</strong> It never leaves context. A 500-line CLAUDE.md might cost 3,000–5,000 tokens — permanently occupying that slice of your 267-page (Pro) or 1,333-page (Max) window, every time you start typing.</p>
+
+    <p>Compare that to a <strong>skill</strong>: a 500-line skill document costs zero tokens until you invoke it. Then it costs tokens only for that session. Next session, zero again unless you invoke it again.</p>
+
+    <table class="compare-table">
+      <thead><tr><th></th><th>CLAUDE.md</th><th>A Skill</th></tr></thead>
+      <tbody>
+        <tr><td>When loaded</td><td>Every session, automatically</td><td>Only when you invoke it</td></tr>
+        <tr><td>Token cost</td><td>Every message, all session, forever</td><td>Only during sessions where you invoke it</td></tr>
+        <tr><td>500 lines =</td><td>~3,000–5,000 tokens permanently consumed per session</td><td>~3,000–5,000 tokens only when needed</td></tr>
+        <tr><td>Best for</td><td>Short, universal rules that apply to everything</td><td>Detailed procedures for specific tasks</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>The rule:</strong> Keep CLAUDE.md short and universal. If it's longer than one page, ask whether any of it could move to a skill. Everything in CLAUDE.md is paying rent on your context window 24/7. Everything in a skill is free until called.</p>
   </div>
 
   <!-- ==================== CHAPTER 3 ==================== -->
