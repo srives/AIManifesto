@@ -206,6 +206,88 @@ body {
   line-height: 1.6;
 }
 
+/* === IQ/Awareness Bar Charts === */
+.iq-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr;
+  gap: 0.4rem 0.75rem;
+  align-items: center;
+  margin: 1.25rem 0;
+  font-size: 0.82rem;
+}
+
+.iq-grid .header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.iq-grid .model-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.iq-grid .sub { color: var(--text-muted); font-size: 0.75rem; font-weight: 400; }
+
+.bar-wrap {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  height: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  border-radius: 3px;
+  position: relative;
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+
+.bar-label {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  line-height: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  pointer-events: none;
+}
+
+.bar-label.outside {
+  right: auto;
+  left: calc(100% + 6px);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.bar.iq-bar    { background: linear-gradient(90deg, var(--accent-blue), #1e6fb5); }
+.bar.aware-bar { background: linear-gradient(90deg, var(--accent-green), #1a6b3a); }
+.bar.iq-low    { background: linear-gradient(90deg, var(--accent-red), #8b2020); }
+.bar.aware-low { background: linear-gradient(90deg, var(--accent-orange), #a05a00); }
+
+/* === Compare Page Section Dividers === */
+.compare-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin: 2.5rem 0 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-section-title.orange { color: var(--accent-orange); }
+.compare-section-title.green  { color: var(--accent-green); }
+.compare-section-title.purple { color: var(--accent-purple); }
+.compare-section-title.red    { color: var(--accent-red); }
+.compare-section-title.blue   { color: var(--accent-blue); }
+
 /* === About === */
 .about-section { text-align: center; padding: 3rem 1rem; }
 .about-ascii { font-family: var(--font-mono); font-size: 0.55rem; line-height: 1.1; color: var(--accent-blue); white-space: pre; display: inline-block; margin: 1.5rem 0; }

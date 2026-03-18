@@ -17,8 +17,9 @@
       <div class="hamburger-wrap">
         <button class="hamburger-btn" id="hamburger-btn" aria-label="More">&#9776;</button>
         <div class="nav-drawer" id="nav-drawer">
+          <button class="tab-btn" data-tab="pricing">Pricing &amp; Purchasing</button>
           <button class="tab-btn" data-tab="starthere">Find Your Path</button>
-          <button class="tab-btn" data-tab="firstsession">First 15 Minutes</button>
+          <button class="tab-btn" data-tab="firstsession">First 15 Minute Session</button>
           <button class="tab-btn" data-tab="firstquiz">First Session Quiz</button>
           <button class="tab-btn" data-tab="remote">Control Claude from your Phone</button>
           <button class="tab-btn" data-tab="compare">Other AI CLIs</button>
@@ -33,11 +34,12 @@
     </div>
     <nav class="tab-bar">
       <button class="tab-btn active" data-tab="confession">The Manifesto</button>
-      <button class="tab-btn" data-tab="practitioner">Practitioner's Guide</button>
       <button class="tab-btn" data-tab="shorter">Quick Quiz</button>
       <button class="tab-btn" data-tab="larger">Deep Quiz</button>
       <button class="tab-btn" data-tab="plugins">Plugin Quiz</button>
       <button class="tab-btn" data-tab="bonusquiz">Bonus Features Quiz</button>
+      <button class="tab-btn" data-tab="practitioner">Practitioner's Guide</button>
+      <button class="tab-btn" data-tab="glossary">Glossary</button>
     </nav>
   </div>
 </header>
@@ -1030,6 +1032,220 @@ Ask me for the component name and path before starting.</code></pre>
 <!-- ============================================ -->
 <!-- TAB: FIRST SESSION                            -->
 <!-- ============================================ -->
+<section id="pricing" class="tab-panel">
+
+  <h2>Pricing &amp; Purchasing</h2>
+  <div class="real-talk"><strong>Prices change. Always verify at <a href="https://claude.ai/upgrade" style="color:var(--accent-blue)">claude.ai/upgrade</a> before buying.</strong> The numbers here are accurate as of March 2026 but Anthropic adjusts pricing periodically.</div>
+
+  <!-- Step 1: Getting Set Up -->
+  <div class="compare-section-title blue">Step 1: How to Get Set Up</div>
+  <ol>
+    <li>Go to <a href="https://claude.ai" style="color:var(--accent-blue)">claude.ai</a> and create a free account with your email.</li>
+    <li>Install Claude Code: <code>winget install Anthropic.Claude</code> or download from <a href="https://claude.ai/download" style="color:var(--accent-blue)">claude.ai/download</a></li>
+    <li>Run <code>claude</code> in a terminal. It will prompt you to log in — use your claude.ai account.</li>
+    <li>You're on the free tier. Try it. If you hit limits, upgrade.</li>
+  </ol>
+  <p>You do not need a credit card to start. The free tier is real — it's just rate-limited.</p>
+
+  <!-- Step 2: Plans -->
+  <div class="compare-section-title green">The Plans</div>
+  <table class="compare-table">
+    <thead><tr><th>Plan</th><th>Monthly Cost</th><th>Usage Limit</th><th>Best For</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Free</strong></td>
+        <td>$0</td>
+        <td>~10-15 messages per 5-hour window</td>
+        <td>Trying it out. Not for real work.</td>
+      </tr>
+      <tr>
+        <td><strong>Pro</strong></td>
+        <td>$20/month ($17 annual)</td>
+        <td>~45 messages per 5-hour window</td>
+        <td>Developers coding 2-3 hours/day. Light-to-moderate use.</td>
+      </tr>
+      <tr>
+        <td><strong>Max 5×</strong></td>
+        <td>$100/month</td>
+        <td>~225 messages per 5-hour window</td>
+        <td>Developers coding 6-8 hours/day. Full workday without hitting walls.</td>
+      </tr>
+      <tr>
+        <td><strong>Max 20×</strong></td>
+        <td>$200/month</td>
+        <td>~900 messages per 5-hour window</td>
+        <td>Power users, large projects, all-day heavy coding sessions.</td>
+      </tr>
+      <tr>
+        <td><strong>Team</strong></td>
+        <td>$25-30/user/month (standard)<br>$150/user/month (premium with Claude Code)</td>
+        <td>Similar to Pro per seat</td>
+        <td>Organizations deploying Claude Code to a team. Centralized billing.</td>
+      </tr>
+      <tr>
+        <td><strong>Enterprise</strong></td>
+        <td>
+          Anthropic doesn't publish this. Community reports and enterprise buyers say:<br><br>
+          <strong>~$40–$60/seat/month</strong> (standard seats)<br>
+          <strong>~$100–$150/seat/month</strong> (premium seats with Claude Code)<br>
+          <strong>Minimum ~20 seats</strong>, annual contract<br>
+          <strong>Small deployment (10–25 users): ~$500–$1,000/month</strong><br>
+          <strong>Large org (100+ users): $5,000–$15,000+/month</strong><br><br>
+          <em>Plus API usage billed separately on top.</em> Contact Anthropic sales for a real quote.
+        </td>
+        <td>Custom — API usage billed on top of seat fees at standard per-token rates</td>
+        <td>Organizations only. Audit logs, SSO, SCIM, RBAC, 500K context window, HIPAA option. NOT for individuals — minimum seat commitment required.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><strong>Important:</strong> All Claude surfaces (claude.ai website, Claude Desktop, Claude Code CLI) share the same usage pool. If you burn through messages on the website, you have fewer for coding.</p>
+
+  <div class="real-talk"><strong>Can an individual buy Enterprise to get unlimited coding?</strong> No. Enterprise requires a minimum seat commitment and an annual contract with sales. It's organizational infrastructure — not just more usage. If you code like a madman and want maximum throughput, <strong>Max 20× ($200/month)</strong> is your ceiling as an individual. Enterprise usage is also billed separately at API rates on top of the seat fee — it's not "unlimited."</div>
+
+  <div class="compare-section-title orange">Real Questions, Real Numbers</div>
+
+  <p><strong>"Our company has 60 people. What's the monthly bill?"</strong><br>
+  At the community-reported ~$60/seat/month for standard seats: <strong>60 × $60 = $3,600/month</strong> in seat fees, plus API usage (token costs) on top. If you're deploying premium seats with Claude Code access (~$150/seat), it's <strong>60 × $150 = $9,000/month</strong> before usage. Budget $5,000–$15,000/month all-in for a 60-person shop doing active AI coding. Annual commitment, so expect to negotiate. These are community estimates — Anthropic's actual quote could be higher or lower.</p>
+
+  <p><strong>"Our company has 3 people. Can we get Enterprise?"</strong><br>
+  Probably not at standard terms. Reports suggest a minimum floor of 20 seats. However: <strong>you can sometimes buy up</strong> — paying for 20 seats even if only 3 people use them. That would cost ~$1,200–$3,000/month for 3 actual users, which is absurd value math. For a 3-person team, <strong>Team plan ($150/user/month for premium Claude Code seats = $450/month)</strong> is almost certainly the right answer. You get Claude Code access without the enterprise overhead and minimum commitment.</p>
+
+  <p><strong>"What if I'm willing to pay as if we had 70 people just to get Enterprise features?"</strong><br>
+  Call Anthropic sales and ask directly. Some vendors will take your money. You'd be looking at 70 × $60 = $4,200+/month for features a 3-person team doesn't need (SSO, SCIM, audit logs are organizational plumbing). The honest answer: don't. Max 20× ($200/month) gets you more coding throughput per dollar than any Enterprise arrangement would for a solo or small team.</p>
+
+  <div class="compare-section-title blue">What Does Enterprise Actually Get You?</div>
+  <p>For an individual, nothing useful. For an organization, it's about control and compliance:</p>
+  <ul>
+    <li><strong>Audit logging</strong> — every prompt and response logged for compliance review</li>
+    <li><strong>SSO / SAML</strong> — employees log in with corporate identity (no separate Anthropic accounts)</li>
+    <li><strong>SCIM</strong> — automatic user provisioning/deprovisioning via your HR system</li>
+    <li><strong>Fine-grained RBAC</strong> — control which employees can use which models, which tools, which features</li>
+    <li><strong>Custom data retention</strong> — control how long conversation data is stored</li>
+    <li><strong>Priority support</strong> — actual humans to call when something breaks</li>
+    <li><strong>Larger context window</strong> — access to extended context models</li>
+  </ul>
+  <p>None of that helps you write code faster. It helps your legal, security, and IT teams sleep at night.</p>
+
+  <!-- Step 3: Tokens -->
+  <div class="compare-section-title orange">Tokens: Your Fuel</div>
+  <p><strong>Tokens are like gas.</strong> You can measure gas two ways: by how far it gets you (miles per gallon) or by what it costs per gallon. Both are useful. Tokens work the same way:</p>
+  <ul>
+    <li><strong>How far it gets you:</strong> One token ≈ 4 characters ≈ ¾ of a word. A typical message exchange (your prompt + Claude's response + any files read) might burn 5,000–20,000 tokens. A complex coding session reading many files might burn 50,000+ tokens in a single exchange. The Pro plan's 45-message window is like a tank of gas — enough for the commute, not enough for a road trip.</li>
+    <li><strong>What it costs:</strong> On the subscription plans, tokens are pre-paid in your monthly fee. On the API (direct access for building apps), you pay per million tokens — input tokens cost $3/million, output tokens cost $15/million on Sonnet. A 50,000-token session would cost roughly $0.15–$0.75 depending on the mix.</li>
+  </ul>
+  <p>When you run out of tokens in a window, Claude slows down or stops until the window resets (every 5 hours). That's the tank hitting empty.</p>
+
+  <table class="compare-table">
+    <thead><tr><th>Token Type</th><th>What It Is</th><th>Cost (Sonnet 4.6)</th></tr></thead>
+    <tbody>
+      <tr><td>Input tokens</td><td>What you send: your prompt, files Claude reads, tool results</td><td>$3.00 per million</td></tr>
+      <tr><td>Output tokens</td><td>What Claude generates: responses, code it writes</td><td>$15.00 per million</td></tr>
+      <tr><td>Cache write</td><td>First time repeated content (CLAUDE.md, skills) is cached</td><td>$3.75 per million</td></tr>
+      <tr><td>Cache read</td><td>Subsequent reads of cached content — much cheaper</td><td>$0.30 per million</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Two Ways Claude Charges for Tokens — and Why It Matters</h3>
+
+  <p>There are two completely different ways to pay for Claude, and they get confused constantly:</p>
+
+  <p><strong>Way 1: Subscription (Pro, Max)</strong> — You pay a flat monthly fee. Tokens are included inside your message budget. You don't see a token bill. You just hit a wall when you've sent too many messages in a 5-hour window, then wait for it to reset. This is what most people use. Simple.</p>
+
+  <p><strong>Way 2: API / Pay-per-token</strong> — You get an API key from Anthropic and pay directly for every token consumed, with no subscription. The per-token rates in the table above are what you pay. This is for developers <em>building applications that use Claude</em> — a company baking Claude into their own product, not a developer using Claude as a coding tool. You'd wire your app to Claude's API and get billed for token consumption each month.</p>
+
+  <p><strong>Enterprise uses Way 2 on top of a seat fee.</strong> The seat fee (~$60–$150/user/month) buys access and organizational features (audit logs, SSO, etc.). But every message your team sends still burns tokens, billed at per-token rates on top of that seat fee. That's what "token consumption billed separately" means in the Enterprise section — it's the same tokens as above, just billed directly instead of wrapped in a message budget.</p>
+
+  <p><strong>If you're a developer using Claude Code to write code: use a subscription (Pro or Max). You never need to think about API keys or per-token rates.</strong> Those are for building products, not for using Claude as a tool.</p>
+
+  <!-- Step 4: Coding Scenarios & Costs -->
+  <div class="compare-section-title purple">How Many Hours Can You Code? Real Scenarios.</div>
+
+  <table class="compare-table">
+    <thead><tr><th>Scenario</th><th>Daily coding hours</th><th>Plan needed</th><th>Monthly cost</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Curious experimenter</strong><br>Trying Claude Code for the first time, occasional small tasks</td>
+        <td>30 min–1 hour</td>
+        <td>Free or Pro</td>
+        <td>$0–$20</td>
+      </tr>
+      <tr>
+        <td><strong>Part-time coder</strong><br>HR professional automating reports, PM writing scripts, UX designer prototyping</td>
+        <td>1–2 hours</td>
+        <td>Pro</td>
+        <td>$20</td>
+      </tr>
+      <tr>
+        <td><strong>Working developer</strong><br>Full-time developer using Claude Code as primary coding tool</td>
+        <td>3–5 hours</td>
+        <td>Pro (will hit limits occasionally) or Max 5×</td>
+        <td>$20–$100</td>
+      </tr>
+      <tr>
+        <td><strong>Heavy developer</strong><br>All-day Claude Code, large codebases, frequent file reads</td>
+        <td>6–8 hours</td>
+        <td>Max 5×</td>
+        <td>$100</td>
+      </tr>
+      <tr>
+        <td><strong>Power user</strong><br>Running agents, parallel sessions, very large projects</td>
+        <td>8+ hours</td>
+        <td>Max 20×</td>
+        <td>$200</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="real-talk"><strong>The average developer on Claude Code spends about $6/day in token costs</strong> — which maps to the Pro plan ($20/month ÷ 30 days = $0.67/day subscription equivalent, but token costs stack). 90% of users stay under $12/day. If you're consistently hitting Pro limits mid-morning, upgrade to Max 5×. If you've never hit a limit, Pro is fine.</div>
+
+  <!-- Tips -->
+  <div class="compare-section-title blue">IQ vs. Awareness: What You're Actually Buying</div>
+  <p>Think of it like fidelity in images. A single photograph can be ultra-high-resolution — every pixel tiny, every detail captured. That's high IQ. A movie has thousands of frames, covering far more ground — but each individual frame may be lower resolution than a still photo. That's high Awareness.</p>
+  <p>You want both — but they are separate dials. When you pay more for AI, you might be buying a sharper photograph (better reasoning per frame), more frames (larger context window), or both. A high-IQ model on a small plan sees 267 pages with brilliant resolution. The same model on a Max plan sees 1,333 pages — five times the movie, same sharpness per frame.</p>
+  <div id="iq-awareness-chart-pricing"></div>
+  <script>
+  (function() {
+    const models2 = [
+      { name:'Claude Opus 4.6',      sub:'Max/Enterprise plan', iq:100, aware:1333 },
+      { name:'Claude Sonnet 4.6',    sub:'Max/Enterprise plan', iq:85,  aware:1333 },
+      { name:'Claude Opus 4.6',      sub:'Pro plan',            iq:100, aware:267  },
+      { name:'Claude Sonnet 4.6',    sub:'Pro plan',            iq:85,  aware:267  },
+      { name:'Claude Haiku 4.5',     sub:'any plan',            iq:55,  aware:267  },
+      { name:'GPT-5',                sub:'ChatGPT Plus',        iq:90,  aware:363  },
+      { name:'Gemini 2.5 Pro',       sub:'Google AI Pro',       iq:82,  aware:1333 },
+      { name:'Llama / Mistral',      sub:'Ollama (local/free)',  iq:50,  aware:85   },
+    ];
+    const maxA = 1333;
+    const el2 = document.getElementById('iq-awareness-chart-pricing');
+    if (!el2) return;
+    let html = '<div class="iq-grid">';
+    html += '<div class="header">Model / Plan</div><div class="header">IQ (reasoning quality)</div><div class="header">Awareness (~pages it can see)</div>';
+    models2.forEach(m => {
+      const iqPct = m.iq;
+      const awarePct = Math.min(100, Math.round((m.aware / maxA) * 100));
+      const iqColor = m.iq >= 85 ? 'iq-bar' : m.iq >= 65 ? '' : 'iq-low';
+      const awareColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? '' : 'aware-low';
+      html += `<div class="model-name">${m.name}<div class="sub">${m.sub}</div></div>`;
+      html += `<div class="bar-wrap"><div class="bar ${iqColor}" style="width:${iqPct}%"><span class="bar-label">${m.iq}/100</span></div></div>`;
+      html += `<div class="bar-wrap"><div class="bar ${awareColor}" style="width:${awarePct}%"><span class="bar-label${awarePct < 20 ? ' outside' : ''}">${m.aware.toLocaleString()} pages</span></div></div>`;
+    });
+    html += '</div>';
+    html += '<p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">IQ = relative reasoning quality (editorial estimate, Opus 4.6 = 100 baseline). Awareness = context window in pages. A high-Awareness low-IQ model can still recall anything on any page it has read — it just cannot reason as deeply about it. Both dimensions matter for different tasks.</p>';
+    el2.innerHTML = html;
+  })();
+  </script>
+
+  <div class="compare-section-title">Save Money Without Losing Productivity</div>
+  <ul>
+    <li><strong>Use <code>/compact</code> regularly.</strong> Compressing conversation history frees context and reduces token burn on subsequent messages.</li>
+    <li><strong>Switch to Haiku for simple tasks.</strong> Renaming a variable doesn't need Opus. Use <code>/model</code> to downshift.</li>
+    <li><strong>Keep CLAUDE.md concise.</strong> It's loaded every session. A bloated CLAUDE.md burns tokens on every single message.</li>
+    <li><strong>Don't read files unnecessarily.</strong> If you ask Claude to "look at everything," it will. Be specific about which files matter.</li>
+    <li><strong>Start fresh sessions for new tasks.</strong> A clean session has an empty context window. Carrying forward a 100-message conversation history into a new task wastes tokens.</li>
+  </ul>
+
+</section>
+
 <section id="starthere" class="tab-panel">
 
   <h2>Find Your Path</h2>
@@ -1054,7 +1270,7 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="starthere-card">
       <div class="starthere-who">Brand new to Claude Code and want hands-on experience fast</div>
       <div class="starthere-path">
-        Go directly to <a class="tab-btn-inline" data-tab="firstsession">First 15 Minutes</a>. Do the steps in a real project. Come back and read the Manifesto after &mdash; it will make far more sense once you've seen it work.
+        Go directly to <a class="tab-btn-inline" data-tab="firstsession">First 15 Minute Session</a>. Do the steps in a real project. Come back and read the Manifesto after &mdash; it will make far more sense once you've seen it work.
       </div>
     </div>
 
@@ -1100,7 +1316,7 @@ Ask me for the component name and path before starting.</code></pre>
 <section id="firstsession" class="tab-panel">
   <div class="time-estimate">Estimated time: 15 minutes hands-on</div>
 
-  <h2>Your First 15 Minutes with Claude Code</h2>
+  <h2>Your First 15 Minute Session with Claude Code</h2>
   <p>Theory later. Start here. Do these steps in order in a real project directory and you'll understand more in 15 minutes than you will from reading the whole Manifesto first.</p>
 
   <div class="chapter">
@@ -1315,8 +1531,9 @@ Ask me for the component name and path before starting.</code></pre>
 
     <ol>
       <li><strong>Instruct.</strong> Tell your AI coding tool what to build. Be specific about constraints: testing methodology, code organization, reuse patterns.</li>
+      <li><strong>Write Tests.</strong> AI writes test cases first. They will fail &mdash; they are <strong style="color:var(--accent-red)">RED</strong> &mdash; because there is no code yet to make them pass.</li>
       <li><strong>Code.</strong> The AI writes code. You watch, guide, and course-correct.</li>
-      <li><strong>Test.</strong> Tests run &mdash; either in a test framework, or self-contained in the app itself. Every change set triggers validation.</li>
+      <li><strong>Test.</strong> Tests run &mdash; either in a test framework, or self-contained in the app itself. Every change set triggers validation. Tests should now be <strong style="color:var(--accent-green)">GREEN</strong>.</li>
       <li><strong>Review.</strong> A <em>different</em> AI (not the one that wrote the code) reviews it. Copilot reviews Claude's code. Codex reviews Claude's code. A fresh Claude session reviews the existing session's code. Multiple perspectives catch what a single perspective misses.</li>
       <li><strong>Fix.</strong> Feed the review findings back into the coding AI. It fixes. Tests run again. Repeat until green.</li>
       <li><strong>Document.</strong> AI updates the changelog, README, product analysis, and CLAUDE.md with what was learned.</li>
@@ -1689,6 +1906,7 @@ else if (platform == "codex") { doZ() }</code></pre>
 <section id="compare" class="tab-panel">
 
   <h2>Other AI Coding CLIs</h2>
+  <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0 1.5rem;">
   <div class="real-talk"><strong>Snapshot comparison as of March 2026.</strong> This space moves fast. Feature parity between tools changes with every release. Re-check vendor docs before relying on fine details. The table below favors concept-level comparisons over brittle feature minutiae — if a specific capability matters to your decision, verify it against the current docs for that tool.</div>
   <p>Claude Code isn't the only AI coding CLI. Here's how the major players compare on the features discussed in this guide. All of these are <strong>terminal-based</strong> coding assistants &mdash; not IDE plugins, not chat UIs.</p>
 
@@ -1848,22 +2066,60 @@ else if (platform == "codex") { doZ() }</code></pre>
         <td><code>npm i -g opencode-ai</code></td>
         <td><code>npm i -g @google/gemini-cli</code></td>
       </tr>
+      <tr>
+        <td>Individual Cost (monthly)</td>
+        <td>
+          Free tier available<br>
+          <strong>Pro: $20/mo</strong><br>
+          Max 5×: $100/mo<br>
+          Max 20×: $200/mo
+        </td>
+        <td>
+          Included in ChatGPT plans<br>
+          <strong>ChatGPT Plus: $20/mo</strong><br>
+          ChatGPT Pro: $200/mo<br>
+          (No standalone Codex plan)
+        </td>
+        <td>
+          Free tier available<br>
+          <strong>Copilot Pro: $10/mo</strong><br>
+          Copilot Pro+: $39/mo<br>
+          (Includes IDE + CLI)
+        </td>
+        <td>
+          <strong>Free</strong> (open source)<br>
+          Pay API costs directly<br>
+          (Bring your own API key)
+        </td>
+        <td>
+          Free tier available<br>
+          <strong>Google AI Pro: $20/mo</strong><br>
+          Google AI Ultra: $250/mo<br>
+          (Covers Gemini CLI + other Google AI)
+        </td>
+      </tr>
+      <tr>
+        <td>Value for coding</td>
+        <td>High — richest feature set justifies cost</td>
+        <td>Medium — good if you already pay for ChatGPT</td>
+        <td><span class="check">Best value</span> — $10/mo for a full coding CLI</td>
+        <td>Cheapest — pay only for tokens used; no subscription</td>
+        <td>Medium — $20/mo bundles many Google AI tools</td>
+      </tr>
     </tbody>
   </table>
 
-  <h3>About Each CLI</h3>
+  <div class="compare-section-title blue">About Each CLI</div>
 
-  <p><strong>Claude Code</strong> (Anthropic) is the subject of this entire guide. It has the deepest architecture of any CLI coding tool — skills, hooks, slash commands, agents, memory, plan mode, and Remote Control. If you invest time in learning one CLI deeply, this is the one.</p>
+  <ol>
+    <li><p><strong>Claude Code</strong> (Anthropic) is the subject of this entire guide. It has the deepest architecture of any CLI coding tool — skills, hooks, slash commands, agents, memory, plan mode, and Remote Control. If you invest time in learning one CLI deeply, this is the one.</p></li>
+    <li><p><strong>Codex CLI</strong> (OpenAI) is OpenAI's answer to Claude Code. It uses the GPT-5 Codex model variants, stores sessions in SQLite, and supports forking. It runs in a sandbox mode with tiered approval for commands. Its main advantage is the GPT-5 Codex model family, which has strengths in certain code generation tasks. Weaker extension architecture than Claude Code.</p></li>
+    <li><p><strong>Copilot CLI</strong> (GitHub / Microsoft) is backed by Microsoft's investment in GitHub and OpenAI. It offers multiple model choices (Claude Haiku, GPT-4.1, GPT-5 Mini), which is unusual — most CLIs are locked to their vendor's model. It has session persistence and file editing but no forking, no skills, no hooks. Strong choice if your organization is already deep in the GitHub ecosystem.</p></li>
+    <li><p><strong>OpenCode</strong> is open-source and model-agnostic — you can point it at Claude, GPT, or any other supported provider. This makes it attractive for organizations that want control over which AI model processes their code, or that need to run everything on-premises. The trade-off is a thinner feature set: no skills, no hooks, no memory. A good choice for teams with strict data residency requirements.</p></li>
+    <li><p><strong>Gemini CLI</strong> (Google) brings Google's Gemini models to the command line. Gemini 2.5 Pro has an exceptionally large context window, which helps with large codebases. It supports MCP servers and has session persistence. Weaker extension architecture than Claude Code, but the model itself handles large-scale codebase analysis well. Natural choice if your organization is on Google Cloud.</p></li>
+  </ol>
 
-  <p><strong>Codex CLI</strong> (OpenAI) is OpenAI's answer to Claude Code. It uses the GPT-5 Codex model variants, stores sessions in SQLite, and supports forking. It runs in a sandbox mode with tiered approval for commands. Its main advantage is the GPT-5 Codex model family, which has strengths in certain code generation tasks. Weaker extension architecture than Claude Code.</p>
-
-  <p><strong>Copilot CLI</strong> (GitHub / Microsoft) is backed by Microsoft's investment in GitHub and OpenAI. It offers multiple model choices (Claude Haiku, GPT-4.1, GPT-5 Mini), which is unusual — most CLIs are locked to their vendor's model. It has session persistence and file editing but no forking, no skills, no hooks. Strong choice if your organization is already deep in the GitHub ecosystem.</p>
-
-  <p><strong>OpenCode</strong> is open-source and model-agnostic — you can point it at Claude, GPT, or any other supported provider. This makes it attractive for organizations that want control over which AI model processes their code, or that need to run everything on-premises. The trade-off is a thinner feature set: no skills, no hooks, no memory. A good choice for teams with strict data residency requirements.</p>
-
-  <p><strong>Gemini CLI</strong> (Google) brings Google's Gemini models to the command line. Gemini 2.5 Pro has an exceptionally large context window, which helps with large codebases. It supports MCP servers and has session persistence. Weaker extension architecture than Claude Code, but the model itself handles large-scale codebase analysis well. Natural choice if your organization is on Google Cloud.</p>
-
-  <h3>A Different Category: Local / Self-Hosted AI (Ollama and Peers)</h3>
+  <div class="compare-section-title orange">A Different Category: Local / Self-Hosted AI (Ollama and Peers)</div>
 
   <p>All five CLIs above send your code to a cloud API. <strong>Ollama</strong>, <strong>LM Studio</strong>, <strong>Jan</strong>, and similar tools take a different approach: they run AI models <em>locally</em> on your machine, with no data leaving your network. This is a fundamentally different architecture.</p>
 
@@ -1880,22 +2136,153 @@ else if (platform == "codex") { doZ() }</code></pre>
 
   <p>If your organization has strict data policies that prohibit sending code to any external service, the Ollama + OpenCode combination is worth investigating. For most developers without those constraints, cloud-based CLIs currently offer better model quality and richer tooling.</p>
 
-  <h3>Other CLIs Not Covered Here</h3>
+  <div class="compare-section-title purple">Other CLIs Not Covered Here</div>
 
   <p>The AI coding tool space is moving fast. This guide covers the five most widely used cloud-based CLIs as of early 2026, but the following tools also exist and may be relevant depending on your stack:</p>
 
-  <ul>
+  <ol>
     <li><strong>Aider</strong> — An open-source Python-based coding assistant with strong git integration. Predates Claude Code and has a loyal following. Works with multiple models.</li>
     <li><strong>Continue</strong> — Primarily a VS Code/JetBrains extension but has CLI capabilities. Model-agnostic.</li>
     <li><strong>Cline</strong> — VS Code extension with CLI roots. MCP support, model-agnostic.</li>
     <li><strong>Cursor</strong> — An IDE (fork of VS Code) with deeply integrated AI. Not technically a CLI but competes for the same workflow.</li>
     <li><strong>Amazon Q Developer CLI</strong> — AWS's coding assistant. Strong if you live in the AWS ecosystem.</li>
     <li><strong>Mistral Le Chat</strong> — European-based, GDPR-native AI. CLI tooling is early-stage but growing.</li>
-  </ul>
+  </ol>
 
   <p>This is not an exhaustive list. New tools appear monthly. The architectural concepts in this guide (sessions, hooks, MCP, memory, skills) are Claude Code-specific, but the underlying ideas — persistent context, tool use, cross-session memory — are becoming table stakes across the industry.</p>
 
-  <h3>Key Takeaway</h3>
+  <div class="compare-section-title green">Which Should I Use?</div>
+  <p>The honest answer depends on your situation, not on which tool is theoretically best:</p>
+  <table class="compare-table">
+    <thead><tr><th>Your situation</th><th>Use this</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Individual developer, no corporate constraints</td><td><strong>Claude Code</strong></td><td>Deepest architecture, best long-term investment</td></tr>
+      <tr><td>Your org is deep in GitHub / Azure / Microsoft</td><td><strong>Claude Code</strong></td><td>Still the best coding tool — ecosystem fit is a secondary concern</td></tr>
+      <tr><td>Your org is on Google Cloud</td><td><strong>Claude Code</strong></td><td>Platform doesn't change which tool codes best</td></tr>
+      <tr><td>Code cannot leave your network (compliance, classified)</td><td><strong>OpenCode + Ollama</strong></td><td>Fully local, no cloud API calls</td></tr>
+      <tr><td>IT won't approve any cloud AI tool</td><td><strong>Ollama + Aider</strong></td><td>Open source, fully self-hosted, no vendor</td></tr>
+      <tr><td>You want the simplest possible setup</td><td><strong>Claude Code</strong></td><td>One install, everything works out of the box</td></tr>
+      <tr><td>Your company already has a standard</td><td><strong>Whatever they chose</strong></td><td>Consistency beats optimization. Learn the architecture here, apply it there.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="real-talk">Just ask any of the AI systems which is best for what task — they will tell you.</div>
+
+  <div class="compare-section-title red">Claude Code the Tool vs. Claude the Model — They Are Not the Same Thing</div>
+  <p>This trips people up constantly. <strong>Claude Code is the CLI application.</strong> The Claude models (Opus, Sonnet, Haiku) are the AI brains that run inside it. They are separate. You can switch models mid-session with <code>/model</code> without restarting anything.</p>
+
+  <p>Think of it this way: Claude Code is like Visual Studio. The Claude model is like the C# compiler version. You can change the compiler version without reinstalling Visual Studio.</p>
+
+  <table class="compare-table">
+    <thead><tr><th>Model</th><th>Coding ability</th><th>Speed</th><th>Cost</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Claude Opus 4.6</strong></td><td>Excellent — deep reasoning</td><td>Slow</td><td>Highest</td><td>Complex architecture, hard bugs, design decisions</td></tr>
+      <tr><td><strong>Claude Sonnet 4.6</strong></td><td>Very good — well balanced</td><td>Fast</td><td>Medium</td><td>Daily coding work — the recommended default</td></tr>
+      <tr><td><strong>Claude Haiku 4.5</strong></td><td>Adequate for simple tasks</td><td>Fastest</td><td>Lowest</td><td>Quick edits, boilerplate, simple lookups — NOT complex coding</td></tr>
+    </tbody>
+  </table>
+
+  <div class="real-talk"><strong>Not all Claude models are equally good for coding.</strong> Haiku is fast and cheap but will struggle with complex multi-file refactors or subtle bugs. Sonnet is the right default for coding. Opus when you need the heavy artillery. Using Haiku for serious coding to save money is like buying cheap tires — you'll pay for it later.</div>
+
+  <p>The same separation applies to other CLIs: Copilot CLI lets you choose between Claude Haiku, GPT-4.1, and GPT-5 Mini. OpenCode can point at any model via Ollama or an API. The CLI is the tool; the model is the engine. You can swap engines.</p>
+
+  <div class="compare-section-title blue">AI Has Two Dimensions: IQ and Awareness</div>
+  <div id="iq-awareness-chart"></div>
+  <script>
+  // IQ/Awareness master chart — rendered as CSS bar chart
+  // IQ: relative score 0-100 (Opus=100 baseline). Awareness: pages (1 page = 750 tokens).
+  const models = [
+    { name:'Claude Opus 4.6',      sub:'(Claude Code Max/Enterprise)', iq:100, aware:1333 },
+    { name:'Claude Sonnet 4.6',    sub:'(Claude Code Max/Enterprise)', iq:85,  aware:1333 },
+    { name:'Claude Opus 4.6',      sub:'(Claude Code Pro)',            iq:100, aware:267  },
+    { name:'Claude Sonnet 4.6',    sub:'(Claude Code Pro)',            iq:85,  aware:267  },
+    { name:'Claude Haiku 4.5',     sub:'(any plan)',                   iq:55,  aware:267  },
+    { name:'GPT-5',                sub:'(Codex CLI / ChatGPT Plus)',   iq:90,  aware:363  },
+    { name:'GPT-4.1',              sub:'(Copilot CLI)',                iq:75,  aware:170  },
+    { name:'GPT-5 Mini',           sub:'(Copilot CLI)',                iq:60,  aware:170  },
+    { name:'Gemini 2.5 Pro',       sub:'(Gemini CLI Pro)',             iq:82,  aware:1333 },
+    { name:'Gemini 2.5 Flash',     sub:'(Gemini CLI Free)',            iq:65,  aware:1333 },
+    { name:'Llama / Mistral',      sub:'(Ollama local)',               iq:50,  aware:85   },
+  ];
+  const maxAware = 1333;
+  const el = document.getElementById('iq-awareness-chart');
+  if (el) {
+    let html = '<div class="iq-grid">';
+    html += '<div class="header">Model</div><div class="header">IQ (reasoning quality)</div><div class="header">Awareness (~pages it can see)</div>';
+    models.forEach(m => {
+      const iqPct = m.iq;
+      const awarePct = Math.min(100, Math.round((m.aware / maxAware) * 100));
+      const iqColor = m.iq >= 85 ? 'iq-bar' : m.iq >= 65 ? '' : 'iq-low';
+      const awareColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? '' : 'aware-low';
+      const awareBarColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? 'bar' : 'aware-low';
+      html += `<div class="model-name">${m.name}<div class="sub">${m.sub}</div></div>`;
+      html += `<div class="bar-wrap"><div class="bar ${iqColor}" style="width:${iqPct}%"><span class="bar-label">${m.iq}/100</span></div></div>`;
+      html += `<div class="bar-wrap"><div class="bar ${awareBarColor}" style="width:${awarePct}%"><span class="bar-label${awarePct < 20 ? ' outside' : ''}">${m.aware.toLocaleString()} pages</span></div></div>`;
+    });
+    html += '</div>';
+    html += '<p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">IQ = relative reasoning quality (Opus 4.6 = 100 baseline, editorial estimate). Awareness = context window in pages (1 page ≈ 500 words ≈ 750 tokens). Max/Enterprise plan required for 1,333-page Awareness on Claude models.</p>';
+    el.innerHTML = html;
+  }
+  </script>
+
+  <p>People talk about AI quality as if it's one thing. It isn't. There are two independent dimensions:</p>
+
+  <ul>
+    <li><strong>IQ</strong> — The model's reasoning capability. How well it thinks, writes code, solves problems. Opus &gt; Sonnet &gt; Haiku. GPT-5 vs GPT-4.1. This is what most people compare.</li>
+    <li><strong>Awareness</strong> — How much information the AI can hold in mind at once. If IQ is how smart it is, Awareness is how much of the room it can see. A genius who can only read one page at a time is limited. A less brilliant person who can read the whole book at once may outperform them.</li>
+  </ul>
+
+  <p>Think of it like image fidelity. A single photograph can be ultra-high-resolution — every pixel tiny. That's high IQ. A movie covers far more ground with thousands of frames, but each individual frame may be lower resolution than a still. That's high Awareness. A brilliant photograph of one page of your codebase is less useful than a full movie of the entire project, even if each movie frame is slightly softer.</p>
+  <p>We measure Awareness in <strong>pages</strong> — one standard 8.5×11 page of dense text ≈ 500 words ≈ 750 tokens. This gives you an intuitive sense of how much the AI can "see" at once.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Platform / Plan</th>
+        <th>Model</th>
+        <th>Context Window (tokens)</th>
+        <th>Awareness (pages)</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Claude Code — Free / Pro</td><td>Opus, Sonnet, Haiku</td><td>200K tokens</td><td class="partial"><strong>~267 pages</strong></td><td>Standard. Pro users can opt into 1M by typing <code>/extra-usage</code></td></tr>
+      <tr><td>Claude Code — Max, Team, Enterprise</td><td>Opus 4.6, Sonnet 4.6</td><td>1M tokens</td><td class="check"><strong>~1,333 pages</strong></td><td>Automatic 1M context on Max/Team/Enterprise as of March 2026</td></tr>
+      <tr><td>Claude Code — Enterprise (extended)</td><td>Sonnet 4.6</td><td>Up to 1M+</td><td class="check"><strong>~1,333+ pages</strong></td><td>Enterprise negotiates custom context. Verify with Anthropic sales.</td></tr>
+      <tr><td>Codex CLI / ChatGPT Plus</td><td>GPT-5</td><td>~272K tokens</td><td class="partial"><strong>~363 pages</strong></td><td>Solid but well below Claude Max</td></tr>
+      <tr><td>Copilot CLI</td><td>Claude Haiku, GPT-4.1, GPT-5 Mini</td><td>Varies by model selected</td><td class="partial"><strong>~170–267 pages</strong></td><td>Copilot may cap context below the model's native maximum</td></tr>
+      <tr><td>Gemini CLI — Free / Pro</td><td>Gemini 2.5 Flash, 2.5 Pro</td><td>1M tokens</td><td class="check"><strong>~1,333 pages</strong></td><td>Gemini has exceptional context by default — largest in the comparison</td></tr>
+      <tr><td>Gemini CLI — Ultra (coming)</td><td>Gemini 2.5 Pro (2M)</td><td>2M tokens</td><td class="check"><strong>~2,667 pages</strong></td><td>2M context version in development — would be the most aware tool available</td></tr>
+      <tr><td>OpenCode + Ollama (local)</td><td>Llama, Mistral, DeepSeek, etc.</td><td>4K–128K tokens (varies by model)</td><td class="cross"><strong>5–170 pages</strong></td><td>Local models have much smaller context windows. Major limitation vs cloud models.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="real-talk"><strong>Awareness matters most on large projects.</strong> If your codebase has 50 files averaging 300 lines each, you have roughly 15,000 lines of code. At ~50 lines per page that's 300 pages of code. A 267-page Awareness model (Claude Pro) literally cannot hold your entire codebase in mind at once. A 1,333-page model (Claude Max) can — and will give much better answers about cross-file relationships, because it sees the whole picture.</div>
+
+  <div class="compare-section-title orange">The "Same Model" Confusion: Why Claude Code Still Wins When Copilot Uses Claude</div>
+
+  <p>GitHub Copilot CLI offers Claude Haiku 4.5 as one of its model choices. So if both Claude Code and Copilot can run Claude Haiku — are they the same tool?</p>
+
+  <p><strong>No. Same brain, completely different truck.</strong></p>
+
+  <p>When Copilot routes to Claude Haiku, you get Haiku's reasoning ability. That part is identical. But Copilot does not give Claude:</p>
+  <ul>
+    <li>CLAUDE.md — persistent project instructions loaded every session</li>
+    <li>Skills — specialized instruction documents loaded on demand</li>
+    <li>Hooks — automated shell commands triggered by events</li>
+    <li>Memory — notes that persist across sessions</li>
+    <li>Agents/Worktrees — delegating subtasks to isolated environments</li>
+    <li>Plan Mode — design-before-coding workflow</li>
+    <li>The full context window Claude Code provides to the model</li>
+  </ul>
+
+  <p>The model is the <strong>IQ</strong>. The platform wrapped around it determines the <strong>Awareness</strong> and the <strong>workflow</strong>. A brilliant person handed a blank notepad is less effective than a capable person with a full desk, reference library, filing cabinet, and an organized team of assistants.</p>
+
+  <div class="analogy">Like two contractors with identical professional licenses. One shows up with a fully-equipped truck: every tool, organized, labeled, ready. The other shows up with the license and a hammer. Same credential. Radically different output.</div>
+
+  <p><strong>Why Copilot offers Claude Haiku at all:</strong> Anthropic licenses the Claude models via API. Microsoft/GitHub pays to route calls through Anthropic's API and bundle it into Copilot. Same model, different packaging, different surrounding toolset, different pricing, different context limits. The model is a commodity; the tooling around it is where the differentiation happens.</p>
+
+  <div class="compare-section-title">Key Takeaway</div>
   <p>Claude Code has the richest extension architecture by far &mdash; skills, hooks, slash commands, MCP servers, agents, memory, and plan mode are all unique to it. The other CLIs are primarily prompt-and-respond tools with session persistence. If you're investing time learning AI coding tool architecture, Claude Code is where that investment pays off the most.</p>
 
   <p>That said, all five CLIs can edit files, run commands, and resume sessions. For basic coding tasks, the experience is similar across all of them. The differences emerge when you want <strong>automation</strong> (hooks), <strong>extensibility</strong> (MCP), <strong>reusable workflows</strong> (skills/commands), and <strong>cross-session knowledge</strong> (memory).</p>
@@ -1945,7 +2332,8 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>CLI</td><td>Command Line Interface</td><td>A text-based way to interact with a program. You type commands, it responds with text.</td></tr>
       <tr><td>GUI</td><td>Graphical User Interface</td><td>A visual interface with windows, buttons, and mouse interaction. What most people think of as "an application."</td></tr>
       <tr><td>IDE</td><td>Integrated Development Environment</td><td>A code editor with built-in tools (debugger, compiler, etc.). Visual Studio, VS Code, JetBrains products.</td></tr>
-      <tr><td>API</td><td>Application Programming Interface</td><td>A defined way for programs to talk to each other. REST APIs use HTTP. Claude's API lets programs send prompts and receive responses.</td></tr>
+      <tr><td>API</td><td>Application Programming Interface</td><td>A defined way for programs to talk to each other. Think of it as a drive-through window: you send a request in a standard format, the system processes it, and sends back a response. Claude's API lets software applications send prompts to Claude and receive responses — programmatically, without a human typing.</td></tr>
+      <tr><td>API Usage</td><td>API Usage</td><td>The same thing as token consumption — just described from the billing side. "API usage" means: how many tokens your application consumed through the API. When Anthropic says "API usage billed separately," they mean: every prompt sent and response received burns tokens, and those tokens cost money at per-token rates. It is not a separate concept from tokens — it IS tokens, counted and charged.</td></tr>
       <tr><td>REST</td><td>Representational State Transfer</td><td>A common style for web APIs. Uses HTTP methods (GET, POST, PUT, DELETE) on URLs. Most web services expose REST APIs.</td></tr>
       <tr><td>MCP</td><td>Model Context Protocol</td><td>Anthropic's protocol for connecting external tools (plugins) to Claude. JSON-RPC over stdin/stdout.</td></tr>
       <tr><td>SDK</td><td>Software Development Kit</td><td>A library/package that makes it easier to use an API or protocol. Anthropic provides MCP SDKs for TypeScript and Python.</td></tr>
@@ -1992,6 +2380,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.</td></tr>
       <tr><td>Context Window</td><td>The total token capacity Claude can "see" at once (~200K tokens). Everything loaded consumes space in this window.</td></tr>
       <tr><td>Token</td><td>A unit of text (roughly 4 characters or 3/4 of a word). Claude processes, counts, and bills by tokens.</td></tr>
+      <tr><td>Governance (features)</td><td>Controls that let an organization manage, monitor, and restrict how employees use a tool. In Claude Enterprise: audit logs (who sent what), SSO (employees log in with company accounts), RBAC (which employees can use which features), SCIM (auto-add/remove users when they join or leave). None of it makes Claude smarter — it makes IT and legal teams happy.</td></tr>
       <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible "thinking" tokens. Costs more but produces better answers for complex problems.</td></tr>
       <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.</td></tr>
       <tr><td>Remote Control</td><td>Feature that lets you control a local Claude Code session from your phone or another device via QR code or URL.</td></tr>
@@ -2040,6 +2429,46 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>/help</td><td>A Claude Code command. Lists all available commands, built-in tools, and current session information.</td></tr>
       <tr><td>Auto memory</td><td>A Claude Code feature where Claude automatically writes memory notes about things it discovers, without being asked. These notes persist across sessions.</td></tr>
       <tr><td>Corporate proxy</td><td>A network intermediary in enterprise environments that routes and inspects outbound internet traffic. Can require special configuration for CLI tools that make HTTPS requests.</td></tr>
+
+      <!-- Model names -->
+      <tr><td>Opus (Claude Opus)</td><td>Claude's most capable AI model. Best for complex reasoning, architecture decisions, and hard bugs. Slowest and most expensive. Use it when the problem actually needs deep thinking.</td></tr>
+      <tr><td>Sonnet (Claude Sonnet)</td><td>Claude's balanced AI model. Good speed, good capability. The recommended default for daily coding work. Better value than Opus for most tasks.</td></tr>
+      <tr><td>Haiku (Claude Haiku)</td><td>Claude's fastest and cheapest model. Fine for simple edits, quick lookups, and boilerplate. Not recommended for complex coding — it will struggle and produce lower-quality results.</td></tr>
+
+      <!-- Tools and editors -->
+      <tr><td>Visual Studio</td><td>Microsoft's full-featured IDE (Integrated Development Environment) for Windows. Used primarily for C#, C++, and .NET development. Not the same as VS Code — Visual Studio is the big one, VS Code is the lightweight one.</td></tr>
+      <tr><td>VS Code</td><td>Visual Studio Code. A free, lightweight code editor by Microsoft. Works on Windows, Mac, Linux. Popular for almost every language. Not the same as Visual Studio — it's smaller and more general-purpose.</td></tr>
+      <tr><td>JetBrains</td><td>A software company that makes professional IDEs: IntelliJ IDEA (Java), Rider (.NET/C#), PyCharm (Python), WebStorm (JavaScript), and others. Known for smart code completion and refactoring tools.</td></tr>
+      <tr><td>Cursor</td><td>An AI-integrated code editor built as a fork of VS Code. Has AI coding assistance built directly into the editor rather than as a CLI tool. Competes with Claude Code for the same "AI-assisted coding" workflow.</td></tr>
+      <tr><td>Aider</td><td>An open-source, Python-based AI coding assistant that runs in the terminal. Works with multiple AI models. Predates Claude Code and has a loyal following among developers who prefer open-source tools.</td></tr>
+      <tr><td>PowerShell</td><td>Microsoft's command-line shell and scripting language for Windows. More powerful than the old Command Prompt. The recommended terminal for Windows developers. Like bash, but for Windows.</td></tr>
+
+      <!-- File types -->
+      <tr><td>.gitignore</td><td>A text file in a git repository that lists files and folders git should ignore — never track, never commit. Put credentials, build output, and personal settings here. Like a "do not touch" list for git.</td></tr>
+      <tr><td>.jsonl (JSON Lines)</td><td>A file format where each line is a separate, complete JSON object. Claude Code stores session history in .jsonl files — one event per line, making them easy to read one record at a time without loading the whole file.</td></tr>
+      <tr><td>.editorconfig</td><td>A configuration file that tells code editors how to format code: tab size, line endings, indentation style. Works across different editors so the whole team uses the same formatting rules automatically.</td></tr>
+      <tr><td>Markdown (.md)</td><td>A lightweight text formatting language. You write plain text with simple symbols (* for bold, # for headings) and it renders as formatted text. CLAUDE.md, README.md, and SKILL.md files are all Markdown. GitHub displays .md files as formatted pages.</td></tr>
+
+      <!-- Enterprise / IT terms -->
+      <tr><td>SSO (Single Sign-On)</td><td>A system where employees log into one central identity provider (like Microsoft Active Directory or Okta) and that login grants access to all approved applications. No separate username/password for each app. Enterprise feature.</td></tr>
+      <tr><td>SAML</td><td>Security Assertion Markup Language. The technical standard that SSO systems use to pass login credentials between the identity provider and applications. You'll see it mentioned alongside SSO — they go together.</td></tr>
+      <tr><td>SCIM</td><td>System for Cross-domain Identity Management. Automatically adds users to applications when they join an organization and removes them when they leave — based on your HR system. Eliminates manual account management. Enterprise feature.</td></tr>
+      <tr><td>RBAC (Role-Based Access Control)</td><td>A security model where what you can do is determined by your role (admin, developer, viewer, etc.) rather than by individual permissions. "Developers can use Claude Code; viewers can only use the chat." Enterprise feature.</td></tr>
+      <tr><td>HIPAA</td><td>Health Insurance Portability and Accountability Act. US federal law regulating how health data must be protected. If your organization handles patient data, you need HIPAA-compliant tools — meaning the vendor must sign a Business Associate Agreement and meet specific security requirements.</td></tr>
+      <tr><td>Group Policy</td><td>A Windows feature in corporate environments that lets IT centrally control what employees can install and run on their computers. If Group Policy is restricting your machine, you may need IT to whitelist Claude Code before you can install it.</td></tr>
+      <tr><td>Audit log</td><td>A record of who did what and when. In enterprise Claude, every prompt and response is logged. Legal and compliance teams use audit logs to investigate incidents or demonstrate regulatory compliance.</td></tr>
+      <tr><td>DLP (Data Loss Prevention)</td><td>Software that monitors and blocks sensitive data from leaving a corporate network. Can interfere with CLI tools that make outbound HTTPS requests, even legitimate ones like Claude Code.</td></tr>
+      <tr><td>Certificate Authority (CA)</td><td>An organization that issues digital certificates proving a server is who it claims to be. Corporate networks sometimes use their own internal CA, which can cause CLI tools to reject HTTPS connections until the custom certificate is installed.</td></tr>
+
+      <!-- Other concepts -->
+      <tr><td>CI/CD</td><td>Continuous Integration / Continuous Deployment. An automated pipeline that builds, tests, and deploys code every time someone pushes a change. "CI/CD pipeline" = the assembly line that takes your code from commit to production automatically.</td></tr>
+      <tr><td>Headless</td><td>Running software without any visual interface — no windows, no mouse, no screen. Servers run headless. Claude Code can run headless in automated pipelines, executing tasks without a human watching.</td></tr>
+      <tr><td>Runbook</td><td>A step-by-step procedure document for completing a specific task. "When the server goes down, follow the runbook." Skills in Claude Code are essentially runbooks — instructions Claude reads and follows when doing that type of task.</td></tr>
+      <tr><td>SOP (Standard Operating Procedure)</td><td>A documented set of instructions for performing a routine task consistently. Similar to a runbook. When you write a Skill for Claude, you're writing an SOP for it to follow.</td></tr>
+      <tr><td>Red-green testing</td><td>A development practice: write a test that FAILS first (red), then write code that makes it PASS (green). Proves the test actually detects the problem. A core practice in the Practitioner's Guide.</td></tr>
+      <tr><td>Codebase</td><td>All the source code files that make up a project or application. "The codebase" = the entire collection of code, not just one file. When Claude Code "reads your codebase," it's scanning your project's files.</td></tr>
+      <tr><td>Awareness (AI)</td><td>How much information an AI can hold in mind at once. Measured in pages (1 page ≈ 500 words ≈ 750 tokens). A 200K token model has ~267 pages of Awareness. A 1M token model has ~1,333 pages. Distinct from IQ — a smart model with low Awareness misses things it simply cannot see.</td></tr>
+      <tr><td>IQ (AI)</td><td>The AI model's reasoning capability — how well it thinks, writes code, solves hard problems. Opus has higher IQ than Haiku. Distinct from Awareness (context window size). Both matter; they measure different things.</td></tr>
     </tbody>
   </table>
 
@@ -2109,7 +2538,9 @@ const glossaryTerms = {
   'CLI': 'Command Line Interface. A text-based way to interact with a program. You type commands, it responds with text. No buttons or mouse needed.',
   'GUI': 'Graphical User Interface. A visual interface with windows, buttons, and mouse interaction. What most people think of as "an application."',
   'IDE': 'Integrated Development Environment. A code editor with built-in tools (debugger, compiler, etc.). Examples: Visual Studio, VS Code, JetBrains Rider.',
-  'API': 'Application Programming Interface. A defined way for programs to talk to each other. Like a waiter who takes your order to the kitchen and brings back food.',
+  'API': 'Application Programming Interface. A defined way for programs to talk to each other. Like a drive-through window — you send a request in a standard format, get a response back. Claude\'s API lets software send prompts and receive responses without a human typing.',
+  'API Usage': 'The same thing as token consumption — just described from the billing side. "API usage billed separately" means: every prompt sent and response received burns tokens, charged at per-token rates. It IS tokens, counted and charged.',
+  'Governance': 'Controls that let an organization manage and restrict how employees use a tool. Audit logs, SSO, RBAC, SCIM. Makes IT and legal happy. Does not make Claude smarter.',
   'REST': 'Representational State Transfer. A common style for web APIs using HTTP methods (GET, POST, etc.) on URLs.',
   'MCP': 'Model Context Protocol. The standard that lets external tools (plugins) connect to Claude and give it new capabilities.',
   'SDK': 'Software Development Kit. A library that makes it easier to use an API or protocol. Like pre-built Lego pieces instead of raw plastic.',
@@ -2130,11 +2561,38 @@ const glossaryTerms = {
   'Subagent': 'Same as Agent — a separate Claude instance that handles a subtask independently and reports back.',
   'Worktree': 'An isolated copy of your repo where an agent can work safely. If the experiment fails, your real files are untouched.',
   'Memory': 'Persistent notes stored in your personal Claude folder. Survives across sessions. Claude loads them automatically for the relevant project.',
-  'Token': 'The unit Claude uses to measure and bill text. Roughly 4 characters or 3/4 of a word. Everything loaded — prompts, files, history — costs tokens.',
+  'Token': 'The unit Claude uses to measure and bill text. Roughly 4 characters or 3/4 of a word. Everything loaded — prompts, files, history — costs tokens. "API usage" is just tokens counted from the billing side — same thing, different label.',
   'Allowlist': 'A pre-approved list of tools or commands in settings.json. Claude won\'t ask permission before running allowlisted actions.',
   'Remote Control': 'A Claude Code feature that lets you control a running CLI session from your phone or another device via QR code.',
   'Context Window': 'The total amount of text Claude can "see" at once. Everything loaded (files, history, instructions) takes up space in this finite window.',
   'WinGet': 'Windows Package Manager. Built into Windows 10/11. Install software from the command line: winget install Anthropic.Claude. Like apt or brew, but for Windows.',
+  'Opus': 'Claude\'s most capable model. Best for complex reasoning and hard problems. Slowest and most expensive. Use it when the problem needs deep thinking.',
+  'Sonnet': 'Claude\'s balanced model. Good speed and capability. The recommended default for daily coding work.',
+  'Haiku': 'Claude\'s fastest and cheapest model. Fine for simple tasks. Not recommended for complex coding — quality drops significantly.',
+  'VS Code': 'Visual Studio Code. Free, lightweight code editor by Microsoft. Works on all platforms. Not the same as Visual Studio — VS Code is the small one.',
+  'Visual Studio': 'Microsoft\'s full-featured IDE for Windows. Used for C#, C++, .NET development. The big one — not the same as VS Code.',
+  'JetBrains': 'Company that makes professional IDEs: Rider (.NET/C#), IntelliJ (Java), PyCharm (Python), WebStorm (JavaScript).',
+  'Cursor': 'AI-integrated code editor, a fork of VS Code with AI built in. Competes with Claude Code for AI-assisted coding.',
+  'Aider': 'Open-source AI coding assistant in the terminal. Works with multiple AI models. Predates Claude Code.',
+  'PowerShell': 'Microsoft\'s command-line shell for Windows. More powerful than Command Prompt. Like bash, but for Windows.',
+  '.gitignore': 'A file listing what git should never track or commit. Put credentials, build output, and personal settings here.',
+  'Markdown': 'A lightweight text formatting language. Write plain text with simple symbols (# for headings, ** for bold). CLAUDE.md, README.md, SKILL.md are all Markdown files.',
+  'SSO': 'Single Sign-On. One corporate login grants access to all approved apps. No separate password per app. Enterprise feature.',
+  'SAML': 'The technical standard SSO systems use to pass login credentials between apps. Always mentioned alongside SSO.',
+  'SCIM': 'Automatically adds/removes users in applications when they join or leave your company. Enterprise account management automation.',
+  'RBAC': 'Role-Based Access Control. What you can do depends on your role (admin, developer, viewer). Enterprise feature.',
+  'HIPAA': 'US law requiring protection of patient health data. If your org handles patient data, you need HIPAA-compliant tools.',
+  'CI/CD': 'Continuous Integration/Continuous Deployment. Automated pipeline that builds, tests, and deploys code on every git push.',
+  'Headless': 'Running software with no visual interface — no windows, no mouse. Claude Code can run headless in automated pipelines.',
+  'Codebase': 'All the source code files in a project. When Claude reads your codebase, it is scanning all your project files.',
+  'Awareness': 'How much information an AI can hold in mind at once. Measured in pages (1 page ≈ 750 tokens). A 200K model has ~267 pages of Awareness. Distinct from IQ — a smart model that can\'t see your whole codebase will still miss things.',
+  'IQ': 'The AI model\'s reasoning quality — how well it thinks and codes. Opus has higher IQ than Haiku. Distinct from Awareness (context window size).',
+  'DLP': 'Data Loss Prevention. Corporate software that blocks sensitive data from leaving the network. Can interfere with CLI tools.',
+  'Group Policy': 'Windows enterprise feature for centrally controlling what employees can install and run. May block Claude Code until IT whitelists it.',
+  'Audit log': 'A record of who did what and when. Enterprise Claude logs every prompt and response for compliance review.',
+  'Red-green': 'A testing practice: write a failing test first (red), then write code that makes it pass (green). Proves the test catches the problem.',
+  'Runbook': 'A step-by-step procedure document for completing a task. Skills in Claude Code are essentially runbooks for AI.',
+  'SOP': 'Standard Operating Procedure. Documented instructions for a routine task. Skills are SOPs for Claude.',
   'winget': 'Windows Package Manager command. Install software: winget install PackageName. Built into modern Windows.',
   'Plan Mode': 'A Claude Code mode (Shift+Tab) where Claude describes its approach before making any changes. Review and approve the plan before anything is touched.',
   '/init': 'Claude Code command that analyzes your project and generates an initial CLAUDE.md. Run it when starting a new project. Can also improve an existing CLAUDE.md.',
