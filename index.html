@@ -1030,6 +1030,23 @@ Ask me for the component name and path before starting.</code></pre>
       <li><code>/cost</code> &mdash; shows token usage and estimated cost for the current session</li>
     </ul>
 
+    <h3>Why Claude Shows Two Prices: "$3/$15"</h3>
+    <p>When you select a model in Claude Code, you see prices like <strong>$3/$15 per Mtok</strong>. That slash is not a range — it is two separate prices for two separate things:</p>
+    <ul>
+      <li><strong>First number ($3)</strong> — what you pay per million tokens you <em>send</em>: your prompts, files Claude reads, tool results coming back</li>
+      <li><strong>Second number ($15)</strong> — what you pay per million tokens Claude <em>generates</em>: its responses, code it writes, explanations</li>
+    </ul>
+    <p>Output costs 5× more than input because generating text is computationally heavier than reading it. A real session example:</p>
+    <table class="compare-table">
+      <thead><tr><th>Model</th><th>You send 100K tokens</th><th>Claude responds 20K tokens</th><th>Session total</th></tr></thead>
+      <tbody>
+        <tr><td>Sonnet ($3/$15)</td><td>$0.30</td><td>$0.30</td><td><strong>$0.60</strong></td></tr>
+        <tr><td>Haiku ($1/$5)</td><td>$0.10</td><td>$0.10</td><td><strong>$0.20</strong></td></tr>
+        <tr><td>Opus ($15/$75)</td><td>$1.50</td><td>$1.50</td><td><strong>$3.00</strong></td></tr>
+      </tbody>
+    </table>
+    <p><strong>On a subscription plan (Pro, Max), you don't pay these rates per session.</strong> Your monthly fee covers a message budget. Claude Code shows you the rates as a transparency feature — so you know the cost equivalent of what you're using, even on a flat plan. If you are on the API (pay-per-token), these rates are your actual bill.</p>
+
     <h3>Token Types</h3>
     <table class="compare-table">
       <thead><tr><th>Token Type</th><th>What It Is</th><th>Cost (Sonnet)</th></tr></thead>
@@ -1104,8 +1121,7 @@ Ask me for the component name and path before starting.</code></pre>
 <section id="pricing" class="tab-panel">
 
   <h2>Pricing &amp; Purchasing</h2>
-  <div class="real-talk"><strong>Prices change. Always verify at <a href="https://claude.ai/upgrade" style="color:var(--accent-blue)">claude.ai/upgrade</a> before buying.</strong> The numbers here are accurate as of March 2026 but Anthropic adjusts pricing periodically.</div>
-
+  <p style="text-align:center;font-style:italic;font-size:1.1rem;color:var(--text-secondary);margin-bottom:1.25rem;">Prices accurate as of March 2026</p>
   <div class="real-talk" style="border-color:var(--accent-orange);background:rgba(210,153,34,0.08)"><strong>Honest warning: Anthropic's pricing page is genuinely difficult to understand.</strong> It is not your fault. The same concept — how many tokens you consume — gets called "usage," "API usage," "tokens," and "context" depending on which section you are reading. Enterprise pricing is not published. We have decoded it below as plainly as we can. If something still doesn't make sense, that's the page's problem, not yours. See the <strong>Decoder Ring</strong> in the Glossary tab for a term-by-term translation.</div>
 
   <!-- Step 1: Getting Set Up -->
