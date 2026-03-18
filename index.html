@@ -96,17 +96,18 @@
 
     <p>Claude actually ships in several different surfaces. Here are the main ones:</p>
     <ul>
-      <li><strong>Claude.ai</strong> — The website. You open a browser, you chat. This is what most people mean when they say "I use Claude." The consumer product.</li>
-      <li><strong>Claude Desktop</strong> — A Windows/Mac application. Looks like the website, runs installed. Can be extended with MCP servers. Still primarily a chat interface.</li>
-      <li><strong>Claude Code (terminal CLI)</strong> — A command-line program. You install it, open a terminal, type <code>claude</code>, and it runs in your project directory with direct access to your files, tools, and environment. <strong>This is what this entire guide is about.</strong></li>
-      <li><strong>Claude in VS Code / JetBrains</strong> — IDE-native integrations that bring Claude into your editor. Built on the same Claude Code engine; some architecture concepts from this guide apply here too.</li>
-      <li><strong>Claude in Slack</strong> — A Slack app for conversational Claude access inside team channels. Chat-oriented, not code-oriented.</li>
-      <li><strong>Claude in CI/CD pipelines</strong> — Claude Code running headlessly in automated build/deploy pipelines, triggered by git events. Advanced usage; the same CLI, no interactive UI.</li>
+      <li><strong>Claude.ai</strong> — The website. You open a browser, you chat. This is what most people mean when they say "I use Claude." The consumer product. Chat only.</li>
+      <li><strong>Claude Desktop — Chat tab</strong> — The Windows/Mac installed app with the Chat tab selected. Looks and works like the website. Can be extended with MCP servers. Still primarily a chat interface.</li>
+      <li><strong>Claude Desktop — Code tab ⬅ This IS what this guide is about</strong> — Inside Claude Desktop, click the <strong>Code</strong> tab at the top. This switches you into Claude Code mode — full file system access, bash execution, MCP servers, skills, slash commands, CLAUDE.md, everything. It is the same Claude Code CLI engine, embedded inside the desktop app with a GUI wrapper. If your user is using the Code tab in Claude Desktop, they are already using what this guide describes. They just didn't know the name for it.</li>
+      <li><strong>Claude Code (terminal CLI)</strong> — The standalone command-line version. You open a terminal, type <code>claude</code>. Same capabilities as the Code tab in Claude Desktop — just without the GUI wrapper. Some developers prefer this; others prefer the desktop app. <strong>Both are covered by this guide.</strong></li>
+      <li><strong>Claude in VS Code / JetBrains</strong> — IDE-native integrations built on the same Claude Code engine. Most concepts in this guide apply here too.</li>
+      <li><strong>Claude in Slack</strong> — Chat-oriented, not code-oriented. Not what this guide is about.</li>
+      <li><strong>Claude in CI/CD pipelines</strong> — Claude Code running headlessly in automated pipelines. Advanced usage; same engine, no interactive UI.</li>
     </ul>
 
-    <p>When a developer says "I use Claude Code," they mean the terminal CLI. When a manager says "we use Claude," they probably mean the website. When IT says "we've deployed Claude Desktop with MCP," that's the installed app. They are completely different surfaces with different capabilities, and the industry casually conflates all of them.</p>
+    <p>When a developer says "I use Claude Code," they might mean the Code tab in Claude Desktop OR the terminal CLI — both are the same thing under the hood. When a manager says "we use Claude," they probably mean the website. They are different surfaces, but the Code tab and the terminal CLI are the same product.</p>
 
-    <div class="real-talk">It is genuinely embarrassing to be in a technical conversation where everyone assumes you know which surface they mean. You're not slow. The naming is just bad. This guide is specifically, exclusively about the terminal command-line program — Claude Code CLI. Some concepts (MCP servers, memory, CLAUDE.md) also apply to the IDE integrations, but the guide assumes you're working in a terminal.</div>
+    <div class="real-talk">It is genuinely embarrassing to be in a technical conversation where everyone assumes you know which surface they mean. You're not slow. The naming is just bad. The short answer: <strong>if you see a Code tab, you are in Claude Code. If you are in a terminal typing <code>claude</code>, you are in Claude Code. This guide covers both.</strong></div>
 
     <h3>Who This Is For</h3>
 
