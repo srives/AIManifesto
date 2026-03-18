@@ -389,18 +389,20 @@
       <li><strong>Project skills</strong> &mdash; <code>C:\repos\MyProject\.claude\skills\</code> (project-specific, can be committed to git and shared with team)</li>
     </ul>
 
-    <h3>How Skills Get Loaded</h3>
-    <p>Skills can be loaded two ways:</p>
+    <h3>How Skills Get Loaded — You Are Always the Trigger</h3>
+    <p>Skills do <strong>not</strong> load automatically. Claude does not scan your skills directory before every response and decide which ones apply. There is no background skill-matching. Skills are passive — they sit in the folder doing nothing until you cause them to load.</p>
+    <p>There are two ways to load a skill, and both require you:</p>
     <ol>
-      <li><strong>Automatically:</strong> When Claude determines a skill is relevant to the current task, it loads the skill into context. (Contextual loading.)</li>
-      <li><strong>Explicitly:</strong> Via a slash command that references the skill.</li>
+      <li><strong>Slash command:</strong> You type <code>/my-skill-name</code> and Claude reads that skill's .md file into context. This is the cleanest mechanism — explicit, deliberate, one keystroke.</li>
+      <li><strong>Direct mention:</strong> You tell Claude to use it — "follow the code-review skill" or "use the deployment runbook." Claude, knowing skills exist in <code>.claude/skills/</code>, reads the relevant file. You are still the trigger; you're just using words instead of a slash command.</li>
     </ol>
+    <p>If you want a skill to always be active, put its content in CLAUDE.md instead — that's what always-loaded means.</p>
 
     <h3>Skill vs. CLAUDE.md</h3>
-    <p>Both are "documents loaded into context." The difference is loading strategy:</p>
+    <p>Both are "documents loaded into context." The difference is when they load:</p>
     <ul>
-      <li><strong>CLAUDE.md</strong> is <em>always</em> loaded. Every session, every message. Like a global environment variable.</li>
-      <li><strong>Skills</strong> are loaded <em>on demand</em>. Only when relevant or explicitly invoked. Like a lazy-loaded module.</li>
+      <li><strong>CLAUDE.md</strong> — loaded automatically at the start of every session, every message. You never have to ask. It is always there consuming context window space.</li>
+      <li><strong>Skills</strong> — loaded only when you invoke them (slash command or explicit mention). They cost zero context window tokens until you need them.</li>
     </ul>
     <p>This matters for context window management. A 500-line CLAUDE.md costs tokens on every message. A 500-line skill only costs tokens when it's actually needed.</p>
 

@@ -196,7 +196,7 @@ const firstSessionQuestions = [
       "Claude guessed based on the folder name"
     ],
     answer: 2,
-    explanation: "<strong>Claude read your local files directly.</strong> This is the fundamental difference between CLI Claude Code and browser Claude.ai. The CLI has built-in Read, Edit, and Bash tools that give it direct access to your filesystem. You didn't paste anything — Claude found and read the files on its own."
+    explanation: "<strong>Claude read your local files directly.</strong> This is the fundamental difference between Claude Code (terminal or Claude Desktop Code tab) and browser Claude.ai. Claude Code has built-in Read, Edit, and Bash tools that give it direct access to your filesystem. You didn't paste anything — Claude found and read the files on its own."
   },
   {
     question: "You want Claude to make a change to your code but you're nervous about it editing the wrong thing. What's the safest approach?",
@@ -268,12 +268,12 @@ const firstSessionQuestions = [
     question: "You're an HR professional who has never coded before. You want to use Claude Code to automate a repetitive Excel task. What's the honest assessment?",
     choices: [
       "Claude Code isn't for non-developers — use Claude.ai instead",
-      "Claude Code can absolutely help, but you'll need a terminal and to follow Claude's instructions carefully. Start simple.",
+      "Claude Code can absolutely help — either via the Code tab in Claude Desktop or a terminal. Start simple.",
       "You need to learn Python first before Claude Code is useful",
       "Only use Claude Code if you already know git"
     ],
     answer: 1,
-    explanation: "<strong>Claude Code can help, starting simple.</strong> You don't need to understand code to use Claude Code effectively — you describe what you want, Claude writes the code, you run it. The learning curve is the terminal itself, not the code. Start with a simple, well-defined task ('write a script that reads this CSV and outputs a summary'). Follow Claude's instructions step by step. Git is helpful but not required for a first project."
+    explanation: "<strong>Claude Code can help, starting simple.</strong> You don't need to understand code to use Claude Code effectively. You can access it via the Code tab in Claude Desktop (no terminal required) or via a terminal. Describe what you want, Claude writes the code, you run it. Start with a simple, well-defined task ('write a script that reads this CSV and outputs a summary'). Git is helpful but not required for a first project."
   },
   {
     question: "Which command tells you what slash commands and features are available in your current session?",
@@ -494,12 +494,12 @@ const shorterQuestions = [
     question: "What's the practical difference between a skill and CLAUDE.md?",
     choices: [
       "Skills execute code, CLAUDE.md doesn't",
-      "CLAUDE.md is always loaded; skills are loaded when relevant or invoked via slash command",
+      "CLAUDE.md is always loaded automatically; skills are loaded only when you explicitly invoke them",
       "Skills are for configuration; CLAUDE.md is for instructions",
       "There is no practical difference"
     ],
     answer: 1,
-    explanation: "<strong>Loading behavior differs.</strong> CLAUDE.md is always loaded into context for every session in that repo &mdash; it's always-on, like environment variables. Skills are loaded when relevant (contextually triggered) or explicitly invoked via slash commands. This matters for context window management: CLAUDE.md always costs tokens, skills only cost tokens when active."
+    explanation: "<strong>Loading behavior differs.</strong> CLAUDE.md is always loaded automatically at the start of every session — always-on, always consuming tokens. Skills are passive documents that load only when you explicitly invoke them via slash command or direct mention. There is no automatic skill-matching. You are always the trigger. This matters for context window management: CLAUDE.md always costs tokens, skills cost nothing until invoked."
   },
   {
     question: "A subagent can see your full conversation history. True or false?",
@@ -681,12 +681,12 @@ const shorterQuestions = [
     question: "What's the key difference between a slash command and a skill?",
     choices: [
       "Slash commands execute code; skills don't",
-      "Slash commands are invoked explicitly by name; skills can be loaded automatically when contextually relevant",
+      "Slash commands are invoked explicitly by name; skills are also invoked explicitly, but as documents rather than prompts",
       "Skills are faster than slash commands",
       "Slash commands only work in specific repos"
     ],
     answer: 1,
-    explanation: "<strong>Invocation method.</strong> Slash commands are explicitly invoked &mdash; you type <code>/deploy</code> and it fires. Skills can be loaded automatically when Claude determines they're relevant to the current task, or invoked explicitly via a slash command. Think of it as: slash commands are like calling a function explicitly, skills are like dependency injection where the framework loads what's needed."
+    explanation: "<strong>Invocation method.</strong> Both require you to trigger them — neither loads on its own. Slash commands send the .md file contents as a prompt when you type <code>/command-name</code>. Skills load a .md file into context as instructions when you invoke them via slash command or explicit mention ('use the code-review skill'). The key difference: slash commands are prompts you send; skills are reference documents Claude reads. Both require you to pull the trigger."
   },
   {
     question: "A colleague says 'Claude keeps forgetting our project conventions between sessions.' Best solution?",
@@ -1055,7 +1055,7 @@ const largerQuestions = [
       "They all use separate token budgets"
     ],
     answer: 1,
-    explanation: "<strong>All from the same budget.</strong> There's one context window, and everything in it costs tokens. CLAUDE.md: loaded every session, always costs tokens. Skills: loaded when relevant, cost tokens only when active. Conversation turns: each message costs tokens. There are no free riders. This is why architecture matters: a bloated CLAUDE.md permanently reduces your available context for every session."
+    explanation: "<strong>All from the same budget.</strong> There's one context window, and everything in it costs tokens. CLAUDE.md: loaded every session automatically, always costs tokens. Skills: cost nothing until you invoke them; they only consume tokens when you explicitly load them. Conversation turns: each message costs tokens. There are no free riders. This is why architecture matters: a bloated CLAUDE.md permanently reduces your available context for every session, while skills let you pay only when needed."
   },
   {
     question: "Scenario: You're onboarding a large legacy codebase. You want Claude to understand the architecture but the codebase has no documentation. Best approach?",
