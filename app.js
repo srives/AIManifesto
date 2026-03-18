@@ -510,7 +510,7 @@ const shorterQuestions = [
       "It depends on the model being used"
     ],
     answer: 1,
-    explanation: "<strong>False.</strong> A subagent is spawned with a clean context containing only the task you assigned. It cannot see your conversation history, your loaded CLAUDE.md, or anything else from the parent. It's like forking a process: the child gets its own address space. It does its job and returns a result string."
+    explanation: "<strong>False.</strong> A subagent is spawned with a clean context containing only the task you assigned. It cannot see your conversation history, your loaded CLAUDE.md, or anything else from the parent. It is closer to spawning a subprocess than forking — a fork copies the parent's memory, but a subagent starts completely fresh with only its task brief. It does its job and returns a result. This is distinct from a session fork, which DOES carry your full conversation history into the new session."
   },
   {
     question: "Which is NOT a valid hook trigger event?",
@@ -1342,6 +1342,50 @@ const largerQuestions = [
     ],
     answer: 1,
     explanation: "<strong>Git pre-commit hook for secret scanning + CLAUDE.md policy.</strong> This is defense in depth again. A git <code>pre-commit</code> hook can scan for patterns that look like API keys, tokens, or passwords (tools like <code>git-secrets</code> or <code>detect-secrets</code> do this). Add to CLAUDE.md: 'NEVER include credentials, API keys, tokens, or secrets in this file or any configuration file. All secrets must be in environment variables or a vault.' The hook catches mistakes; the policy prevents them."
+  },
+  {
+    question: "You want to try a risky refactor but don't want to lose your current working session. You also need Claude to do a background search of 50 files while you keep typing. Which tools do you use for each?",
+    choices: [
+      "Fork the session for both tasks",
+      "Use an agent for both tasks",
+      "Fork the session for the risky refactor (keeps your full history); use an agent for the file search (background, isolated)",
+      "Start a new session for the risky refactor; fork for the file search"
+    ],
+    answer: 2,
+    explanation: "<strong>Fork for the experiment, agent for the background task.</strong> A session fork is like git branch — it creates a new session that starts with your full conversation history. You can try the risky refactor in the fork while the original session remains safe. An agent is a temporary subprocess: it gets only its task brief (not your history), does the search independently, and reports back. Both run without destroying your current state, but they're different tools for different purposes."
+  },
+  {
+    question: "You send a prompt to Claude and it starts working on a long task. You don't want to wait — you want to type another prompt now. What do you press?",
+    choices: [
+      "Escape to cancel and start over",
+      "Ctrl+B to push the current task to the background",
+      "Ctrl+T to open a new task window",
+      "Ctrl+C to pause and resume"
+    ],
+    answer: 1,
+    explanation: "<strong>Ctrl+B.</strong> This pushes the currently running task to the background. Claude keeps working on it. Your prompt returns immediately. Press Ctrl+T to see the background task list and check status. Press Ctrl+F to kill all background tasks if something goes wrong."
+  },
+  {
+    question: "What is the closest thing Claude Code has to a 'run this in the background' slash command?",
+    choices: [
+      "/background",
+      "/async",
+      "There is no slash command — use Ctrl+B after sending",
+      "A named agent skill invoked via slash command with run_in_background: true"
+    ],
+    answer: 3,
+    explanation: "<strong>A named agent skill with run_in_background: true.</strong> There is no single built-in slash command that sends a task to the background. The closest thing is creating a skill that defines the task with <code>run_in_background: true</code> and <code>isolation: worktree</code>, then invoking it with a slash command. For one-off tasks, Ctrl+B after sending is the mechanism."
+  },
+  {
+    question: "What is the key difference between a session fork and a subagent?",
+    choices: [
+      "A fork is temporary; an agent persists across sessions",
+      "A fork copies your full conversation history into a new independent session; an agent starts fresh with only its task brief and terminates when done",
+      "They are the same thing with different names",
+      "An agent has more context than a fork"
+    ],
+    answer: 1,
+    explanation: "<strong>Fork = permanent copy with full history. Agent = temporary subprocess with task brief only.</strong> Forking is like git branch: the new session starts with everything you've discussed so far and continues as its own independent session. An agent is like spawning a subprocess: it gets only what you tell it, runs in isolation, reports back, and disappears. A fork is something you continue working in. An agent is something that works for you while you continue elsewhere."
   }
 ];
 

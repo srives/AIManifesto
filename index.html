@@ -74,6 +74,7 @@
       <li><a href="#ch5">Slash Commands</a></li>
       <li><a href="#ch6">Hooks</a></li>
       <li><a href="#ch7">Agents (Subagents)</a></li>
+      <li><a href="#ch7b">Running Multiple Background Prompts</a></li>
       <li><a href="#ch8">Plans</a></li>
       <li><a href="#ch9">Memory</a></li>
       <li><a href="#ch10">Plugins (Model Context Protocol / MCP Servers)</a></li>
@@ -241,6 +242,36 @@
     <p>Starting a new session means starting from scratch &mdash; a fresh context window with no memory of previous conversations (unless you use memory files, covered in Chapter IX).</p>
 
     <div class="real-talk">If you're coming from a GUI mindset, sessions feel invisible. There's no "File > Save Session" dialog. Sessions are created implicitly when you start a conversation and persist automatically. This is the Unix way: the tool manages its own state in files, transparently. You don't save your bash history manually either &mdash; it just happens.</div>
+
+    <h3>Forking a Session</h3>
+    <p>You can fork a session — create a copy of it at a point in time and continue in a new direction, leaving the original intact. This is exactly like a git branch: the original session continues to exist unchanged, and the fork becomes its own independent session from that point forward.</p>
+
+    <p>Use forking when:</p>
+    <ul>
+      <li>You want to try a risky approach without losing your current working state</li>
+      <li>You reached a decision point and want to explore two different solutions simultaneously</li>
+      <li>You want to hand off a copy of your session context to someone else to continue</li>
+    </ul>
+
+    <p>Fork a session with: <code>claude --fork-session &lt;session-id&gt;</code> from the terminal, or via the session manager (SessionForge or similar tools).</p>
+
+    <div class="analogy">Exactly like <code>git branch</code>. You have a main branch (original session). You create a feature branch (fork). Both exist independently. Changes on the fork don't affect the original. If the fork works out, great. If not, you still have the original.</div>
+
+    <div class="analogy-human">Like making a copy of a document before trying a radical redesign. The original is safe. The copy is where you experiment. If the experiment works, you keep it. If not, you still have the original.</div>
+
+    <h3>Fork vs. Agent — What's the Difference?</h3>
+    <p>Both involve "splitting off" from your current session. They're easy to confuse:</p>
+    <table class="compare-table">
+      <thead><tr><th></th><th>Fork (session fork)</th><th>Agent (subagent)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>What it is</strong></td><td>A copy of your session that becomes a new independent session</td><td>A temporary Claude instance spawned for one specific task</td></tr>
+        <tr><td><strong>Duration</strong></td><td>Permanent — the fork persists like any session</td><td>Temporary — terminates when the task is done</td></tr>
+        <tr><td><strong>Context</strong></td><td>Starts with a copy of your full conversation history</td><td>Starts fresh — gets only the task brief you give it</td></tr>
+        <tr><td><strong>You interact with it</strong></td><td>Yes — it becomes your new active session</td><td>No — it works independently and reports back</td></tr>
+        <tr><td><strong>Analogy</strong></td><td>git branch</td><td>subprocess / child process</td></tr>
+        <tr><td><strong>Use when</strong></td><td>You want to explore a direction without losing your current state</td><td>You want Claude to do a subtask in the background while you keep working</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- ==================== CHAPTER 2 ==================== -->
@@ -508,6 +539,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <p>When Claude needs to do a subtask that requires focused work &mdash; like searching a large codebase, analyzing a complex file, or doing research &mdash; it can spawn a <em>subagent</em>. A subagent is a separate Claude instance with its own context window. It receives a task description, does the work, and returns a result. Then it terminates.</p>
 
+    <p>Agents look like temporary forks — but they're not. A session fork copies your full conversation history. An agent starts completely fresh, getting only the task brief you give it. Think of an agent as <strong>spawning a subprocess</strong>, not branching. The subprocess has its own process space, does its work, and reports back. Your main process never saw its internal state. See the comparison table in the Sessions chapter for a side-by-side breakdown.</p>
+
     <div class="analogy">Like spawning a child process. The parent process (your conversation) creates a child process (the subagent) with its own address space (context window). The child does work, returns a result via its exit code or stdout, and terminates. The parent never sees the child's internal state &mdash; just the result. The child doesn't persist after the parent exits.</div>
 
     <div class="analogy-alt">Like delegating to a contractor. You write a scope of work: "Search the codebase for all uses of the deprecated UserManager class and list them with file paths and line numbers." The contractor goes away, does the work independently, and comes back with a deliverable. You don't see their intermediate notes or false starts &mdash; just the final report. The contractor doesn't stick around after delivering.</div>
@@ -531,14 +564,23 @@ Ask me for the component name and path before starting.</code></pre>
     </ul>
     <p>For most users, automatic delegation is all you need to understand. The deeper agent configuration is useful when you want specialized agents for recurring tasks in a project.</p>
 
-    <h3>Can You Write a Prompt and Send It to the Background?</h3>
-    <p>Yes — and this is one of the most useful things Claude Code can do. Here's how it works:</p>
+  </div>
 
-    <p><strong>Method 1: Ctrl+B while Claude is working.</strong> You send a prompt normally (hit Enter). Claude starts working. While it's running, press <strong>Ctrl+B</strong> to push the current task to the background. Claude keeps working. Your prompt returns and you can start a new task, type something else, or run shell commands — all while the background task continues. Press <strong>Ctrl+T</strong> to see the background task list and check status.</p>
+  <!-- ==================== CHAPTER 8 (Background Prompts) ==================== -->
+  <div class="chapter" id="ch7b">
+    <div class="chapter-number">Chapter VII-B</div>
+    <h2>Running Multiple Background Prompts</h2>
 
-    <p><strong>Method 2: Run multiple tasks in parallel.</strong> Write your first prompt, send it. While Claude responds, type your next prompt and send it too. Claude Code can handle multiple background tasks simultaneously. Each one buffers its output and you collect results when it finishes.</p>
+    <p>Claude Code can run tasks in the background while you keep typing. You don't have to wait for one task to finish before starting another. This is one of the most productive features in Claude Code and most people don't know it exists.</p>
 
-    <p><strong>Method 3: Skill with background agent.</strong> Create a skill that explicitly tells Claude to spawn a subagent with <code>run_in_background: true</code> and <code>isolation: "worktree"</code>. The skill defines the task; invoking it with a slash command kicks off a background worktree agent that works independently while you continue in the main session.</p>
+    <h3>Method 1: Ctrl+B — Push a Running Task to the Background</h3>
+    <p>Send a prompt normally (hit Enter). Claude starts working. While it's running, press <strong>Ctrl+B</strong> to push it to the background. Claude keeps working. Your prompt returns immediately and you can start a new task, type something else, or run shell commands — all while the background task continues.</p>
+
+    <h3>Method 2: Send Multiple Prompts in Sequence</h3>
+    <p>Send your first prompt. While Claude is responding, type your next prompt and send it. Claude Code handles multiple background tasks simultaneously. Each one buffers its output and you collect results when it finishes.</p>
+
+    <h3>Method 3: Skill with Background Agent</h3>
+    <p>Create a skill that tells Claude to spawn a subagent with <code>run_in_background: true</code> and <code>isolation: "worktree"</code>. The skill defines the recurring task; invoking it with a slash command kicks off a background worktree agent while you continue in the main session. This is the closest thing to a "run this in the background" slash command.</p>
 
     <table class="compare-table">
       <thead><tr><th>Key</th><th>What it does</th></tr></thead>
@@ -551,12 +593,14 @@ Ask me for the component name and path before starting.</code></pre>
       </tbody>
     </table>
 
-    <div class="real-talk">There is no single slash command that says "run this as a background agent." The background behavior is triggered by Ctrl+B after sending, or by explicitly spawning agents via skills/agent definitions. The idea you described — write a prompt, prepend a command, send to background — is closest to creating a named agent skill and invoking it with a slash command. That gives you a one-keystroke "go do this in the background" workflow for recurring task types.</div>
+    <div class="real-talk">There is no single slash command that says "run this as a background agent." The background behavior is triggered by Ctrl+B after sending, or by explicitly spawning agents via skills/agent definitions. For a recurring task type, the cleanest approach is a named agent skill invoked with a slash command — one keystroke, runs in the background every time.</div>
 
-    <div class="analogy-human">Like assigning a task to a team member and walking away. You don't wait by their desk for them to finish. You brief them (the prompt), they start working (Ctrl+B), and you go do something else. When they're done, the result is waiting for you.</div>
+    <div class="analogy">Like opening a new terminal tab. You don't close your current work — you just start something else in parallel. Ctrl+B is opening that second tab while Claude keeps running in the first one.</div>
+
+    <div class="analogy-human">Like assigning a task to a team member and walking away. You brief them (the prompt), they start working (Ctrl+B), and you go do something else. When they're done, the result is waiting for you.</div>
   </div>
 
-  <!-- ==================== CHAPTER 8 ==================== -->
+  <!-- ==================== CHAPTER 8 (Plans) ==================== -->
   <div class="chapter" id="ch8">
     <div class="chapter-number">Chapter VIII</div>
     <h2>Plans</h2>
