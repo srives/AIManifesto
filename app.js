@@ -18,17 +18,27 @@ function switchTab(tabId) {
   const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
   if (btn) btn.classList.add('active');
   const panel = document.getElementById(tabId);
-  if (panel) { panel.classList.add('active'); panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  if (panel) panel.classList.add('active');
 }
 
 function initTabs() {
+  const drawer = document.getElementById('nav-drawer');
+  const hamburger = document.getElementById('hamburger-btn');
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    btn.addEventListener('click', () => {
+      switchTab(btn.dataset.tab);
+      if (drawer) drawer.classList.remove('open');
+    });
   });
-  // Inline tab-btn-inline buttons (Start Here panel links)
-  document.querySelectorAll('.tab-btn-inline').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-  });
+
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', e => {
+      e.stopPropagation();
+      drawer.classList.toggle('open');
+    });
+    document.addEventListener('click', () => drawer.classList.remove('open'));
+  }
 }
 
 // === Quiz Engine ===

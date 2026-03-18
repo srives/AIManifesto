@@ -51,19 +51,31 @@ body {
   margin: 0 auto;
 }
 
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+}
+
 .site-title {
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.1rem;
+  line-height: 1.2;
 }
 
 .site-title span { color: var(--accent-blue); }
 
 .site-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
-  margin-bottom: 0.4rem;
 }
 
 .site-version {
@@ -165,39 +177,111 @@ body {
 .cross { color: var(--accent-red); }
 .partial { color: var(--accent-orange); }
 
+/* === Start Here Grid === */
+.starthere-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.starthere-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
+}
+
+.starthere-who {
+  font-weight: 600;
+  color: var(--accent-blue);
+  font-size: 0.9rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.4;
+}
+
+.starthere-path {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
 /* === About === */
 .about-section { text-align: center; padding: 3rem 1rem; }
 .about-ascii { font-family: var(--font-mono); font-size: 0.55rem; line-height: 1.1; color: var(--accent-blue); white-space: pre; display: inline-block; margin: 1.5rem 0; }
 .about-name { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin: 1rem 0 0.3rem; }
 .about-credit { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 2rem; }
 
-/* === Tabs === */
+/* === Navigation === */
 .tab-bar {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 0;
   border-bottom: 2px solid var(--border);
   margin: 0 -0.5rem;
+  position: relative;
+  width: calc(100% + 1rem);
 }
 
-.tab-group-sep {
+.header-top {
   display: flex;
-  align-items: center;
-  padding: 0 0.25rem;
-  color: var(--border);
-  font-size: 1rem;
-  user-select: none;
-  pointer-events: none;
+  align-items: flex-start;
+  gap: 1rem;
 }
+
+
+.hamburger-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hamburger-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 1.3rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+  transition: color 0.15s, border-color 0.15s;
+}
+.hamburger-btn:hover { color: var(--accent-blue); border-color: var(--accent-blue); }
+
+.nav-drawer {
+  display: none;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 220px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border-radius: 0 6px 6px 6px;
+}
+
+.nav-drawer.open { display: flex; }
+
+.nav-drawer .tab-btn {
+  text-align: left;
+  padding: 0.65rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  white-space: normal;
+  word-wrap: break-word;
+}
+.nav-drawer .tab-btn:last-child { border-bottom: none; }
 
 .tab-btn {
   background: none;
   border: none;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.65rem 0.9rem;
+  padding: 0.75rem 1.25rem;
   cursor: pointer;
   position: relative;
   transition: color 0.15s;
