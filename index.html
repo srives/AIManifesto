@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Claude Code AI Manifesto</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- HEADER & TABS                                -->
+<!-- ============================================ -->
+<header class="site-header">
+  <div class="header-content">
+    <div class="site-title">The Claude Code <span>AI</span> Manifesto</div>
+    <div class="site-subtitle">A systematic guide to the Claude Code Command Line Interface (CLI) &mdash; for new developers and competent power users who want to code with AI</div>
+    <div class="site-version">Current as of Claude Code v2.1 (Claude 4.x models) &mdash; <strong>Expires September 2026</strong> when Claude Code v3 is expected</div>
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-tab="confession">The Manifesto</button>
+      <button class="tab-btn" data-tab="shorter">Quick Quiz</button>
+      <button class="tab-btn" data-tab="larger">Deep Quiz</button>
+      <button class="tab-btn" data-tab="plugins">Plugin Quiz</button>
+      <button class="tab-btn" data-tab="bonusquiz">Bonus Features Quiz</button>
+      <button class="tab-btn" data-tab="practitioner">Practitioner's Guide</button>
+      <button class="tab-btn" data-tab="remote">Remote Control</button>
+      <button class="tab-btn" data-tab="compare">Other AI CLIs</button>
+      <button class="tab-btn" data-tab="glossary">Glossary</button>
+      <button class="tab-btn" data-tab="about">About</button>
+    </nav>
+  </div>
+</header>
+
+<main class="main-content">
+
+<!-- ============================================ -->
+<!-- TAB 1: THE MANIFESTO                          -->
+<!-- ============================================ -->
+<section id="confession" class="tab-panel active">
+
+  <div class="time-estimate">Estimated reading time: 45-60 minutes</div>
+
+  <div class="toc">
+    <h3>Chapters</h3>
+    <ol>
+      <li><a href="#ch0">Introduction: What Is a CLI and Why Would Anyone Use One?</a></li>
+      <li><a href="#ch1">The Session</a></li>
+      <li><a href="#ch2">CLAUDE.md &mdash; The Constitution</a></li>
+      <li><a href="#ch3">The .claude Directory</a></li>
+      <li><a href="#ch4">Skills (SKILL.md Files)</a></li>
+      <li><a href="#ch5">Slash Commands</a></li>
+      <li><a href="#ch6">Hooks</a></li>
+      <li><a href="#ch7">Agents (Subagents)</a></li>
+      <li><a href="#ch8">Plans</a></li>
+      <li><a href="#ch9">Memory</a></li>
+      <li><a href="#ch10">Plugins (Model Context Protocol / MCP Servers)</a></li>
+      <li><a href="#ch11">The Context Window</a></li>
+      <li><a href="#ch12">The File System Layout</a></li>
+      <li><a href="#ch13">Scope and Distribution</a></li>
+      <li><a href="#ch14">The Prompt Engineering Trap</a></li>
+      <li><a href="#ch15">Bonus Features</a></li>
+    </ol>
+  </div>
+
+  <!-- ==================== CHAPTER 0: INTRODUCTION ==================== -->
+  <div class="chapter" id="ch0">
+    <div class="chapter-number">Chapter I</div>
+    <h2>Introduction: What Is a CLI and Why Would Anyone Use One?</h2>
+
+    <h3>Who This Is For</h3>
+
+    <p><strong>Developers</strong> who use AI every day but feel like they're only using 20% of the tool. You know how to prompt. You get good results. But skills, hooks, agents, MCP servers, memory &mdash; these words float past and nothing sticks. This guide makes them stick.</p>
+
+    <p><strong>Windows programmers</strong> who grew up with Visual Studio, property dialogs, and point-and-click configuration. The CLI world feels foreign. This guide translates every concept into terms you already know.</p>
+
+    <p><strong>Non-programmers who use AI for work.</strong> If you use Claude, ChatGPT, or Copilot to write reports, analyze data, generate content, or automate tasks &mdash; and you've heard that the command-line versions are more powerful but don't understand why &mdash; this guide is for you too. You don't need to be a programmer to benefit from understanding how these tools are architected. The concepts (sessions, memory, plugins, permissions) apply whether you're writing code or writing proposals.</p>
+
+    <p><strong>Team leads and managers</strong> evaluating AI coding tools for their organization. Understanding the architecture helps you make informed decisions about which tools to adopt and how to configure them for your team.</p>
+
+    <h3>What Is a CLI?</h3>
+
+    <p>A <strong>CLI (Command Line Interface)</strong> is a text-based way to interact with a program. You type commands, it types back. No buttons, no menus, no mouse. Just a blinking cursor in a terminal window.</p>
+
+    <p>If that sounds primitive, consider this: every major AI company has built a CLI version of their AI tool. Anthropic built Claude Code. OpenAI built Codex CLI. Google built Gemini CLI. GitHub built Copilot CLI. They didn't do this for nostalgia. They did it because the CLI can do things a browser window cannot.</p>
+
+    <h3>The Browser/GUI AI Experience</h3>
+    <p>ChatGPT, Claude.ai, Copilot Chat in VS Code &mdash; these are GUI-based AI tools. You type in a chat box, get a response, and copy-paste the result into wherever you need it. It works for simple tasks. But there's a hard ceiling:</p>
+    <ul>
+      <li>The AI <strong>can't see your files</strong> unless you paste them in</li>
+      <li>The AI <strong>can't edit your files</strong> &mdash; you copy its output and paste it yourself</li>
+      <li>The AI <strong>can't run your code</strong>, your tests, or your build tools</li>
+      <li>The AI <strong>can't fix its own mistakes</strong> in a loop &mdash; you have to relay error messages back and forth</li>
+      <li>You are the <strong>middleman</strong>, copy-pasting between two disconnected worlds</li>
+    </ul>
+
+    <h3>The CLI AI Experience</h3>
+    <p>Claude Code, Codex CLI, Copilot CLI, Gemini CLI &mdash; these run <em>inside</em> your project directory. They have direct access to your files, your tools, and your environment:</p>
+    <ul>
+      <li><strong>Read your files</strong> directly &mdash; no copy-pasting code into a chat window</li>
+      <li><strong>Edit your files</strong> directly &mdash; changes appear in your editor immediately</li>
+      <li><strong>Run commands</strong> &mdash; build, test, lint, deploy, all from within the conversation</li>
+      <li><strong>See error output and fix it in a loop</strong> &mdash; without you relaying messages</li>
+      <li><strong>Navigate your entire project</strong> &mdash; search code, read configs, understand the full codebase</li>
+      <li><strong>Remember across sessions</strong> &mdash; CLAUDE.md, memory files, and skills persist your preferences and project knowledge</li>
+    </ul>
+    <p>The AI isn't looking at a snapshot you pasted. It's <em>in</em> your project, with full access to your files and tools. The difference is not incremental. It is a fundamentally different way of working.</p>
+
+    <div class="analogy"><strong>For developers:</strong> GUI AI is like debugging by reading logs someone emailed you. CLI AI is like having the debugger attached to the live process with full access to breakpoints, watches, and the call stack.</div>
+
+    <div class="analogy-alt"><strong>For everyone:</strong> GUI AI is like calling a mechanic on the phone and describing the engine noise. CLI AI is the mechanic standing in your garage with the hood open, tools in hand. Same expertise, radically different effectiveness.</div>
+
+    <h3>The Case for CLI: Why It's Worth the Learning Curve</h3>
+    <p>If the browser version works for you, why bother with the CLI? Here's the honest case:</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Capability</th><th>Browser AI (claude.ai, ChatGPT)</th><th>CLI AI (Claude Code, Codex CLI)</th></tr></thead>
+      <tbody>
+        <tr><td>Ask questions, get answers</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Generate code snippets</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Read your actual project files</td><td><span class="cross">No</span> (paste manually)</td><td><span class="check">Yes</span> (automatic)</td></tr>
+        <tr><td>Edit your files directly</td><td><span class="cross">No</span> (copy-paste)</td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Run build/test commands</td><td><span class="cross">No</span></td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Fix errors in a loop</td><td><span class="cross">No</span> (you relay errors)</td><td><span class="check">Yes</span> (automatic)</td></tr>
+        <tr><td>Persistent project instructions</td><td><span class="cross">No</span></td><td><span class="check">Yes</span> (CLAUDE.md)</td></tr>
+        <tr><td>Plugins / external tools</td><td><span class="cross">No</span></td><td><span class="check">Yes</span> (MCP servers)</td></tr>
+        <tr><td>Automation hooks</td><td><span class="cross">No</span></td><td><span class="check">Yes</span> (hooks)</td></tr>
+        <tr><td>Cross-session memory</td><td><span class="partial">Limited</span></td><td><span class="check">Yes</span> (memory files)</td></tr>
+        <tr><td>Resume previous conversations</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Works from your phone</td><td><span class="check">Yes</span> (native)</td><td><span class="check">Yes</span> (Remote Control)</td></tr>
+      </tbody>
+    </table>
+
+    <p>If you only need to ask questions and get code snippets, the browser is fine. If you want AI to actually <em>do work</em> in your project &mdash; edit files, run tests, fix bugs, maintain context across sessions &mdash; the CLI is where that happens.</p>
+
+    <h3>Why Not Both?</h3>
+    <p>You can use both. Many people use Claude.ai or ChatGPT for quick questions, brainstorming, and research, and switch to Claude Code CLI when they need hands-on work done in their project. The browser is a notepad. The CLI is a power tool. This guide is about the power tool.</p>
+
+    <h3>How to Open a CLI</h3>
+    <p>On Windows: open <strong>Windows Terminal</strong>, <strong>PowerShell</strong>, or <strong>Command Prompt</strong>. On Mac/Linux: open <strong>Terminal</strong>. That black (or dark) window with the blinking cursor is your CLI. Type <code>claude</code> and press Enter to start Claude Code (assuming it's installed via <code>npm install -g @anthropic-ai/claude-code</code>).</p>
+
+    <p>Everything in this guide happens in that window.</p>
+  </div>
+
+  <!-- ==================== CHAPTER 2 ==================== -->
+  <div class="chapter" id="ch1">
+    <div class="chapter-number">Chapter II</div>
+    <h2>The Session</h2>
+
+    <p>A session in Claude Code is a single, continuous conversation between you and Claude. It has a beginning (when you start it) and it persists on disk (so you can resume it later). Every message you send, every file Claude reads, every command it runs &mdash; all of it belongs to a session and is recorded in that session's log.</p>
+
+    <div class="analogy">Like a VS debugger session with watch variables that persist. When you attach the debugger, you have a live session with state: breakpoints, watch expressions, call stack, variable values. Close the debugger, and the session ends. But if you saved the debug configuration, you can reattach and resume where you left off. A Claude session is the same: live conversation state that persists to disk.</div>
+
+    <div class="analogy-alt">Or think of it like an open document in Visual Studio with undo history. Every action is recorded. You can close the document and reopen it &mdash; the undo history (conversation history) is still there. The session IS the document.</div>
+
+    <h3>Where Sessions Live</h3>
+    <p>Session data is stored locally at <code>~/.claude/projects/</code>, organized by project path. The path encoding replaces separators with double-dashes: <code>C:\repos\MyApp</code> becomes <code>C--repos-MyApp</code>. Inside each project directory, session logs are stored as <code>.jsonl</code> (JSON Lines) files &mdash; one JSON object per line, each line representing a conversation turn.</p>
+
+    <h3>Why Sessions Matter</h3>
+    <p>Sessions are your working context. A session carries:</p>
+    <ul>
+      <li>Full conversation history (what you said, what Claude said, what tools were used)</li>
+      <li>The loaded CLAUDE.md instructions (from the repo you're working in)</li>
+      <li>Any skills that were activated during the conversation</li>
+      <li>The accumulated understanding of what you're working on</li>
+    </ul>
+    <p>Starting a new session means starting from scratch &mdash; a fresh context window with no memory of previous conversations (unless you use memory files, covered in Chapter IX).</p>
+
+    <div class="real-talk">If you're coming from a GUI mindset, sessions feel invisible. There's no "File > Save Session" dialog. Sessions are created implicitly when you start a conversation and persist automatically. This is the Unix way: the tool manages its own state in files, transparently. You don't save your bash history manually either &mdash; it just happens.</div>
+  </div>
+
+  <!-- ==================== CHAPTER 2 ==================== -->
+  <div class="chapter" id="ch2">
+    <div class="chapter-number">Chapter II</div>
+    <h2>CLAUDE.md &mdash; The Constitution</h2>
+
+    <p>CLAUDE.md is a markdown file that contains instructions for Claude. When you start a session in a repository that has a CLAUDE.md at its root, that file is automatically loaded into Claude's context. Every message Claude generates in that session is influenced by those instructions.</p>
+
+    <p>It is not executed. It is not parsed by a compiler. It is <em>read</em> &mdash; loaded into the context window where Claude can see it, the way environment variables are present in a process's memory without being "run."</p>
+
+    <div class="analogy">Like <code>.editorconfig</code> or <code>.eslintrc</code>. You don't run these files. Your editor reads them and adjusts its behavior: tab size, line endings, indentation style. CLAUDE.md does the same thing for Claude: "Use camelCase. Never modify files in /config/production/. Always write tests. Our API uses JWT authentication." Claude reads it and adjusts its behavior accordingly.</div>
+
+    <div class="analogy-alt">Or think of it like the XML comments at the top of a .csproj file that configure MSBuild behavior. The comments don't execute &mdash; MSBuild reads them to decide how to build. CLAUDE.md is read by Claude to decide how to code.</div>
+
+    <h3>What Belongs in CLAUDE.md</h3>
+    <ul>
+      <li><strong>Architecture overview:</strong> "This is a React/Node monorepo. The API is in /server, the UI is in /client."</li>
+      <li><strong>Coding standards:</strong> "Use TypeScript strict mode. Error handling uses our Result&lt;T&gt; pattern."</li>
+      <li><strong>Forbidden patterns:</strong> "Never use <code>any</code> type. Never import from the legacy/ directory directly."</li>
+      <li><strong>Project-specific knowledge:</strong> "The auth module talks to Redis, not a SQL database."</li>
+      <li><strong>Build/test commands:</strong> "Run tests with <code>npm test</code>. Build with <code>npm run build</code>."</li>
+    </ul>
+
+    <h3>What Does NOT Belong in CLAUDE.md</h3>
+    <ul>
+      <li><strong>Secrets or credentials</strong> &mdash; CLAUDE.md is checked into git. Never put API keys, passwords, or tokens here.</li>
+      <li><strong>Detailed workflow procedures</strong> (30+ steps) &mdash; Use skills for these. CLAUDE.md is always loaded and costs tokens every session.</li>
+      <li><strong>Personal preferences</strong> &mdash; These go in <code>~/.claude/CLAUDE.md</code> (user-level, not repo-level).</li>
+    </ul>
+
+    <h3>Cascading CLAUDE.md Files</h3>
+    <p>You can have multiple CLAUDE.md files, and they cascade (merge):</p>
+    <ul>
+      <li><code>~/.claude/CLAUDE.md</code> &mdash; User-level, applies to all repos (your personal defaults)</li>
+      <li><code>CLAUDE.md</code> at repo root &mdash; Project-level, shared with team via git</li>
+      <li><code>CLAUDE.md</code> in subdirectories &mdash; Directory-specific overrides</li>
+    </ul>
+    <p>All applicable files are loaded and merged. It's like CSS cascading: general rules at the top, more specific rules override as you go deeper.</p>
+
+    <div class="real-talk">The hardest thing for GUI developers to accept: CLAUDE.md is always "on." There's no checkbox to enable it, no menu to activate it. If the file exists at the repo root, it's loaded. Every session. Automatically. This passivity is its power &mdash; you can't forget to apply your standards because you never had to apply them manually in the first place.</div>
+  </div>
+
+  <!-- ==================== CHAPTER 3 ==================== -->
+  <div class="chapter" id="ch3">
+    <div class="chapter-number">Chapter III</div>
+    <h2>The .claude Directory</h2>
+
+    <p>The <code>.claude</code> directory is where Claude Code stores its configuration, commands, skills, and settings. It exists in two places with different scopes:</p>
+    <ul>
+      <li><code>~/.claude/</code> &mdash; In your home directory. User-level config. Applies everywhere.</li>
+      <li><code>.claude/</code> in a repo &mdash; Repo-level config. Applies only to that project.</li>
+    </ul>
+
+    <div class="analogy">Like <code>%APPDATA%</code> (user-level) vs <code>.vscode/</code> in a repo (project-level). Your global VS Code settings live in AppData and apply everywhere. A <code>.vscode/settings.json</code> in a repo overrides those for that project. Same pattern here: <code>~/.claude/</code> is your global config, <code>.claude/</code> in a repo is project-specific.</div>
+
+    <h3>Why the Dot?</h3>
+    <p>On Unix/Linux/macOS, a leading dot makes a file or directory hidden. It's the convention for configuration: <code>.git/</code>, <code>.ssh/</code>, <code>.vscode/</code>, <code>.config/</code>. It keeps config directories out of your way when listing files.</p>
+
+    <div class="analogy-alt">Windows equivalent: hidden folders with the Hidden attribute set, or the <code>%APPDATA%</code> directory that doesn't show up in normal Explorer views. The dot-prefix is Unix's way of saying "this is plumbing, not content." Like how <code>.vs/</code> and <code>.git/</code> are hidden in Visual Studio's Solution Explorer by default.</div>
+
+    <h3>What Lives in ~/.claude/</h3>
+    <table class="path-table">
+      <tr><td>settings.json</td><td>Your personal preferences (allowed tools, permissions, model preferences)</td></tr>
+      <tr><td>commands/</td><td>Personal slash commands available in all repos</td></tr>
+      <tr><td>skills/</td><td>Personal skill documents available in all repos</td></tr>
+      <tr><td>projects/</td><td>Per-project session data, memory, and settings</td></tr>
+      <tr><td>CLAUDE.md</td><td>User-level instructions (applies to all repos)</td></tr>
+    </table>
+
+    <h3>What Lives in .claude/ (in a repo)</h3>
+    <table class="path-table">
+      <tr><td>commands/</td><td>Project-specific slash commands (can be checked into git)</td></tr>
+      <tr><td>skills/</td><td>Project-specific skills (can be checked into git)</td></tr>
+      <tr><td>settings.json</td><td>Project settings (can be shared with team via git)</td></tr>
+      <tr><td>settings.local.json</td><td>Local overrides (personal, in .gitignore)</td></tr>
+    </table>
+  </div>
+
+  <!-- ==================== CHAPTER 4 ==================== -->
+  <div class="chapter" id="ch4">
+    <div class="chapter-number">Chapter IV</div>
+    <h2>Skills (SKILL.md Files)</h2>
+
+    <p>A skill is a markdown document that teaches Claude how to do something. It does not execute. It does not run as a process. It is loaded into Claude's context window &mdash; added to the conversation as instructions &mdash; and Claude follows those instructions when performing relevant tasks.</p>
+
+    <p>This is the concept most people get wrong. Skills are not plugins. They are not scripts. They are <em>documents that inform behavior</em>.</p>
+
+    <div class="analogy">Like a runbook or SOP (Standard Operating Procedure) that you give to a new hire. "When deploying to production, follow these 12 steps. When writing a database migration, check these 5 things first." The new hire reads the document, understands the procedure, and follows it. The document didn't "execute" &mdash; the person read it and acted accordingly. Skills work the same way.</div>
+
+    <div class="analogy-alt">Like Visual Studio .snippet files or code templates. They're not running code &mdash; they're patterns that the tool knows about and applies when relevant. Or like the IntelliSense XML documentation: it informs behavior (the IDE shows you parameter info) without executing anything.</div>
+
+    <h3>Where Skills Live</h3>
+    <ul>
+      <li><code>~/.claude/skills/</code> &mdash; Personal skills, available in all your repos</li>
+      <li><code>.claude/skills/</code> in a repo &mdash; Project skills, can be shared with team</li>
+    </ul>
+
+    <h3>How Skills Get Loaded</h3>
+    <p>Skills can be loaded two ways:</p>
+    <ol>
+      <li><strong>Automatically:</strong> When Claude determines a skill is relevant to the current task, it loads the skill into context. (Contextual loading.)</li>
+      <li><strong>Explicitly:</strong> Via a slash command that references the skill.</li>
+    </ol>
+
+    <h3>Skill vs. CLAUDE.md</h3>
+    <p>Both are "documents loaded into context." The difference is loading strategy:</p>
+    <ul>
+      <li><strong>CLAUDE.md</strong> is <em>always</em> loaded. Every session, every message. Like a global environment variable.</li>
+      <li><strong>Skills</strong> are loaded <em>on demand</em>. Only when relevant or explicitly invoked. Like a lazy-loaded module.</li>
+    </ul>
+    <p>This matters for context window management. A 500-line CLAUDE.md costs tokens on every message. A 500-line skill only costs tokens when it's actually needed.</p>
+
+    <div class="real-talk">The word "skill" is misleading for Windows developers. In the Windows world, a "skill" sounds like an Alexa skill or a microservice &mdash; something that runs. In Claude Code, a skill is a document. It's passive. Rename it mentally to "instruction document" or "playbook" if that helps.</div>
+  </div>
+
+  <!-- ==================== CHAPTER 5 ==================== -->
+  <div class="chapter" id="ch5">
+    <div class="chapter-number">Chapter V</div>
+    <h2>Slash Commands</h2>
+
+    <p>Slash commands are custom prompts stored as files. When you type <code>/foo</code> in Claude Code, it finds the file <code>foo.md</code> in your commands directory and sends its contents as a prompt. That's it. No magic, no runtime, no API call &mdash; just a file whose contents become your prompt.</p>
+
+    <div class="analogy">Like a stored procedure in SQL. You define it once with a name and a body. When you call it by name, the body executes. Slash commands are the same: the name is the filename, the body is the file contents, and "execution" means "the contents are sent as a prompt." Or like PowerShell aliases: you type a short name, it expands to the full command.</div>
+
+    <div class="analogy-alt">Like Visual Studio External Tools (Tools > External Tools). You define a name, a command, and arguments. Invoking it by name runs the command. Slash commands are external tools for Claude &mdash; named, reusable prompt templates.</div>
+
+    <h3>Where Slash Commands Live</h3>
+    <ul>
+      <li><code>~/.claude/commands/</code> &mdash; Personal commands, available in all repos (like PowerShell profile functions)</li>
+      <li><code>.claude/commands/</code> in a repo &mdash; Project commands, shareable via git (like <code>.vscode/tasks.json</code>)</li>
+    </ul>
+
+    <h3>What a Slash Command File Looks Like</h3>
+    <p>It's just a markdown file. For example, <code>.claude/commands/new-component.md</code>:</p>
+    <pre><code>Create a new React component at the path I specify.
+Include:
+- A functional component with TypeScript props interface
+- A test file using React Testing Library
+- A Storybook story file
+Follow our naming convention: PascalCase for components, camelCase for hooks.
+Ask me for the component name and path before starting.</code></pre>
+    <p>Then you type <code>/new-component</code> and this entire prompt is sent to Claude.</p>
+
+    <h3>Slash Commands vs. Skills</h3>
+    <p>Slash commands are <em>prompts you send</em>. Skills are <em>instructions Claude loads</em>. A slash command initiates work ("Do this thing now"). A skill provides context for how to do work ("When doing this kind of thing, here's how").</p>
+  </div>
+
+  <!-- ==================== CHAPTER 6 ==================== -->
+  <div class="chapter" id="ch6">
+    <div class="chapter-number">Chapter VI</div>
+    <h2>Hooks</h2>
+
+    <p>Hooks are the one thing in this architecture that actually <em>executes code</em>. A hook is a shell command (bash, PowerShell, whatever) that runs in response to a specific event. When the event fires, the command runs on your machine, with your permissions, in your environment.</p>
+
+    <p>Every other concept in this document &mdash; CLAUDE.md, skills, memory, slash commands &mdash; is a passive document that gets loaded. Hooks are the exception: they are active executors.</p>
+
+    <div class="analogy">Like git hooks (<code>pre-commit</code>, <code>post-merge</code>, <code>pre-push</code>). You drop a script into <code>.git/hooks/pre-commit</code>, and git runs it before every commit. If it exits non-zero, the commit is aborted. Claude Code hooks work the same way: you configure a command to run on an event, and the system runs it. Real shell command, real execution, real consequences.</div>
+
+    <div class="analogy-alt">Like MSBuild pre-build and post-build events in Visual Studio. You specify a command in project properties, and Visual Studio runs it before or after the build. Or like Windows Task Scheduler triggers: "When event X happens, run command Y." Hooks are event-driven automation within Claude Code.</div>
+
+    <h3>Hook Events</h3>
+    <ul>
+      <li><strong>Before tool use:</strong> Runs before Claude uses a tool (e.g., before editing a file). Can block the action.</li>
+      <li><strong>After tool use:</strong> Runs after a tool completes (e.g., after a file edit, run tests).</li>
+      <li><strong>Session start:</strong> Runs when a new session begins.</li>
+      <li><strong>Notification:</strong> Runs when Claude sends a notification.</li>
+    </ul>
+
+    <h3>Why Hooks Matter</h3>
+    <p>CLAUDE.md is advisory: "Please run tests after editing." Claude usually follows it, but it's not guaranteed. A hook is <em>enforcement</em>: the test suite runs whether Claude remembers or not. It's the difference between a code review comment and a CI gate.</p>
+
+    <div class="real-talk">Hooks run with YOUR permissions. A misconfigured hook can delete files, modify your system, or run arbitrary code. Treat hook configuration with the same care you'd treat a CI pipeline script or a post-build event. Review what they do before enabling them.</div>
+  </div>
+
+  <!-- ==================== CHAPTER 7 ==================== -->
+  <div class="chapter" id="ch7">
+    <div class="chapter-number">Chapter VII</div>
+    <h2>Agents (Subagents)</h2>
+
+    <p>When Claude needs to do a subtask that requires focused work &mdash; like searching a large codebase, analyzing a complex file, or doing research &mdash; it can spawn a <em>subagent</em>. A subagent is a separate Claude instance with its own context window. It receives a task description, does the work, and returns a result. Then it terminates.</p>
+
+    <div class="analogy">Like spawning a child process. The parent process (your conversation) creates a child process (the subagent) with its own address space (context window). The child does work, returns a result via its exit code or stdout, and terminates. The parent never sees the child's internal state &mdash; just the result. The child doesn't persist after the parent exits.</div>
+
+    <div class="analogy-alt">Like delegating to a contractor. You write a scope of work: "Search the codebase for all uses of the deprecated UserManager class and list them with file paths and line numbers." The contractor goes away, does the work independently, and comes back with a deliverable. You don't see their intermediate notes or false starts &mdash; just the final report. The contractor doesn't stick around after delivering.</div>
+
+    <h3>What Subagents CAN'T Do</h3>
+    <ul>
+      <li><strong>See your conversation:</strong> They get only the task you assign. They don't know what you discussed 5 minutes ago.</li>
+      <li><strong>Persist after completing:</strong> They're not daemons or services. They run, return, and disappear.</li>
+      <li><strong>Communicate with each other:</strong> Each subagent is isolated. They can't share context.</li>
+      <li><strong>Access parent's loaded skills/CLAUDE.md:</strong> They start clean. (They may load their own CLAUDE.md from the repo.)</li>
+    </ul>
+
+    <h3>When Subagents Are Used</h3>
+    <p>Claude spawns subagents when a task benefits from focused, parallel, or isolated work:</p>
+    <ul>
+      <li>Searching across many files (the subagent focuses entirely on searching)</li>
+      <li>Analyzing a complex file without cluttering the main conversation</li>
+      <li>Performing a subtask that might produce a lot of intermediate output</li>
+    </ul>
+    <p>You don't usually spawn subagents manually &mdash; Claude decides when to use them. But understanding what they are helps you understand Claude's "I'll use the Agent tool" messages.</p>
+  </div>
+
+  <!-- ==================== CHAPTER 8 ==================== -->
+  <div class="chapter" id="ch8">
+    <div class="chapter-number">Chapter VIII</div>
+    <h2>Plans</h2>
+
+    <p>Plan mode is a way to have Claude design an approach <em>before</em> it starts coding. Instead of immediately editing files and running commands, Claude describes what it will do: which files it will change, in what order, what the risks are, and what the expected outcome is. You review, adjust, and then approve the plan for execution.</p>
+
+    <div class="analogy">Like writing an Architecture Decision Record (ADR) or a design document before writing code. You don't start a database migration by typing <code>ALTER TABLE</code> &mdash; you write a migration plan: what tables change, what data moves, what the rollback strategy is. Plans are the same discipline applied to AI-assisted coding: think first, then act.</div>
+
+    <div class="analogy-alt">Like the difference between writing code directly and drawing a UML class diagram first. Or like using the Visual Studio Class Designer to lay out relationships before generating code. The plan is the blueprint; the implementation follows.</div>
+
+    <h3>How to Use Plan Mode</h3>
+    <p>Press <strong>Shift+Tab</strong> to toggle plan mode. In plan mode, Claude will:</p>
+    <ol>
+      <li>Analyze the task you described</li>
+      <li>List which files need changes</li>
+      <li>Describe the approach for each change</li>
+      <li>Identify risks or edge cases</li>
+      <li>Wait for your approval before proceeding</li>
+    </ol>
+    <p>You can push back: "What about error handling in step 3?" or "I'd prefer approach X over Y." The plan evolves through conversation. Once approved, exit plan mode and Claude executes.</p>
+
+    <h3>When to Use Plans</h3>
+    <ul>
+      <li>Complex refactorings that touch many files</li>
+      <li>Architectural changes (new patterns, module reorganization)</li>
+      <li>Anything where the blast radius is large enough that you want to review before changes happen</li>
+      <li>When you want to understand Claude's approach before it starts</li>
+    </ul>
+  </div>
+
+  <!-- ==================== CHAPTER 9 ==================== -->
+  <div class="chapter" id="ch9">
+    <div class="chapter-number">Chapter IX</div>
+    <h2>Memory</h2>
+
+    <p>Memory files are persistent notes stored in <code>~/.claude/projects/*/memory/</code>. They survive across sessions. When you start a new session in a project that has memory files, Claude loads them automatically. This is how knowledge persists beyond a single session.</p>
+
+    <div class="analogy">Like a developer's personal wiki or OneNote notebook for a project. Things you'd write on a sticky note and put on your monitor: "The prod database connection string is in Azure Key Vault, not in the config file." "The client requested we not use the word 'delete' in the UI &mdash; use 'archive' instead." "The payments module was written by a contractor and has no tests &mdash; be careful."</div>
+
+    <div class="analogy-alt">Like the "Notes" section in a Visual Studio solution's properties. Or like the sticky notes on your physical monitor that say "DON'T TOUCH THE BILLING TABLE" or "Ask Bob before modifying the auth flow." Memory files are those sticky notes, but for Claude.</div>
+
+    <h3>Memory vs. CLAUDE.md</h3>
+    <ul>
+      <li><strong>CLAUDE.md</strong> is shared with the team (checked into git). Contains coding standards, architecture info, project rules.</li>
+      <li><strong>Memory</strong> is personal (in your <code>~/.claude/</code> directory). Contains your notes, discoveries, reminders. Not in git.</li>
+    </ul>
+    <p>Rule of thumb: If the whole team needs to know it, put it in CLAUDE.md. If it's your personal institutional knowledge, put it in memory.</p>
+
+    <h3>How Memory Gets Created</h3>
+    <p>Claude can write memory notes itself (when it discovers something worth remembering), or you can ask it to remember something. You can also manually create/edit markdown files in the memory directory.</p>
+  </div>
+
+  <!-- ==================== CHAPTER 10 ==================== -->
+  <div class="chapter" id="ch10">
+    <div class="chapter-number">Chapter X</div>
+    <h2>Plugins (Model Context Protocol / MCP Servers)</h2>
+
+    <p>MCP (Model Context Protocol) servers are external processes that give Claude new capabilities. By default, Claude can read files, edit files, run shell commands, and search code. If you need Claude to query a database, call a REST API, interact with Jira, or access any external system, you need an MCP server.</p>
+
+    <div class="analogy">Like COM objects or plugin DLLs. Your application has built-in functionality, but you can extend it by loading COM objects that expose new interfaces. The COM server runs as a separate process, exposes methods via a well-defined protocol, and your application calls those methods. MCP servers are the same: separate processes that expose tools via the Model Context Protocol.</div>
+
+    <div class="analogy-alt">Like adding a NuGet package that provides new functions. Or like VS Code extensions: they run in a separate process (the extension host), expose new commands and capabilities via an API, and the editor calls them when needed. An MCP server is an extension for Claude Code.</div>
+
+    <h3>How MCP Works</h3>
+    <p>The MCP server runs as a separate process and communicates with Claude Code via JSON-RPC (typically over stdin/stdout for local servers, or HTTP for remote ones). It's similar to the Language Server Protocol (LSP) that powers IntelliSense in VS Code: a standardized protocol for tool communication.</p>
+
+    <p>The MCP server declares what tools it provides (e.g., <code>query_database</code>, <code>create_jira_ticket</code>, <code>send_slack_message</code>). Claude sees these tools and can call them during conversation, just like it calls the built-in Read and Edit tools.</p>
+
+    <h3>MCP Server Examples</h3>
+    <ul>
+      <li><strong>Database MCP:</strong> Exposes <code>run_query</code>, <code>list_tables</code>, <code>describe_table</code>. Claude can query your database during conversation.</li>
+      <li><strong>Jira MCP:</strong> Exposes <code>create_issue</code>, <code>update_status</code>, <code>search_issues</code>. Claude can manage Jira tickets.</li>
+      <li><strong>Slack MCP:</strong> Exposes <code>send_message</code>, <code>search_messages</code>. Claude can post to Slack channels.</li>
+      <li><strong>GitHub MCP:</strong> Exposes <code>create_pr</code>, <code>list_issues</code>. Claude can interact with GitHub.</li>
+    </ul>
+
+    <h3>MCP vs. Everything Else</h3>
+    <p>MCP servers are the <em>only</em> mechanism that adds new tools to Claude. Skills teach Claude how to use existing tools better. CLAUDE.md configures behavior. Hooks run shell commands on events. MCP servers add entirely new capabilities that didn't exist before.</p>
+
+    <div class="real-talk">MCP servers manage their own credentials. The Jira MCP server has your Jira API token configured within itself &mdash; Claude never sees the raw token. This is a security feature: Claude asks the MCP server to "create a ticket," and the server handles authentication internally. Never put credentials in CLAUDE.md or skills.</div>
+
+    <h3>Installing an MCP Server (Someone Hands You a Plugin)</h3>
+    <p>When someone says "install this MCP server," here's what actually happens:</p>
+    <ol>
+      <li><strong>Get the package.</strong> Most MCP servers are npm packages or Python packages. Example: <code>npm install -g @anthropic/mcp-server-filesystem</code></li>
+      <li><strong>Configure it in settings.</strong> Add an entry to <code>~/.claude/settings.json</code> (user-level) or <code>.claude/settings.local.json</code> (repo-level) under the <code>mcpServers</code> key:</li>
+    </ol>
+    <pre><code>{
+  "mcpServers": {
+    "my-database": {
+      "command": "npx",
+      "args": ["-y", "@example/mcp-database-server"],
+      "env": {
+        "DATABASE_URL": "postgres://localhost:5432/mydb"
+      }
+    }
+  }
+}</code></pre>
+    <ol start="3">
+      <li><strong>Restart Claude Code.</strong> MCP servers are loaded at session start. After adding the config, start a new session.</li>
+      <li><strong>Use it.</strong> Claude automatically sees the new tools. Just ask: "Query the users table" and Claude will call the MCP server's <code>run_query</code> tool.</li>
+    </ol>
+
+    <div class="analogy">Like registering a COM server. You install the DLL, add a registry entry (the config in settings.json), and then any application that speaks COM can call its methods. The "registry entry" here is the <code>mcpServers</code> block in settings.json. The "DLL" is the npm/Python package. The "COM protocol" is MCP (JSON-RPC over stdin/stdout).</div>
+
+    <h3>Creating Your Own MCP Server</h3>
+    <p>An MCP server is a program that:</p>
+    <ol>
+      <li>Reads JSON-RPC requests from stdin</li>
+      <li>Declares its available tools (name, description, parameters)</li>
+      <li>Executes tool calls and returns results to stdout</li>
+    </ol>
+    <p>You can write one in any language. Anthropic provides SDKs for TypeScript (<code>@anthropic-ai/sdk</code>) and Python (<code>mcp</code>) that handle the protocol plumbing. A minimal MCP server in TypeScript is about 50 lines.</p>
+
+    <div class="analogy-alt">Like writing a Windows Service that exposes a named pipe or REST endpoint. You define the interface (what tools you offer), implement the handlers, and register it so the system knows how to launch it. The MCP SDK handles the protocol layer &mdash; you just write the business logic, like writing a WCF service where the framework handles serialization.</div>
+
+    <h3>Scope: User vs. Repo MCP Servers</h3>
+    <ul>
+      <li><strong><code>~/.claude/settings.json</code></strong> &mdash; User-level. Available in every session on your machine. Good for personal tools (your database, your Jira).</li>
+      <li><strong><code>.claude/settings.local.json</code></strong> &mdash; Repo-level, NOT checked in. Good for project-specific servers with credentials.</li>
+      <li><strong><code>.claude/settings.json</code></strong> &mdash; Repo-level, checked in. Good for team-shared servers that don't need credentials (or use environment variables). Your team clones the repo, and the MCP server is pre-configured.</li>
+    </ul>
+
+    <h3>Security: What to Watch For</h3>
+    <p>An MCP server is a process running on your machine with whatever permissions you gave it. If someone tells you to install an MCP server:</p>
+    <ul>
+      <li>Read the source code or at least the package description</li>
+      <li>Check if it's from a known publisher (Anthropic, GitHub, etc.)</li>
+      <li>Understand what tools it exposes &mdash; a "file system" MCP server can read and write files</li>
+      <li>Be cautious with <code>env</code> variables &mdash; those are credentials being passed to the server process</li>
+    </ul>
+    <div class="real-talk">MCP servers are the most powerful extension point in Claude Code. They're also the most dangerous. A malicious MCP server could exfiltrate code, modify files, or send data to external servers. Treat installing an MCP server like installing a VS Code extension from an unknown publisher &mdash; inspect before you trust.</div>
+  </div>
+
+  <!-- ==================== CHAPTER 11 ==================== -->
+  <div class="chapter" id="ch11">
+    <div class="chapter-number">Chapter XI</div>
+    <h2>The Context Window</h2>
+
+    <p>The context window is the total amount of text (measured in tokens) that Claude can "see" at once during a conversation. Everything &mdash; every message, every file read, every CLAUDE.md instruction, every skill, every tool result &mdash; occupies tokens in this finite window.</p>
+
+    <div class="analogy">Like RAM. You have a fixed amount (roughly 200K tokens for current models). Every process (message, file, instruction) that's loaded takes up space. When RAM is full, the system starts paging: older, less-used content is compressed (summarized) to make room for new content. You lose detail but keep the gist. And just like RAM, more is better &mdash; but there's always a limit.</div>
+
+    <div class="analogy-alt">Or like a physical workbench. You can have blueprints, tools, materials, and notes on the bench &mdash; but the bench has a fixed surface area. If you add a new large blueprint, you have to stack or fold something else. A 10-page CLAUDE.md takes up bench space that's unavailable for actual work. Keep your bench clear of unnecessary items.</div>
+
+    <h3>What Consumes Tokens</h3>
+    <ul>
+      <li><strong>CLAUDE.md</strong> &mdash; Always loaded, always consuming. Keep it concise.</li>
+      <li><strong>Skills</strong> &mdash; Consumed when loaded. Use skills instead of CLAUDE.md for specialized knowledge.</li>
+      <li><strong>Conversation history</strong> &mdash; Every message back and forth. Grows continuously.</li>
+      <li><strong>File contents</strong> &mdash; When Claude reads a file, its contents enter the context. Large files cost thousands of tokens.</li>
+      <li><strong>Tool results</strong> &mdash; Output from grep, bash, etc. Verbose output costs more tokens.</li>
+      <li><strong>Slash command content</strong> &mdash; The full prompt text from the command file.</li>
+    </ul>
+
+    <h3>What Happens When It Fills Up</h3>
+    <p>Older conversation turns are summarized to free space. The system prioritizes keeping recent content and persistent instructions (CLAUDE.md, active skills). It's lossy compression: you keep the conclusions and key facts, but lose the detailed reasoning and intermediate steps.</p>
+
+    <h3>Token Economics</h3>
+    <p>Think of your context window like a budget:</p>
+    <ul>
+      <li><strong>Fixed costs:</strong> CLAUDE.md tokens (paid every session)</li>
+      <li><strong>Variable costs:</strong> Files read, commands run, messages exchanged</li>
+      <li><strong>Budget:</strong> ~200K tokens total</li>
+    </ul>
+    <p>A bloated CLAUDE.md is like a high recurring expense: it reduces your available budget for everything else. This is why architecture (skills for on-demand loading, concise CLAUDE.md, memory for cross-session persistence) matters so much.</p>
+  </div>
+
+  <!-- ==================== CHAPTER 12 ==================== -->
+  <div class="chapter" id="ch12">
+    <div class="chapter-number">Chapter XII</div>
+    <h2>The File System Layout</h2>
+
+    <p>Everything in Claude Code's architecture maps to a file in a predictable location. There is no registry, no database, no opaque binary format. Once you know the directory structure, you can inspect, edit, backup, or debug anything with a text editor.</p>
+
+    <h3>User-Level (~/.claude/)</h3>
+    <table class="path-table">
+      <tr><td>~/.claude/</td><td>Root of user-level config (like %USERPROFILE%\.vscode)</td></tr>
+      <tr><td>~/.claude/settings.json</td><td>Personal preferences (allowed tools, model settings)</td></tr>
+      <tr><td>~/.claude/CLAUDE.md</td><td>User-level instructions (applies to all repos)</td></tr>
+      <tr><td>~/.claude/commands/</td><td>Personal slash commands (available everywhere)</td></tr>
+      <tr><td>~/.claude/skills/</td><td>Personal skills (available everywhere)</td></tr>
+      <tr><td>~/.claude/projects/</td><td>Per-project data (sessions, memory, settings)</td></tr>
+      <tr><td>~/.claude/projects/C--repos-MyApp/</td><td>Data for the project at C:\repos\MyApp</td></tr>
+      <tr><td>~/.claude/projects/C--repos-MyApp/memory/</td><td>Memory files for that project</td></tr>
+    </table>
+
+    <h3>Repo-Level (.claude/ in repo)</h3>
+    <table class="path-table">
+      <tr><td>.claude/</td><td>Repo-level config (like .vscode/ in a repo)</td></tr>
+      <tr><td>.claude/commands/</td><td>Project-specific slash commands</td></tr>
+      <tr><td>.claude/skills/</td><td>Project-specific skills</td></tr>
+      <tr><td>.claude/settings.json</td><td>Project settings (can be checked into git)</td></tr>
+      <tr><td>.claude/settings.local.json</td><td>Local overrides (like .env.local &mdash; in .gitignore)</td></tr>
+    </table>
+
+    <h3>Repo Root</h3>
+    <table class="path-table">
+      <tr><td>CLAUDE.md</td><td>Project instructions (checked into git, shared with team)</td></tr>
+    </table>
+
+    <div class="analogy">The whole layout follows the principle of "proximity to scope." Personal config lives in your home directory. Project config lives in the project. Shared config is checkable into git. Local overrides are gitignored. It's the exact same layering as <code>appsettings.json</code> / <code>appsettings.Development.json</code> / environment variables in ASP.NET &mdash; base, environment-specific, personal.</div>
+  </div>
+
+  <!-- ==================== CHAPTER 13 ==================== -->
+  <div class="chapter" id="ch13">
+    <div class="chapter-number">Chapter XIII</div>
+    <h2>Scope and Distribution</h2>
+
+    <p>Every piece of Claude Code configuration has a scope (who it affects) and a distribution method (how it spreads). Understanding this prevents "where do I put this?" confusion.</p>
+
+    <h3>The Scope Matrix</h3>
+    <table class="path-table">
+      <tr><td>~/.claude/settings.json</td><td><strong>Personal + Global.</strong> Your preferences, everywhere. Never in git.</td></tr>
+      <tr><td>~/.claude/commands/</td><td><strong>Personal + Global.</strong> Your commands, everywhere. Never in git.</td></tr>
+      <tr><td>~/.claude/CLAUDE.md</td><td><strong>Personal + Global.</strong> Your instructions, everywhere. Never in git.</td></tr>
+      <tr><td>~/.claude/projects/*/memory/</td><td><strong>Personal + Per-project.</strong> Your notes for a specific project. Never in git.</td></tr>
+      <tr><td>CLAUDE.md (repo root)</td><td><strong>Shared + Per-project.</strong> Team instructions. Checked into git.</td></tr>
+      <tr><td>.claude/commands/ (repo)</td><td><strong>Shared + Per-project.</strong> Team commands. Can be checked into git.</td></tr>
+      <tr><td>.claude/settings.json (repo)</td><td><strong>Shared + Per-project.</strong> Team settings. Can be checked into git.</td></tr>
+      <tr><td>.claude/settings.local.json</td><td><strong>Personal + Per-project.</strong> Your overrides. In .gitignore.</td></tr>
+    </table>
+
+    <h3>Decision Framework</h3>
+    <p>When you need to configure something, ask two questions:</p>
+    <ol>
+      <li><strong>Who needs this?</strong> Just me? Put it in <code>~/.claude/</code>. The whole team? Put it in the repo.</li>
+      <li><strong>What scope?</strong> All projects? <code>~/.claude/</code> root. This project only? Repo's <code>.claude/</code> or <code>CLAUDE.md</code>.</li>
+    </ol>
+
+    <div class="analogy">It's the exact same decision tree as: "Do I put this in my global .gitconfig, the repo's .gitconfig, or the repo's .gitattributes?" Or: "Do I put this VS setting in user settings, workspace settings, or .editorconfig?" The principle is universal. Claude Code just applies it to AI configuration.</div>
+
+    <h3>.gitignore Conventions</h3>
+    <p>Typically, <code>.gitignore</code> excludes:</p>
+    <ul>
+      <li><code>.claude/settings.local.json</code> &mdash; Personal overrides</li>
+      <li>The entire <code>~/.claude/</code> directory is outside the repo anyway, so it's inherently not in git</li>
+    </ul>
+    <p>What CAN be checked in: <code>CLAUDE.md</code>, <code>.claude/commands/</code>, <code>.claude/skills/</code>, <code>.claude/settings.json</code></p>
+  </div>
+
+  <!-- ==================== CHAPTER 14 ==================== -->
+  <div class="chapter" id="ch14">
+    <div class="chapter-number">Chapter XIV</div>
+    <h2>The Prompt Engineering Trap</h2>
+
+    <p>You know how to prompt. You've been prompting AI tools for months or years. You can write a prompt that gets Claude to produce good code. So why does any of this architecture matter?</p>
+
+    <p>Because prompting is like knowing SQL syntax without understanding indexes, joins, normalization, or query plans. You can write queries &mdash; they'll return correct results. But they'll be slow, unmaintainable, and won't scale. The person who understands the architecture writes queries that are fast, maintainable, and scalable, even if the SQL syntax is identical.</p>
+
+    <div class="analogy">You know how to type C# code. But there's a world of difference between someone who types C# and someone who understands SOLID principles, dependency injection, the CLR, garbage collection, and async/await internals. Both write C# code. One writes C# code that works in production. The architecture knowledge is the difference between a junior developer who can code and a senior developer who can engineer.</div>
+
+    <h3>What Architecture Gives You</h3>
+    <ul>
+      <li><strong>Consistency:</strong> CLAUDE.md ensures every session follows team standards &mdash; you don't have to repeat yourself.</li>
+      <li><strong>Enforcement:</strong> Hooks guarantee that tests run, linters pass, forbidden patterns are blocked &mdash; not just suggested.</li>
+      <li><strong>Efficiency:</strong> Skills load context only when needed, preserving your context window for actual work.</li>
+      <li><strong>Persistence:</strong> Memory carries knowledge across sessions &mdash; Claude doesn't forget what you told it yesterday.</li>
+      <li><strong>Extensibility:</strong> MCP servers let Claude interact with your specific tools and systems &mdash; databases, issue trackers, APIs.</li>
+      <li><strong>Reusability:</strong> Slash commands encode workflows you can invoke with a single keystroke.</li>
+      <li><strong>Team scaling:</strong> Checked-in configuration means a new developer gets the full setup by cloning the repo.</li>
+    </ul>
+
+    <h3>The Progression</h3>
+    <ol>
+      <li><strong>Level 1: Prompting.</strong> You type good prompts and get good results. Works for individual tasks.</li>
+      <li><strong>Level 2: Configuration.</strong> You write CLAUDE.md so you don't repeat prompts. Works for a project.</li>
+      <li><strong>Level 3: Architecture.</strong> You use skills, hooks, memory, commands, and MCP servers as a system. Works for a team and scales across projects.</li>
+    </ol>
+    <p>Most developers are at Level 1. This guide exists to get you to Level 3.</p>
+
+    <div class="real-talk">None of this is intuitive if you come from GUI tools. In Visual Studio, you configure things through dialogs and property pages. Here, you configure things through files in dot-directories with Unix-convention names. The concepts are the same (configuration, automation, persistence, extensibility) &mdash; only the packaging is different. Once you see through the packaging to the concepts, it clicks. The architecture is just software engineering applied to AI tool configuration.</div>
+  </div>
+
+  <!-- ==================== CHAPTER 15 ==================== -->
+  <div class="chapter" id="ch15">
+    <div class="chapter-number">Chapter XV</div>
+    <h2>Bonus Features</h2>
+    <p>These are real Claude Code features that don't fit neatly into the earlier chapters but are essential for power users.</p>
+  </div>
+
+  <!-- 15.1 Worktrees -->
+  <div class="chapter">
+    <div class="chapter-number">15.1</div>
+    <h2>Worktrees (Isolated Agent Sandboxes)</h2>
+    <p>When Claude spawns a subagent, it normally edits your working tree &mdash; the same files you're looking at. Worktrees change that: the agent gets its own isolated copy of the repo (a git worktree), works there, and the results are merged back only if successful.</p>
+
+    <div class="analogy">Like branching in real life. Instead of renovating a room while you're living in it, the contractor builds the renovation in a separate identical room. When it's done, you inspect it. If it's good, you swap. If it's bad, you tear down the copy &mdash; your original room was never touched.</div>
+
+    <p>How to use it: when calling the Agent tool, set <code>isolation: "worktree"</code>. The agent runs in a temporary git worktree. If it makes no changes, the worktree is cleaned up automatically. If changes are made, you get the worktree path and branch name to review.</p>
+
+    <p><strong>When to use it:</strong> risky refactors, experimental changes, anything where you want a safety net. The agent can go wild without affecting your working files.</p>
+  </div>
+
+  <!-- 15.2 Task Tool -->
+  <div class="chapter">
+    <div class="chapter-number">15.2</div>
+    <h2>Task Tool (Built-in Todo Tracker)</h2>
+    <p>Claude Code has a built-in task/todo system that persists within a conversation. You can create tasks, mark them in-progress, mark them complete, and track what's left.</p>
+
+    <p>Claude can also create tasks on its own when working through complex multi-step work. It uses them to track progress, and you see the task status in the conversation.</p>
+
+    <div class="analogy">Like a shared Trello board between you and your AI, but it lives inside the conversation. No separate app, no context switching. You say "build X" and Claude breaks it into tasks, works through them one by one, and marks each done.</div>
+
+    <p><strong>When to use it:</strong> any multi-step task. Instead of hoping Claude remembers all 7 things you asked for, tasks make the list explicit and trackable.</p>
+  </div>
+
+  <!-- 15.3 Model Switching -->
+  <div class="chapter">
+    <div class="chapter-number">15.3</div>
+    <h2>Model Switching Mid-Session (<code>/model</code>)</h2>
+    <p>You don't have to pick one model for an entire session. Type <code>/model</code> to switch between Opus, Sonnet, and Haiku without starting over.</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Model</th><th>Strengths</th><th>Cost</th><th>Use When</th></tr></thead>
+      <tbody>
+        <tr><td>Opus</td><td>Most capable, best reasoning</td><td>Highest</td><td>Architecture decisions, complex refactors, debugging hard problems</td></tr>
+        <tr><td>Sonnet</td><td>Balanced speed and capability</td><td>Medium</td><td>General coding, most tasks</td></tr>
+        <tr><td>Haiku</td><td>Fastest, cheapest</td><td>Lowest</td><td>Simple edits, quick lookups, boilerplate generation</td></tr>
+      </tbody>
+    </table>
+
+    <div class="analogy">Like shifting gears. You don't drive in first gear on the highway, and you don't use sixth gear in a parking lot. Use Opus for the hard thinking, Sonnet for general work, Haiku for the quick stuff.</div>
+
+    <p><strong>Pro tip:</strong> Start a session with Opus for planning and architecture decisions, then switch to Sonnet for implementation, and Haiku for cleanup and formatting.</p>
+  </div>
+
+  <!-- 15.4 /compact -->
+  <div class="chapter">
+    <div class="chapter-number">15.4</div>
+    <h2><code>/compact</code> (Manual Context Compression)</h2>
+    <p>When your context window fills up, Claude auto-compresses older messages to make room. This is lossy &mdash; details get summarized and nuance is lost. <code>/compact</code> lets you trigger this compression manually, on your terms.</p>
+
+    <p><strong>Why you'd want this:</strong> if you've done a lot of exploratory reading (file reads, searches) that generated verbose output you no longer need, <code>/compact</code> frees that space while you're still in control of what's important. If you wait for auto-compression, it happens at an unpredictable moment and may compress something you still need.</p>
+
+    <div class="analogy">Like manually defragmenting a hard drive (remember that?). The system will do it eventually, but doing it yourself at the right time gives you better results. Or like clearing your browser tabs before your laptop runs out of RAM &mdash; better to choose which tabs to close than to let the OS kill them randomly.</div>
+
+    <p>You can also pass a summary hint: <code>/compact focus on the authentication refactor</code> tells the compressor what to prioritize keeping.</p>
+  </div>
+
+  <!-- 15.5 Permissions -->
+  <div class="chapter">
+    <div class="chapter-number">15.5</div>
+    <h2>Permissions Model</h2>
+    <p>Claude Code asks permission before doing things &mdash; editing files, running commands, making web requests. The permission system has tiers:</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Level</th><th>What Happens</th><th>How to Set</th></tr></thead>
+      <tbody>
+        <tr><td>Ask every time</td><td>Claude pauses and asks before each action</td><td>Default behavior</td></tr>
+        <tr><td>Allow once</td><td>You approve one specific action</td><td>Press Enter or 'y' at the prompt</td></tr>
+        <tr><td>Allow for session</td><td>All actions of that type are auto-approved for this session</td><td>Press 'a' (allow) at the prompt</td></tr>
+        <tr><td>Allowlist (permanent)</td><td>Specific tools/commands are always approved</td><td>Configure in <code>settings.json</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="analogy">Like Windows UAC (User Account Control). By default, every elevated action triggers a prompt. You can configure trusted applications to skip the prompt. The allowlist in settings.json is like marking an app as "always run as administrator."</div>
+
+    <p>The <code>settings.json</code> allowlist lets you pre-approve specific tools and bash command patterns so Claude doesn't interrupt your flow for routine operations.</p>
+  </div>
+
+  <!-- 15.6 settings.json -->
+  <div class="chapter">
+    <div class="chapter-number">15.6</div>
+    <h2><code>settings.json</code> and <code>settings.local.json</code></h2>
+    <p>These are Claude Code's configuration files. They control much more than MCP servers:</p>
+
+    <ul>
+      <li><strong>Permissions</strong> &mdash; which tools and commands are auto-approved</li>
+      <li><strong>Environment variables</strong> &mdash; passed to Claude's environment</li>
+      <li><strong>Allowed/denied tools</strong> &mdash; restrict which tools Claude can use</li>
+      <li><strong>Model preferences</strong> &mdash; default model for new sessions</li>
+      <li><strong>MCP servers</strong> &mdash; plugin configuration (covered in Chapter X)</li>
+      <li><strong>Theme</strong> &mdash; light/dark mode preference</li>
+    </ul>
+
+    <p><strong>Scope:</strong></p>
+    <ul>
+      <li><code>~/.claude/settings.json</code> &mdash; user-level, applies everywhere, never in git</li>
+      <li><code>.claude/settings.json</code> (in repo) &mdash; repo-level, can be checked in for team settings</li>
+      <li><code>.claude/settings.local.json</code> (in repo) &mdash; repo-level overrides, NOT checked in (like <code>.env.local</code>)</li>
+    </ul>
+
+    <div class="analogy">Like the Visual Studio settings hierarchy: Tools > Options (user-level), .editorconfig (repo-level shared), .vs/ directory (repo-level personal). Each layer overrides the one above it.</div>
+  </div>
+
+  <!-- 15.7 Resume -->
+  <div class="chapter">
+    <div class="chapter-number">15.7</div>
+    <h2><code>--resume</code> and <code>--continue</code></h2>
+    <p>You don't have to start a new session every time. You can pick up where you left off:</p>
+
+    <ul>
+      <li><code>claude --resume</code> &mdash; shows a list of recent sessions to choose from</li>
+      <li><code>claude --resume &lt;session-id&gt;</code> &mdash; resumes a specific session by its UUID</li>
+      <li><code>claude --continue</code> &mdash; resumes the most recent session in the current directory</li>
+    </ul>
+
+    <p>Session IDs are UUIDs (like <code>dd8ab84a-a52e-467b-bcb6-0ad3a44a5db6</code>). You can find them in <code>~/.claude/projects/</code> or by using a session manager.</p>
+
+    <div class="analogy">Like reopening a saved game. <code>--continue</code> is "load last save." <code>--resume &lt;id&gt;</code> is "load specific save file." The conversation history, context, and any in-progress work are all restored.</div>
+  </div>
+
+  <!-- 15.8 Cost Tracking -->
+  <div class="chapter">
+    <div class="chapter-number">15.8</div>
+    <h2>Cost Tracking</h2>
+    <p>Every message costs money. Claude Code tracks token usage so you can monitor spend.</p>
+
+    <ul>
+      <li><code>/cost</code> &mdash; shows token usage and estimated cost for the current session</li>
+    </ul>
+
+    <h3>Token Types</h3>
+    <table class="compare-table">
+      <thead><tr><th>Token Type</th><th>What It Is</th><th>Cost (Sonnet)</th></tr></thead>
+      <tbody>
+        <tr><td>Input tokens</td><td>What you send (prompts, file contents, tool results)</td><td>$3.00 / 1M</td></tr>
+        <tr><td>Output tokens</td><td>What Claude generates (responses, code, tool calls)</td><td>$15.00 / 1M</td></tr>
+        <tr><td>Cache write tokens</td><td>First time content enters the cache</td><td>$3.75 / 1M</td></tr>
+        <tr><td>Cache read tokens</td><td>Subsequent reads of cached content (much cheaper)</td><td>$0.30 / 1M</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Cache reads are 10x cheaper than fresh input.</strong> This is why CLAUDE.md and skills are cost-efficient &mdash; they get cached after the first message, so subsequent messages read them from cache at $0.30/1M instead of $3.00/1M.</p>
+
+    <div class="analogy">Like a metered API. Every call costs something. Input is cheap, output is expensive (5x more). Caching is like a CDN &mdash; first request is full price, subsequent requests are pennies.</div>
+  </div>
+
+  <!-- 15.9 CLAUDE.md Inheritance -->
+  <div class="chapter">
+    <div class="chapter-number">15.9</div>
+    <h2>The CLAUDE.md Inheritance Chain</h2>
+    <p>There isn't just one CLAUDE.md. There's a stack, and they all get loaded and composed:</p>
+
+    <ol>
+      <li><strong><code>~/.claude/CLAUDE.md</code></strong> &mdash; Global. Applies to every session, every repo, on your machine. Put your universal preferences here (coding style, response format, things you always want).</li>
+      <li><strong><code>CLAUDE.md</code> in repo root</strong> &mdash; Repo-level. Checked into git, shared with your team. Project architecture, conventions, anti-patterns specific to this codebase.</li>
+      <li><strong><code>CLAUDE.md</code> in subdirectories</strong> &mdash; Directory-level. If you <code>cd</code> into <code>src/frontend/</code> and there's a <code>CLAUDE.md</code> there, it gets loaded too. Useful for monorepos where different directories have different conventions.</li>
+    </ol>
+
+    <p>They stack &mdash; all matching files are loaded, not just the nearest one. Global + repo root + subdirectory all contribute to the instructions Claude sees.</p>
+
+    <div class="analogy">Like CSS specificity. Global styles (user stylesheet) apply everywhere. Page styles (repo CLAUDE.md) override for this project. Inline styles (subdirectory CLAUDE.md) override for this specific area. They cascade &mdash; more specific rules win when they conflict, but all layers are present.</div>
+
+    <div class="real-talk">Don't go overboard. Every CLAUDE.md consumes context window tokens. A 500-line global CLAUDE.md plus a 300-line repo CLAUDE.md plus subdirectory files can eat 5-10% of your context before you've typed a single prompt. Keep each file focused and concise.</div>
+  </div>
+
+  <!-- 15.10 Extended Thinking -->
+  <div class="chapter">
+    <div class="chapter-number">15.10</div>
+    <h2>Extended Thinking</h2>
+    <p>Sometimes Claude pauses for 10-30 seconds before responding. This isn't lag &mdash; it's <strong>extended thinking</strong>, a mode where Claude does deeper reasoning before generating a response.</p>
+
+    <h3>What Happens</h3>
+    <p>Claude generates internal "thinking" tokens that you don't see. These are reasoning steps: analyzing the problem, considering approaches, checking constraints. Only the final answer appears in your conversation.</p>
+
+    <h3>When It Activates</h3>
+    <ul>
+      <li>Complex architectural decisions</li>
+      <li>Multi-step reasoning problems</li>
+      <li>When Claude needs to reconcile conflicting requirements</li>
+      <li>Large codebase analysis</li>
+    </ul>
+
+    <h3>Cost Implications</h3>
+    <p>Thinking tokens are output tokens &mdash; the most expensive kind. A 30-second thinking pause might generate thousands of internal tokens you never see but still pay for. This is why Opus with extended thinking costs significantly more than Haiku for simple tasks.</p>
+
+    <div class="analogy">Like a chess computer thinking ahead. You see the final move, not the millions of positions it evaluated. The evaluation takes time and compute (money), but the result is a much better move than an instant reaction would produce.</div>
+
+    <p><strong>Practical tip:</strong> If you're doing simple tasks (rename a variable, add a comment), use Haiku &mdash; it doesn't need to think deeply. Save Opus + extended thinking for the problems that actually require deep reasoning.</p>
+  </div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- TAB 2: QUICK QUIZ                             -->
+<!-- ============================================ -->
+<section id="shorter" class="tab-panel">
+  <div class="time-estimate">Estimated time: 15-20 minutes | 40 questions</div>
+  <div class="quiz-header">
+    <div class="quiz-title">Quick Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="shorter-score">0</span> / <span class="total" id="shorter-total">0</span></div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="shorter-progress"></div>
+  </div>
+  <div class="quiz-controls">
+    <button data-filter-quiz="shorter" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="shorter" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="shorter" data-filter="incorrect">Incorrect</button>
+  </div>
+  <div id="shorter-questions"></div>
+  <div class="final-score" id="shorter-final">
+    <div class="big-score" id="shorter-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="shorter-reset">Reset Quiz</button>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- TAB 3: DEEP QUIZ                              -->
+<!-- ============================================ -->
+<section id="larger" class="tab-panel">
+  <div class="time-estimate">Estimated time: 30-40 minutes | 55 scenario-based questions</div>
+  <div class="quiz-header">
+    <div class="quiz-title">Deep Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="larger-score">0</span> / <span class="total" id="larger-total">0</span></div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="larger-progress"></div>
+  </div>
+  <div class="quiz-controls">
+    <button data-filter-quiz="larger" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="larger" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="larger" data-filter="incorrect">Incorrect</button>
+  </div>
+  <div id="larger-questions"></div>
+  <div class="final-score" id="larger-final">
+    <div class="big-score" id="larger-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="larger-reset">Reset Quiz</button>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- TAB 4: PLUGIN QUIZ                            -->
+<!-- ============================================ -->
+<section id="plugins" class="tab-panel">
+  <div class="time-estimate">Estimated time: 10-15 minutes | 20 MCP/plugin questions</div>
+  <div class="quiz-header">
+    <div class="quiz-title">Plugin Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="plugins-score">0</span> / <span class="total" id="plugins-total">0</span></div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="plugins-progress"></div>
+  </div>
+  <div class="quiz-controls">
+    <button data-filter-quiz="plugins" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="plugins" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="plugins" data-filter="incorrect">Incorrect</button>
+  </div>
+  <div id="plugins-questions"></div>
+  <div class="final-score" id="plugins-final">
+    <div class="big-score" id="plugins-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="plugins-reset">Reset Quiz</button>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- TAB 5: PRACTITIONER'S GUIDE                   -->
+<!-- ============================================ -->
+<section id="practitioner" class="tab-panel">
+
+  <div class="time-estimate">Estimated reading time: 20-25 minutes</div>
+
+  <h2>An AI Practitioner's Guide</h2>
+  <p>This is practical advice for building real software with AI coding tools. Not theory. Not hype. This is what works when you're 30,000 lines deep and still adding features.</p>
+
+  <!-- === Section 1: The Loop === -->
+  <div class="chapter">
+    <div class="chapter-number">I</div>
+    <h2>The AI Code Loop</h2>
+
+    <p>There is a loop. Once you see it, you can't unsee it, and everything gets easier. Here it is:</p>
+
+    <ol>
+      <li><strong>Instruct.</strong> Tell your AI coding tool what to build. Be specific about constraints: testing methodology, code organization, reuse patterns.</li>
+      <li><strong>Code.</strong> The AI writes code. You watch, guide, and course-correct.</li>
+      <li><strong>Test.</strong> Tests run &mdash; either in a test framework, or self-contained in the app itself. Every change set triggers validation.</li>
+      <li><strong>Review.</strong> A <em>different</em> AI (not the one that wrote the code) reviews it. Copilot reviews Claude's code. Codex reviews Claude's code. A fresh Claude session reviews the existing session's code. Multiple perspectives catch what a single perspective misses.</li>
+      <li><strong>Fix.</strong> Feed the review findings back into the coding AI. It fixes. Tests run again. Repeat until green.</li>
+      <li><strong>Document.</strong> AI updates the changelog, README, product analysis, and CLAUDE.md with what was learned.</li>
+      <li><strong>Commit.</strong> Version number, git tag, check in. You never lose work.</li>
+    </ol>
+
+    <p>Then you start the loop again for the next feature.</p>
+
+    <div class="analogy">Like a factory production line with quality checkpoints. Raw materials (your prompt) enter at one end. Each station (code, test, review, fix) adds value and catches defects. Nothing ships until it passes every station. The loop isn't bureaucracy &mdash; it's what lets you keep the factory running at speed without producing junk.</div>
+  </div>
+
+  <!-- === Section 2: Red-Green === -->
+  <div class="chapter">
+    <div class="chapter-number">II</div>
+    <h2>Red-Green Testing</h2>
+
+    <p>Tell your AI to write the test <strong>before</strong> writing the fix. This is non-negotiable.</p>
+
+    <ol>
+      <li><strong>RED:</strong> Write a test that catches the bug (or validates the new feature). Run it. It should <strong>fail</strong>. If it passes, the test is wrong &mdash; it doesn't actually detect the problem.</li>
+      <li><strong>GREEN:</strong> Write the production code that makes the test pass.</li>
+      <li><strong>Verify:</strong> Run all tests. The new one passes, and nothing else broke.</li>
+    </ol>
+
+    <p>Why this matters: AI will happily write a test that passes on buggy code. That test is worse than no test &mdash; it gives you false confidence. The red phase <em>proves</em> the test actually detects the problem.</p>
+
+    <div class="real-talk"><strong>AI will try to fix the test instead of the code.</strong> This is the single most common failure mode. When a test fails, AI's instinct is to make the test pass by changing the test's expectations. You must tell it: "The test is correct. The production code has the bug. Fix the production code." Put this rule in your CLAUDE.md. You will need it.</div>
+
+    <h3>Write Broad Tests, Not Narrow Ones</h3>
+    <p>When you find a bug, don't write a test that checks one specific line. Write a test that scans the <strong>entire codebase</strong> for the pattern that caused the bug. If a missing null check crashed one function, scan every function for the same missing check. AI makes the same mistake in many places at once &mdash; your test should catch all of them.</p>
+  </div>
+
+  <!-- === Section 3: Architecture === -->
+  <div class="chapter">
+    <div class="chapter-number">III</div>
+    <h2>Code Architecture That Survives AI</h2>
+
+    <p>AI writes code that works <em>right now</em>. Your job is to ensure it still works after 50 more changes. That requires structure.</p>
+
+    <h3>Separation of Concerns</h3>
+    <p>Put related code in related directories. Menus go in <code>ui/</code>. Database access goes in <code>data/</code>. Session management goes in <code>session/</code>. This isn't perfectionism &mdash; it's how you find things six months from now, and how AI finds things when its context window fills up.</p>
+
+    <h3>Code Reuse (The Central Battle)</h3>
+    <p>AI will write a new variation of a function every time you ask for something similar. You'll end up with three functions that format dates, four that parse JSON, and five that build file paths. <strong>This is the #1 maintenance problem with AI-generated code.</strong></p>
+
+    <p>Fight it constantly:</p>
+    <ul>
+      <li>When you see the same 3 lines in two places, extract a shared function</li>
+      <li>Put shared helpers in a <code>core/</code> or <code>utils/</code> namespace</li>
+      <li>Tell your AI explicitly: "Check if a helper already exists before writing new code"</li>
+      <li>Put this rule in CLAUDE.md so it persists across sessions</li>
+    </ul>
+
+    <div class="analogy">Like keeping a clean workshop. If you let tools pile up wherever they're last used, you'll buy duplicates because you can't find the one you already have. Organized tools mean you grab the right one every time. AI is the apprentice who buys a new wrench for every job instead of checking the toolbox.</div>
+
+    <h3>Registry-Driven Design (Avoid If-Else Chains)</h3>
+    <p>When your code needs to handle multiple similar things differently (platforms, providers, formats), don't write:</p>
+    <pre><code>if (platform == "claude") { doX() }
+else if (platform == "gemini") { doY() }
+else if (platform == "codex") { doZ() }</code></pre>
+
+    <p>Instead, create a registry &mdash; a data structure that maps each variant to its behavior:</p>
+    <pre><code>registry = {
+  claude: { handler: doX, color: "blue" },
+  gemini: { handler: doY, color: "yellow" },
+  codex:  { handler: doZ, color: "magenta" }
+}
+// Then: registry[platform].handler()</code></pre>
+
+    <p>Adding a new platform means adding one registry entry &mdash; not hunting through every if-else chain in the codebase. This pattern is worth learning. AI will default to if-else chains every time unless you tell it not to.</p>
+
+    <h3>On SOLID and Design Principles</h3>
+    <p>SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion) are useful guidelines, not commandments. Apply them where they reduce complexity:</p>
+    <ul>
+      <li><strong>Single Responsibility</strong> &mdash; always useful. One file, one job. One function, one purpose.</li>
+      <li><strong>Open/Closed</strong> &mdash; the registry pattern above is this in practice. Extend by adding data, not modifying existing code.</li>
+      <li><strong>Liskov / Interface Segregation / DI</strong> &mdash; valuable in typed languages with class hierarchies (C#, Java, TypeScript). Overkill in scripting languages (PowerShell, Python, Bash). Don't force interfaces and dependency injection into a 500-line script.</li>
+    </ul>
+
+    <p>The practical test: <em>"Would this pattern prevent a real bug or make a real change easier?"</em> If yes, use it. If it just adds abstraction for abstraction's sake, skip it.</p>
+  </div>
+
+  <!-- === Section 4: Cross-AI Review === -->
+  <div class="chapter">
+    <div class="chapter-number">IV</div>
+    <h2>Cross-AI Code Review</h2>
+
+    <p>Never let the AI that wrote the code be the only one that reviews it. This is like letting the student grade their own exam.</p>
+
+    <h3>The Process</h3>
+    <ol>
+      <li>Claude Code writes the code</li>
+      <li>Open a <strong>different</strong> AI (Copilot, Codex, a fresh Claude session, Gemini) and point it at the code</li>
+      <li>Ask it to review for: bugs, security issues, missed edge cases, code duplication, naming problems</li>
+      <li>The reviewer writes findings to a file (<code>PR.md</code>)</li>
+      <li>Feed <code>PR.md</code> back to the original Claude Code session</li>
+      <li>Claude fixes the issues using red-green methodology</li>
+    </ol>
+
+    <p>Two reviewers are better than one. Different AI models catch different things &mdash; GPT models notice different patterns than Claude models.</p>
+
+    <div class="real-talk">This sounds like a lot of ceremony. It isn't. The review step takes 2-3 minutes. It catches bugs that would take hours to debug later. The cost-benefit ratio is absurdly good.</div>
+  </div>
+
+  <!-- === Section 5: Testing at Scale === -->
+  <div class="chapter">
+    <div class="chapter-number">V</div>
+    <h2>Testing at Scale</h2>
+
+    <p>As your codebase grows, your test count should grow with it. Hundreds of tests are normal. Thousands are not unusual for a mature project.</p>
+
+    <h3>Where Tests Live</h3>
+    <p>Wherever makes sense for your project:</p>
+    <ul>
+      <li><strong>In a test framework</strong> (Jest, pytest, Pester) &mdash; if one exists for your language</li>
+      <li><strong>In the app itself</strong> &mdash; if no framework exists, build validation into your code. A "run tests" menu option that executes all checks and reports PASS/FAIL is perfectly valid</li>
+      <li><strong>As static analysis</strong> &mdash; tests that scan your source code for known anti-patterns (hardcoded values, missing error handling, duplicate logic)</li>
+    </ul>
+
+    <p>The output format matters: <strong>PASS</strong>, <strong>FAIL</strong>, <strong>WARN</strong> with explanations. This output can be copied and fed directly back to AI as instructions for what to fix.</p>
+
+    <h3>Pattern-Level Testing</h3>
+    <p>When you find a bug, ask: "Is this a one-off mistake, or a pattern?" If AI wrote a function with a missing null check, it probably wrote ten functions with missing null checks. Write a test that scans <em>all</em> functions for the pattern, not just the one where you found it.</p>
+
+    <h3>Lint and Static Analysis</h3>
+    <p>Use external lint tools for your language (ESLint, PSScriptAnalyzer, pylint, etc.). Run them on every change. They catch categories of bugs that neither you nor AI will notice during review.</p>
+  </div>
+
+  <!-- === Section 6: Documentation === -->
+  <div class="chapter">
+    <div class="chapter-number">VI</div>
+    <h2>Documentation as a Development Tool</h2>
+
+    <p>AI-generated documentation is not busywork. It's a development tool.</p>
+
+    <h3>The Files That Matter</h3>
+    <ul>
+      <li><strong>CLAUDE.md</strong> (or your AI's equivalent) &mdash; Hard-won facts. Rules. Anti-patterns to avoid. Architecture decisions. This file is read by AI at the start of every session. It is your persistent memory across conversations.</li>
+      <li><strong>CHANGELOG.md</strong> &mdash; What changed per version. Lets you (and AI) understand the evolution of the codebase.</li>
+      <li><strong>README.md</strong> &mdash; What the project is, how to build it, how to run it. Useful for onboarding new AI sessions, too.</li>
+      <li><strong>Code comments</strong> &mdash; Not obvious-what comments ("increment counter"). Hard-won-fact comments ("Do NOT use KeyAvailable in a processing loop &mdash; it blocks on spurious events"). These survive across sessions because they're in the code.</li>
+    </ul>
+
+    <h3>CLAUDE.md as Institutional Memory</h3>
+    <p>Every painful debugging session should end with an update to CLAUDE.md. If you spent 2 hours figuring out that a particular API silently returns null on Sundays, write it down. AI will encounter the same trap in a future session. CLAUDE.md prevents your AI from repeating your mistakes.</p>
+
+    <div class="analogy">Like a pilot's checklist built from crash investigations. Every rule in the checklist exists because someone got hurt. CLAUDE.md is your project's crash investigation record. It doesn't just tell AI what to do &mdash; it tells AI what NOT to do, and why.</div>
+
+    <h3>Let AI Document Your Work</h3>
+    <p>After completing a feature, tell AI to update the changelog and product analysis. Reading AI's description of what you just built is surprisingly useful &mdash; it gives you an outsider's perspective on your own creation. Inconsistencies and gaps become visible when someone else describes your work back to you.</p>
+  </div>
+
+  <!-- === Section 7: Source Control === -->
+  <div class="chapter">
+    <div class="chapter-number">VII</div>
+    <h2>Source Control Is Your Safety Net</h2>
+
+    <p>Commit early, commit often, commit with version numbers.</p>
+
+    <ul>
+      <li><strong>Small commits</strong> &mdash; easier to test, easier to revert, easier to understand in the git log</li>
+      <li><strong>Version tags</strong> &mdash; every significant milestone gets a version (v1.0, v2.0). You can always go back.</li>
+      <li><strong>Experiment freely</strong> &mdash; with source control, you can try bold refactors. If they fail, revert. Without source control, you're walking a tightrope with no net.</li>
+      <li><strong>Branch for experiments</strong> &mdash; try something risky on a branch. If it works, merge. If not, delete the branch. No harm done.</li>
+    </ul>
+
+    <div class="real-talk">If you're not using source control, start today. Git is free. GitHub is free. The learning curve is real but short. The alternative is losing code to a bad AI edit that you can't undo.</div>
+  </div>
+
+  <!-- === Section 8: Managing AI Behavior === -->
+  <div class="chapter">
+    <div class="chapter-number">VIII</div>
+    <h2>Managing AI Behavior</h2>
+
+    <p>AI is a powerful but opinionated collaborator. Here are the behaviors you'll need to manage:</p>
+
+    <h3>AI Adds Unnecessary Complexity</h3>
+    <p>AI over-engineers by default. It adds error handling for impossible cases, creates abstractions for one-time operations, and builds configurable systems when you asked for a simple function. Tell it explicitly: "Keep it simple. Don't add features I didn't ask for. Don't add error handling for scenarios that can't happen."</p>
+
+    <h3>AI Duplicates Instead of Reusing</h3>
+    <p>Already discussed, but worth repeating: AI writes new code when existing helpers would do. Put "check for existing helpers before writing new code" in every instruction file.</p>
+
+    <h3>AI Fixes Tests Instead of Code</h3>
+    <p>When a test fails, AI's first instinct is to change the test expectations to match the (buggy) output. "Never fix a test to make it pass. Fix the production code." Put this in CLAUDE.md in bold.</p>
+
+    <h3>AI Forgets Across Sessions</h3>
+    <p>Every new session starts fresh. AI doesn't remember your architecture decisions, naming conventions, or past mistakes unless you write them down. CLAUDE.md, memory files, and code comments are how knowledge persists. Without them, you'll re-explain the same things session after session.</p>
+
+    <h3>AI Makes Consistent Mistakes</h3>
+    <p>When AI makes a mistake in one place, it has probably made the same mistake everywhere. Don't just fix the instance &mdash; search the entire codebase for the pattern. Write a test that catches the pattern globally. This is the single most effective quality practice for AI-generated code.</p>
+  </div>
+
+  <!-- === Section 9: The Prediction === -->
+  <div class="chapter">
+    <div class="chapter-number">IX</div>
+    <h2>A Note on the Future</h2>
+
+    <p>By 2027, you probably won't need most of these practices. AI tools will get better at maintaining context, avoiding duplication, and testing their own output. The tools will internalize the discipline that we currently impose manually.</p>
+
+    <p>But it's still 2026. And right now, the difference between a developer who follows these practices and one who doesn't is the difference between a project that grows gracefully and one that collapses under its own weight at version 5.</p>
+
+    <p>The loop works. Use it.</p>
+  </div>
+
+  <div class="real-talk">This guide was NOT followed in the making of this website! It didn't warrant it. This guide is for serious development, not for throwing together a static webpage with a little JavaScript.</div>
+
+</section>
+
+<!-- Old bonus tab removed — content moved to Manifesto Chapter 15 -->
+
+<!-- ============================================ -->
+<!-- TAB: BONUS QUIZ                               -->
+<!-- ============================================ -->
+<section id="bonusquiz" class="tab-panel">
+  <div class="time-estimate">Estimated time: 10-15 minutes | 20 questions</div>
+  <div class="quiz-header">
+    <div class="quiz-title">Bonus Features Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="bonusquiz-score">0</span> / <span class="total" id="bonusquiz-total">0</span></div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="bonusquiz-progress"></div>
+  </div>
+  <div class="quiz-controls">
+    <button data-filter-quiz="bonusquiz" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="bonusquiz" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="bonusquiz" data-filter="incorrect">Incorrect</button>
+  </div>
+  <div id="bonusquiz-questions"></div>
+  <div class="final-score" id="bonusquiz-final">
+    <div class="big-score" id="bonusquiz-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="bonusquiz-reset">Reset Quiz</button>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: REMOTE CONTROL                           -->
+<!-- ============================================ -->
+<section id="remote" class="tab-panel">
+
+  <h2>Remote Control from Your Phone</h2>
+  <p>Shipped February 25, 2026. Start a task on your laptop, put it in your bag, and keep full control from your phone. The session runs locally on your machine &mdash; your filesystem, MCP servers, tools, and project config all stay available. You just control it remotely.</p>
+
+  <div class="analogy">Like Remote Desktop, but for a single CLI session. Your machine does all the work. Your phone is just a window into it.</div>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li><strong>Claude Code v2.1.52+</strong> &mdash; update with <code>npm update -g @anthropic-ai/claude-code</code></li>
+    <li><strong>Pro or Max plan</strong> &mdash; not available on Team or Enterprise yet</li>
+    <li><strong>Authenticated CLI</strong> &mdash; run <code>/login</code> if you haven't already</li>
+    <li><strong>The Claude mobile app</strong> (iOS/Android) or any browser pointed at <a href="https://claude.ai/code" style="color: var(--accent-blue);">claude.ai/code</a></li>
+  </ul>
+
+  <h3>Method 1: From an Existing Session (<code>/rc</code>)</h3>
+  <p>You're already in a Claude Code session and want to hand it off to your phone:</p>
+  <ol>
+    <li>Optional but recommended: type <code>/rename MyTask</code> so you can find the session by name on your phone</li>
+    <li>Type <code>/rc</code> (short for <code>/remote-control</code>)</li>
+    <li>A session URL appears in your terminal</li>
+    <li>Press <strong>spacebar</strong> to toggle a QR code display</li>
+    <li>Scan the QR code with your phone &mdash; it opens directly in the Claude app or browser</li>
+    <li>You're now controlling the session from your phone. The conversation stays in sync.</li>
+  </ol>
+
+  <h3>Method 2: Start a New Remote Session</h3>
+  <p>Start a session that's remote-ready from the beginning:</p>
+  <ol>
+    <li><code>cd</code> to your project directory</li>
+    <li>Run <code>claude remote-control</code></li>
+    <li>The terminal shows a session URL and QR code (spacebar to toggle)</li>
+    <li>Scan or open the URL on your phone</li>
+    <li>Start prompting from your phone immediately</li>
+  </ol>
+
+  <h3>Three Ways to Connect from Your Phone</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Method</th><th>How</th><th>Best For</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>QR Code</td>
+        <td>Scan the QR code shown in terminal (press spacebar to show it)</td>
+        <td>Quickest &mdash; phone camera to session in 2 seconds</td>
+      </tr>
+      <tr>
+        <td>Session URL</td>
+        <td>Copy the URL from terminal, open in any browser</td>
+        <td>When you're connecting from a tablet or another computer</td>
+      </tr>
+      <tr>
+        <td>Session List</td>
+        <td>Open <a href="https://claude.ai/code" style="color: var(--accent-blue);">claude.ai/code</a> or the Claude app, find the session by name</td>
+        <td>When you named the session with <code>/rename</code> and want to find it later</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Remote Control sessions show a <strong>computer icon with a green dot</strong> in the session list when online.</p>
+
+  <h3>Enable for Every Session (Auto Mode)</h3>
+  <p>If you always want Remote Control available:</p>
+  <ol>
+    <li>Type <code>/config</code> inside any Claude Code session</li>
+    <li>Set <strong>"Enable Remote Control for all sessions"</strong> to <code>true</code></li>
+    <li>Every future session will automatically be available for remote connection</li>
+  </ol>
+
+  <h3>What Happens Under the Hood</h3>
+  <ul>
+    <li>Claude Code registers with the Anthropic API and polls for work</li>
+    <li>When you connect from your phone, the server routes messages between your device and your local session over a streaming connection</li>
+    <li>All traffic travels through the Anthropic API over <strong>TLS</strong> (encrypted)</li>
+    <li>Your code never leaves your machine &mdash; only conversation messages are transmitted</li>
+    <li>One remote connection per session (you can't have two phones controlling the same session)</li>
+  </ul>
+
+  <h3>Constraints and Gotchas</h3>
+  <ul>
+    <li><strong>Terminal must stay open.</strong> If you close the terminal or stop the process, the session ends. Minimize it, don't close it.</li>
+    <li><strong>Laptop sleep is okay.</strong> The session reconnects automatically when your machine wakes up.</li>
+    <li><strong>10-minute network timeout.</strong> If your machine loses network for more than ~10 minutes while awake, the session times out and the process exits.</li>
+    <li><strong>Pro/Max only.</strong> Not available on Team or Enterprise plans as of March 2026.</li>
+    <li><strong>Phone typing is painful.</strong> Remote Control is best for monitoring progress, approving tool uses, and giving short follow-up prompts &mdash; not for writing detailed instructions. Start the big prompt on your laptop, then monitor from your phone.</li>
+  </ul>
+
+  <div class="real-talk">The killer use case: kick off a long refactoring task, walk to a meeting, and approve file edits from your phone as Claude works through them. You don't lose 30 minutes of AI productivity just because you had to leave your desk.</div>
+
+  <h3>Practical Workflow</h3>
+  <ol>
+    <li>At your desk: start a Claude Code session, give it a complex task</li>
+    <li>Type <code>/rc</code>, scan the QR code with your phone</li>
+    <li>Close your laptop lid (sleep is fine)</li>
+    <li>From your phone: watch Claude work, approve tool uses, answer questions</li>
+    <li>Back at your desk: open your laptop, the terminal is still running, continue in the terminal</li>
+  </ol>
+
+</section>
+
+<!-- ============================================ -->
+<!-- TAB 7: OTHER AI CLIs                          -->
+<!-- ============================================ -->
+<section id="compare" class="tab-panel">
+
+  <h2>Other AI Coding CLIs</h2>
+  <p>Claude Code isn't the only AI coding CLI. Here's how the major players compare on the features discussed in this guide. All of these are <strong>terminal-based</strong> coding assistants &mdash; not IDE plugins, not chat UIs.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Claude Code</th>
+        <th>Codex CLI</th>
+        <th>Copilot CLI</th>
+        <th>OpenCode</th>
+        <th>Gemini CLI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Vendor</td>
+        <td>Anthropic</td>
+        <td>OpenAI</td>
+        <td>GitHub / Microsoft</td>
+        <td>Community (OSS)</td>
+        <td>Google</td>
+      </tr>
+      <tr>
+        <td>Default Model(s)</td>
+        <td>Claude Opus, Sonnet, Haiku</td>
+        <td>GPT-5.x Codex variants</td>
+        <td>Claude Haiku, GPT-4.1, GPT-5 Mini</td>
+        <td>Any (Claude, GPT, etc.)</td>
+        <td>Gemini 2.5 Pro/Flash, 3 Pro</td>
+      </tr>
+      <tr>
+        <td>Session Persistence</td>
+        <td><span class="check">Yes</span> &mdash; .jsonl files</td>
+        <td><span class="check">Yes</span> &mdash; SQLite</td>
+        <td><span class="check">Yes</span> &mdash; events.jsonl</td>
+        <td><span class="check">Yes</span> &mdash; SQLite</td>
+        <td><span class="check">Yes</span> &mdash; JSON files</td>
+      </tr>
+      <tr>
+        <td>Resume Sessions</td>
+        <td><span class="check">Yes</span> <code>--resume</code></td>
+        <td><span class="check">Yes</span> <code>resume</code></td>
+        <td><span class="check">Yes</span> <code>--resume</code></td>
+        <td><span class="check">Yes</span> <code>--session</code></td>
+        <td><span class="check">Yes</span> <code>--resume</code></td>
+      </tr>
+      <tr>
+        <td>Fork Sessions</td>
+        <td><span class="check">Yes</span> <code>--fork-session</code></td>
+        <td><span class="check">Yes</span> <code>fork</code></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes</span> <code>--fork</code></td>
+        <td><span class="cross">No</span></td>
+      </tr>
+      <tr>
+        <td>Project Instructions (CLAUDE.md equivalent)</td>
+        <td><span class="check">CLAUDE.md</span></td>
+        <td><span class="check">AGENTS.md</span></td>
+        <td><span class="check">copilot-instructions.md</span></td>
+        <td><span class="check">AGENTS.md</span></td>
+        <td><span class="check">GEMINI.md</span></td>
+      </tr>
+      <tr>
+        <td>Skills / Instruction Files</td>
+        <td><span class="check">Yes</span> &mdash; SKILL.md in .claude/</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+      </tr>
+      <tr>
+        <td>Slash Commands</td>
+        <td><span class="check">Yes</span> &mdash; .claude/commands/</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+      </tr>
+      <tr>
+        <td>Hooks (Event Triggers)</td>
+        <td><span class="check">Yes</span> &mdash; pre/post tool use, session start</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+      </tr>
+      <tr>
+        <td>MCP Servers (Plugins)</td>
+        <td><span class="check">Yes</span> &mdash; full MCP support</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="partial">Limited</span> &mdash; extensions via GitHub</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes</span> &mdash; MCP support</td>
+      </tr>
+      <tr>
+        <td>Agents / Subagents</td>
+        <td><span class="check">Yes</span> &mdash; spawns child Claude instances</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+      </tr>
+      <tr>
+        <td>Memory (Cross-Session)</td>
+        <td><span class="check">Yes</span> &mdash; ~/.claude/projects/*/memory/</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+      </tr>
+      <tr>
+        <td>Plan Mode</td>
+        <td><span class="check">Yes</span> &mdash; structured planning before coding</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+        <td><span class="cross">No</span></td>
+      </tr>
+      <tr>
+        <td>File Editing</td>
+        <td><span class="check">Yes</span> &mdash; Read, Edit, Write tools</td>
+        <td><span class="check">Yes</span> &mdash; apply patch model</td>
+        <td><span class="check">Yes</span> &mdash; file operations</td>
+        <td><span class="check">Yes</span> &mdash; file operations</td>
+        <td><span class="check">Yes</span> &mdash; file operations</td>
+      </tr>
+      <tr>
+        <td>Shell Command Execution</td>
+        <td><span class="check">Yes</span> &mdash; Bash tool</td>
+        <td><span class="check">Yes</span> &mdash; sandbox mode</td>
+        <td><span class="check">Yes</span> &mdash; shell access</td>
+        <td><span class="check">Yes</span> &mdash; shell access</td>
+        <td><span class="check">Yes</span> &mdash; shell access</td>
+      </tr>
+      <tr>
+        <td>Permission Model</td>
+        <td>Per-action approval or bypass mode</td>
+        <td>Sandbox + approval tiers</td>
+        <td><code>--yolo</code> (allow-all) mode</td>
+        <td>Config-based</td>
+        <td><code>--approval-mode yolo</code></td>
+      </tr>
+      <tr>
+        <td>Cost Model</td>
+        <td>Per-token (input/output/cache)</td>
+        <td>Per-token blended rate</td>
+        <td>Premium requests (subscription)</td>
+        <td>Per-message (provider-dependent)</td>
+        <td>Free tier / API key billing</td>
+      </tr>
+      <tr>
+        <td>Install Method</td>
+        <td><code>npm i -g @anthropic-ai/claude-code</code></td>
+        <td><code>npm i -g @openai/codex</code></td>
+        <td><code>npm i -g @github/copilot</code></td>
+        <td><code>npm i -g opencode-ai</code></td>
+        <td><code>npm i -g @google/gemini-cli</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Key Takeaway</h3>
+  <p>Claude Code has the richest extension architecture by far &mdash; skills, hooks, slash commands, MCP servers, agents, memory, and plan mode are all unique to it. The other CLIs are primarily prompt-and-respond tools with session persistence. If you're investing time learning AI coding tool architecture, Claude Code is where that investment pays off the most.</p>
+
+  <p>That said, all five CLIs can edit files, run commands, and resume sessions. For basic coding tasks, the experience is similar across all of them. The differences emerge when you want <strong>automation</strong> (hooks), <strong>extensibility</strong> (MCP), <strong>reusable workflows</strong> (skills/commands), and <strong>cross-session knowledge</strong> (memory).</p>
+
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: GLOSSARY                                 -->
+<!-- ============================================ -->
+<section id="glossary" class="tab-panel">
+
+  <h2>Glossary</h2>
+  <p>Every tool, acronym, and term used in this guide &mdash; defined in one place.</p>
+
+  <h3>CLI Tools &amp; Commands</h3>
+  <table class="compare-table">
+    <thead><tr><th>Tool</th><th>What It Is</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm</code></td><td><strong>Node Package Manager.</strong> Installs JavaScript packages from the npm registry. Used to install Claude Code, Codex, Copilot, Gemini CLIs. Like NuGet for the JavaScript world.</td></tr>
+      <tr><td><code>npx</code></td><td>Runs an npm package without permanently installing it. <code>npx -y @example/mcp-server</code> downloads and runs the package in one step. Like <code>dotnet tool run</code>.</td></tr>
+      <tr><td><code>node</code> / <code>Node.js</code></td><td>JavaScript runtime that runs outside the browser. Required by npm. Most AI CLI tools are Node.js applications.</td></tr>
+      <tr><td><code>python</code> / <code>pip</code></td><td>Python programming language and its package manager. Some MCP servers and tools (like SQLite access) use Python. <code>pip install</code> is Python's version of <code>npm install</code>.</td></tr>
+      <tr><td><code>git</code></td><td>Version control system. Tracks changes to your code over time. <code>git commit</code> saves a snapshot. <code>git push</code> uploads to GitHub. Essential for any serious development.</td></tr>
+      <tr><td><code>bash</code></td><td>A command-line shell (the program that interprets your typed commands). Default on Mac/Linux. Available on Windows via WSL or Git Bash. Claude Code's Bash tool runs commands through this.</td></tr>
+      <tr><td><code>ssh</code></td><td><strong>Secure Shell.</strong> Lets you connect to a remote machine's command line over an encrypted connection. How you'd access Claude Code running on a remote server.</td></tr>
+      <tr><td><code>tmux</code></td><td>Terminal multiplexer. Lets you run a CLI session, detach from it, and reattach later &mdash; even from a different machine. Like keeping a program running after you close the window.</td></tr>
+      <tr><td><code>sqlite</code> / <code>SQLite</code></td><td>A lightweight database stored as a single file. Codex and OpenCode store session data in SQLite databases. No server needed.</td></tr>
+      <tr><td><code>grep</code></td><td>Searches for text patterns in files. <code>grep "function" *.js</code> finds all lines containing "function" in JavaScript files. Claude Code has a built-in Grep tool.</td></tr>
+      <tr><td><code>sed</code></td><td>Stream editor. Transforms text via commands (find/replace, delete lines). Used in scripts for automated text manipulation.</td></tr>
+      <tr><td><code>cd</code></td><td><strong>Change Directory.</strong> Navigates to a folder. <code>cd C:\repos\MyProject</code> moves you into that directory.</td></tr>
+      <tr><td><code>mkdir</code></td><td><strong>Make Directory.</strong> Creates a new folder.</td></tr>
+      <tr><td><code>ls</code></td><td>Lists files in a directory. The Unix equivalent of <code>dir</code> on Windows.</td></tr>
+      <tr><td><code>cat</code></td><td>Outputs file contents to the terminal. <code>cat readme.md</code> prints the file.</td></tr>
+      <tr><td><code>curl</code></td><td>Transfers data from/to URLs via command line. Used to test APIs: <code>curl https://api.example.com/users</code>.</td></tr>
+      <tr><td><code>brew</code> (Homebrew)</td><td>Package manager for macOS. <code>brew install node</code> installs Node.js. Mac's equivalent of apt/chocolatey.</td></tr>
+      <tr><td><code>apt</code></td><td>Package manager for Debian/Ubuntu Linux. <code>apt install nodejs</code> installs Node.js.</td></tr>
+      <tr><td><code>wsl</code></td><td><strong>Windows Subsystem for Linux.</strong> Runs a real Linux environment inside Windows. Many CLI tools work better under WSL.</td></tr>
+      <tr><td><code>chmod</code></td><td>Changes file permissions on Unix/Mac. <code>chmod +x script.sh</code> makes a script executable.</td></tr>
+      <tr><td><code>sudo</code></td><td>Runs a command as administrator (root) on Unix/Mac. Like "Run as Administrator" on Windows.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Acronyms</h3>
+  <table class="compare-table">
+    <thead><tr><th>Acronym</th><th>Full Name</th><th>What It Means</th></tr></thead>
+    <tbody>
+      <tr><td>CLI</td><td>Command Line Interface</td><td>A text-based way to interact with a program. You type commands, it responds with text.</td></tr>
+      <tr><td>GUI</td><td>Graphical User Interface</td><td>A visual interface with windows, buttons, and mouse interaction. What most people think of as "an application."</td></tr>
+      <tr><td>IDE</td><td>Integrated Development Environment</td><td>A code editor with built-in tools (debugger, compiler, etc.). Visual Studio, VS Code, JetBrains products.</td></tr>
+      <tr><td>API</td><td>Application Programming Interface</td><td>A defined way for programs to talk to each other. REST APIs use HTTP. Claude's API lets programs send prompts and receive responses.</td></tr>
+      <tr><td>REST</td><td>Representational State Transfer</td><td>A common style for web APIs. Uses HTTP methods (GET, POST, PUT, DELETE) on URLs. Most web services expose REST APIs.</td></tr>
+      <tr><td>MCP</td><td>Model Context Protocol</td><td>Anthropic's protocol for connecting external tools (plugins) to Claude. JSON-RPC over stdin/stdout.</td></tr>
+      <tr><td>SDK</td><td>Software Development Kit</td><td>A library/package that makes it easier to use an API or protocol. Anthropic provides MCP SDKs for TypeScript and Python.</td></tr>
+      <tr><td>LLM</td><td>Large Language Model</td><td>The AI model that powers Claude, GPT, Gemini, etc. Trained on massive text datasets to understand and generate language and code.</td></tr>
+      <tr><td>JSON</td><td>JavaScript Object Notation</td><td>A data format: <code>{"name": "Steve", "age": 42}</code>. Used everywhere for configuration files and API communication.</td></tr>
+      <tr><td>JSON-RPC</td><td>JSON Remote Procedure Call</td><td>A protocol for calling functions on another process using JSON messages. How MCP servers communicate with Claude.</td></tr>
+      <tr><td>YAML</td><td>YAML Ain't Markup Language</td><td>A human-readable data format (like JSON but with indentation instead of braces). Used by Copilot for session config.</td></tr>
+      <tr><td>TOML</td><td>Tom's Obvious Minimal Language</td><td>Another config file format. Used by Codex for configuration (<code>config.toml</code>).</td></tr>
+      <tr><td>TLS</td><td>Transport Layer Security</td><td>Encryption for network traffic. The "S" in HTTPS. Remote Control uses TLS to secure messages between your phone and machine.</td></tr>
+      <tr><td>HTTP / HTTPS</td><td>HyperText Transfer Protocol (Secure)</td><td>The protocol web browsers use. HTTPS adds encryption (TLS). APIs, web pages, and remote MCP servers use HTTPS.</td></tr>
+      <tr><td>SSH</td><td>Secure Shell</td><td>Encrypted remote terminal access. Connect to a server's command line from anywhere.</td></tr>
+      <tr><td>UUID</td><td>Universally Unique Identifier</td><td>A random ID like <code>dd8ab84a-a52e-467b-bcb6-0ad3a44a5db6</code>. Used for session IDs. Practically guaranteed to be unique.</td></tr>
+      <tr><td>UTF-8</td><td>Unicode Transformation Format (8-bit)</td><td>The standard text encoding. Supports all languages and emoji. What your files should be saved as.</td></tr>
+      <tr><td>BOM</td><td>Byte Order Mark</td><td>An invisible character at the start of a file that declares its encoding. Some tools (like Gemini CLI) reject files with BOMs.</td></tr>
+      <tr><td>URI / URL</td><td>Uniform Resource Identifier / Locator</td><td>A web address. <code>https://github.com/srives/AIManifesto</code> is a URL.</td></tr>
+      <tr><td>LSP</td><td>Language Server Protocol</td><td>A protocol for code intelligence (autocomplete, go-to-definition). Powers VS Code's IntelliSense. MCP is modeled after LSP.</td></tr>
+      <tr><td>OSS</td><td>Open Source Software</td><td>Software whose source code is publicly available. OpenCode is OSS. Claude Code is not.</td></tr>
+      <tr><td>SOLID</td><td>Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion</td><td>Five design principles for maintainable object-oriented code. Useful guidelines, not commandments.</td></tr>
+      <tr><td>DI</td><td>Dependency Injection</td><td>A design pattern where objects receive their dependencies rather than creating them. Part of SOLID. Overkill in scripts.</td></tr>
+      <tr><td>UAC</td><td>User Account Control</td><td>Windows security feature that prompts before elevated actions. Claude Code's permission model works similarly.</td></tr>
+      <tr><td>CDN</td><td>Content Delivery Network</td><td>Servers that cache content close to users for speed. Analogous to how Claude's token cache reduces repeated input costs.</td></tr>
+      <tr><td>QR Code</td><td>Quick Response Code</td><td>A 2D barcode scannable by phone cameras. Used by Remote Control to quickly connect your phone to a session.</td></tr>
+      <tr><td>WSL</td><td>Windows Subsystem for Linux</td><td>Runs Linux inside Windows. Many CLI tools are designed for Linux first; WSL bridges the gap.</td></tr>
+      <tr><td>stdin / stdout</td><td>Standard Input / Standard Output</td><td>The default input and output streams of a process. MCP servers communicate by reading stdin and writing stdout.</td></tr>
+      <tr><td>gRPC</td><td>Google Remote Procedure Call</td><td>A high-performance RPC protocol using Protocol Buffers. MCP does NOT use gRPC &mdash; it uses JSON-RPC.</td></tr>
+      <tr><td>JWT</td><td>JSON Web Token</td><td>A compact token format for authentication. Sometimes used by MCP servers or APIs for auth.</td></tr>
+      <tr><td>regex</td><td>Regular Expression</td><td>A pattern-matching syntax for text. <code>^\d{3}-\d{4}$</code> matches phone numbers like <code>555-1234</code>. Used by Claude's Grep tool.</td></tr>
+      <tr><td>glob</td><td>Global (pattern)</td><td>A file-matching pattern. <code>*.js</code> matches all JavaScript files. <code>src/**/*.ts</code> matches all TypeScript files in src/ recursively.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Claude Code Concepts</h3>
+  <table class="compare-table">
+    <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+    <tbody>
+      <tr><td>Session</td><td>A conversation with Claude Code. Has a unique ID, persists as a .jsonl file, can be resumed later.</td></tr>
+      <tr><td>CLAUDE.md</td><td>A markdown file of instructions that Claude reads at the start of every session. Your project's configuration for AI behavior.</td></tr>
+      <tr><td>Skill</td><td>A SKILL.md instruction file in <code>.claude/skills/</code>. Loaded into context when relevant. Not a running process &mdash; a document that informs behavior.</td></tr>
+      <tr><td>Slash Command</td><td>A custom command defined as a file in <code>.claude/commands/</code>. Typing <code>/foo</code> loads the prompt from that file.</td></tr>
+      <tr><td>Hook</td><td>A shell command that executes in response to an event (before/after tool use, session start). Unlike skills, hooks actually run code.</td></tr>
+      <tr><td>Agent / Subagent</td><td>A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back. Like a child process.</td></tr>
+      <tr><td>MCP Server (Plugin)</td><td>An external process that gives Claude new tools (database queries, API calls). The closest thing to a plugin system.</td></tr>
+      <tr><td>Plan / Plan Mode</td><td>A structured design-before-coding approach. Claude outlines the implementation strategy before writing code.</td></tr>
+      <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.</td></tr>
+      <tr><td>Context Window</td><td>The total token capacity Claude can "see" at once (~200K tokens). Everything loaded consumes space in this window.</td></tr>
+      <tr><td>Token</td><td>A unit of text (roughly 4 characters or 3/4 of a word). Claude processes, counts, and bills by tokens.</td></tr>
+      <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible "thinking" tokens. Costs more but produces better answers for complex problems.</td></tr>
+      <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.</td></tr>
+      <tr><td>Remote Control</td><td>Feature that lets you control a local Claude Code session from your phone or another device via QR code or URL.</td></tr>
+      <tr><td>Task Tool</td><td>Built-in todo/task tracker within a Claude Code conversation. Creates, tracks, and completes tasks.</td></tr>
+      <tr><td><code>/compact</code></td><td>Manually compresses conversation history to free context window space. Lets you control when and what gets compressed.</td></tr>
+      <tr><td><code>/model</code></td><td>Switches between AI models (Opus, Sonnet, Haiku) mid-session without losing conversation history.</td></tr>
+      <tr><td><code>/cost</code></td><td>Shows token usage and estimated dollar cost for the current session.</td></tr>
+      <tr><td><code>/rc</code></td><td>Short for <code>/remote-control</code>. Enables phone/remote access to the current session.</td></tr>
+      <tr><td><code>--resume</code></td><td>CLI flag to resume a previous session. <code>claude --resume</code> shows a list; <code>claude --resume &lt;id&gt;</code> resumes a specific one.</td></tr>
+      <tr><td><code>--continue</code></td><td>CLI flag to resume the most recent session in the current directory.</td></tr>
+      <tr><td>settings.json</td><td>Claude Code's configuration file. Controls permissions, MCP servers, environment variables, model preferences.</td></tr>
+      <tr><td>settings.local.json</td><td>Repo-level settings override that is NOT checked into git. For personal credentials and local-only config.</td></tr>
+      <tr><td>Red-Green Testing</td><td>Write a test that fails (red), then write code that makes it pass (green). Proves the test actually catches the bug.</td></tr>
+      <tr><td>Cache (Token Cache)</td><td>Claude caches repeated content (CLAUDE.md, skills) after first use. Subsequent reads cost 10x less.</td></tr>
+      <tr><td>Allowlist</td><td>A list of pre-approved tools/commands in settings.json. Claude won't ask permission for allowlisted actions.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>General Development Terms</h3>
+  <table class="compare-table">
+    <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+    <tbody>
+      <tr><td>Repository (repo)</td><td>A project tracked by git. Contains your source code, history, and configuration files.</td></tr>
+      <tr><td>Branch</td><td>A parallel version of your code. <code>main</code> is the primary branch. Feature branches let you work without affecting main.</td></tr>
+      <tr><td>Commit</td><td>A saved snapshot of your code at a point in time. Like a save point in a game.</td></tr>
+      <tr><td>Merge</td><td>Combining changes from one branch into another.</td></tr>
+      <tr><td>Pull Request (PR)</td><td>A request to merge your branch into main. Typically reviewed by others before merging.</td></tr>
+      <tr><td>Lint / Linter</td><td>A tool that checks code for style violations, potential bugs, and anti-patterns. ESLint (JavaScript), PSScriptAnalyzer (PowerShell).</td></tr>
+      <tr><td>Static Analysis</td><td>Examining code without running it. Linters, type checkers, and pattern scanners are static analysis tools.</td></tr>
+      <tr><td>Dependency</td><td>A package/library your project requires. Managed by npm (JavaScript), pip (Python), NuGet (.NET).</td></tr>
+      <tr><td>Environment Variable</td><td>A named value set in the operating system, accessible by programs. Used for credentials: <code>DATABASE_URL=postgres://...</code></td></tr>
+      <tr><td>Sandbox</td><td>An isolated environment that restricts what a program can do. Prevents untrusted code from accessing files or network.</td></tr>
+      <tr><td>Monorepo</td><td>A single repository containing multiple projects or teams' code. Requires careful configuration (e.g., subdirectory CLAUDE.md files).</td></tr>
+      <tr><td>Boilerplate</td><td>Repetitive, standard code that's needed but not interesting. Templates, imports, config setup. Good candidate for Haiku.</td></tr>
+      <tr><td>Refactor</td><td>Restructuring code without changing its behavior. Improving organization, readability, or performance.</td></tr>
+      <tr><td>Registry (in code)</td><td>A data structure that maps keys to behaviors. Avoids if-else chains. Add a new entry to support a new variant.</td></tr>
+    </tbody>
+  </table>
+
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: ABOUT                                    -->
+<!-- ============================================ -->
+<section id="about" class="tab-panel">
+  <div class="about-section">
+    <div class="about-ascii">
+=**=---========--------===--=====--==-------==
+==*#*==-=====++==-==============-------=======
+--==-----=+++**++++++##*=*##*%%+=-------===--=
+---=-----+#*+=###%%#++++*#%@@@#==-=--==--=---=
+--==-----=+=====%@@@@@@@%%@@@%*=-----==------=
+---====--=-=======*%@@@@@@@@@@#====--=========
+----------====+======+%@@@@@@@%+==============
+---=---==--==++-=-==+%@@@@@@@@*====+*+=-======
+------=---==++++-====*@@@@@@@@@%+======++=====
+-----==----=+++======*#@@%@@@@%%+======+======
+-=--=------==+++====*%%@@%%%@@%%+=============
+----=------==++====+%@@@@@@%%%%%+=============
+---=-------==++==*%#%%@@@@@@@@@@%=============
+-----------==+++#@@@@%%%@@@@@@@@@#=======+++*+
+----------=-=+*%@@@@@@%*+#@@@@%@@@#=======+++=
+-----=------==%@@@@@@@%**+#@%*+=+%@#=====+##+=
+*#*+=--------*@@@%@@@@@@%%@@%+====+##*===+##*+
+--==#*=----==%@@@@@@@%%@@@@@@*====**%*+===+===
+==--=*#=----=*@@@@@@%%%%@@@@@%+=====+=====+===
+=----=*%*=---*%@@@@@@%%%@@@@@%+============+==
+--==--=+%#=--=#@@@@@@%%#%@@@@*======-=========
+---=====+#@%*=+*@@@@@@%%%@@@#+================
+==========+#@@@%@@@@@@%%@@%*==================
+---====++===++*#@@@@%%%@@@%*+++=============++
+    </div>
+    <div class="about-name">S. Rives</div>
+    <div class="about-credit">Created March 2026</div>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 2rem;">
+      <a href="https://github.com/srives/AIManifesto" style="color: var(--accent-blue);">github.com/srives/AIManifesto</a>
+    </p>
+  </div>
+</section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
