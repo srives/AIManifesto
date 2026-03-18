@@ -76,6 +76,57 @@ body {
   color: var(--accent-orange);
 }
 
+/* === Start Here Panel === */
+.start-here {
+  background: rgba(88, 166, 255, 0.07);
+  border: 1px solid var(--accent-blue);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.start-here-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-blue);
+  margin-bottom: 1rem;
+}
+
+.start-here-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.start-here-option {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.start-here-option strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.tab-btn-inline {
+  background: none;
+  border: none;
+  color: var(--accent-blue);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tab-btn-inline:hover { color: var(--text-primary); }
+
 .time-estimate {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -123,9 +174,20 @@ body {
 /* === Tabs === */
 .tab-bar {
   display: flex;
+  flex-wrap: wrap;
   gap: 0;
   border-bottom: 2px solid var(--border);
   margin: 0 -0.5rem;
+}
+
+.tab-group-sep {
+  display: flex;
+  align-items: center;
+  padding: 0 0.25rem;
+  color: var(--border);
+  font-size: 1rem;
+  user-select: none;
+  pointer-events: none;
 }
 
 .tab-btn {
@@ -133,9 +195,9 @@ body {
   border: none;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  padding: 0.75rem 1.25rem;
+  padding: 0.65rem 0.9rem;
   cursor: pointer;
   position: relative;
   transition: color 0.15s;

@@ -14,18 +14,23 @@
 <header class="site-header">
   <div class="header-content">
     <div class="site-title">The Claude Code <span>AI</span> Manifesto</div>
-    <div class="site-subtitle">A systematic guide to the Claude Code Command Line Interface (CLI) &mdash; for new developers and competent power users who want to code with AI</div>
-    <div class="site-version">Reviewed March 2026 &mdash; Update when Claude Code interfaces, install methods, memory behavior, or command/skill behavior materially change &mdash; Full reading + all quizzes: ~3 hours</div>
+    <div class="site-subtitle">A systematic guide to the Claude Code Command Line Interface (CLI) &mdash; for new developers and competent power users who want to code with AI &mdash; includes the <strong>Practitioner's Guide</strong> to the AI code loop</div>
+    <div class="site-version">Reviewed March 2026 &mdash; Update when Claude Code interfaces, install methods, memory behavior, or command/skill behavior materially change &mdash; Full reading + all quizzes: ~3.5 hours</div>
     <nav class="tab-bar">
+      <!-- LEARN -->
       <button class="tab-btn active" data-tab="confession">The Manifesto</button>
       <button class="tab-btn" data-tab="firstsession">First 15 Minutes</button>
+      <button class="tab-btn" data-tab="practitioner">Practitioner's Guide</button>
+      <button class="tab-btn" data-tab="remote">Remote Control</button>
+      <span class="tab-group-sep">|</span>
+      <!-- QUIZ -->
       <button class="tab-btn" data-tab="firstquiz">First Session Quiz</button>
       <button class="tab-btn" data-tab="shorter">Quick Quiz</button>
       <button class="tab-btn" data-tab="larger">Deep Quiz</button>
       <button class="tab-btn" data-tab="plugins">Plugin Quiz</button>
       <button class="tab-btn" data-tab="bonusquiz">Bonus Features Quiz</button>
-      <button class="tab-btn" data-tab="practitioner">Practitioner's Guide</button>
-      <button class="tab-btn" data-tab="remote">Remote Control</button>
+      <span class="tab-group-sep">|</span>
+      <!-- REFERENCE -->
       <button class="tab-btn" data-tab="compare">Other AI CLIs</button>
       <button class="tab-btn" data-tab="glossary">Glossary</button>
       <button class="tab-btn" data-tab="about">About</button>
@@ -40,7 +45,25 @@
 <!-- ============================================ -->
 <section id="confession" class="tab-panel active">
 
-  <div class="time-estimate">Estimated reading time: 45-60 minutes</div>
+  <div class="start-here">
+    <div class="start-here-title">&#9654; Where to Start</div>
+    <div class="start-here-options">
+      <div class="start-here-option">
+        <strong>New to Claude Code?</strong><br>
+        Go to <button class="tab-btn-inline" data-tab="firstsession">First 15 Minutes</button> — hands-on, task-first, no theory required
+      </div>
+      <div class="start-here-option">
+        <strong>Using Claude Code daily but want to level up?</strong><br>
+        Read the <button class="tab-btn-inline" data-tab="practitioner">Practitioner's Guide</button> — the AI code loop that keeps projects from collapsing
+      </div>
+      <div class="start-here-option">
+        <strong>Want to understand the architecture?</strong><br>
+        Start Chapter I below &darr; then <button class="tab-btn-inline" data-tab="shorter">test yourself</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="time-estimate">Estimated reading time: 60-75 minutes</div>
 
   <div class="toc">
     <h3>Chapters</h3>
@@ -1225,7 +1248,7 @@ Ask me for the component name and path before starting.</code></pre>
 <!-- ============================================ -->
 <section id="practitioner" class="tab-panel">
 
-  <div class="time-estimate">Estimated reading time: 25-30 minutes</div>
+  <div class="time-estimate">Estimated reading time: 30-40 minutes</div>
 
   <h2>An AI Practitioner's Guide</h2>
   <p>This is practical advice for building real software with AI coding tools. Not theory. Not hype. This is what works when you're 30,000 lines deep and still adding features.</p>
@@ -1938,7 +1961,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   <table class="compare-table">
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
-      <tr><td>Repository (repo / repos)</td><td>A project folder that is tracked by git. It contains your source code, configuration files, and the full history of every change ever made. "Repos" is just the plural — "I have three repos" means three separate tracked projects. When someone says "clone the repo," they mean download a copy of the project. Think of it like a shared project folder with an infinitely deep undo history built in.</td></tr>
+      <tr><td>Repository (repo / repos)</td><td><strong>It is a directory. That's it.</strong> A repository is just a folder — on your machine, or on a server like GitHub — that has version history tracking turned on. Your local copy is a directory on your hard drive (e.g., <code>C:\repos\MyProject</code>). The GitHub copy is the same directory stored on GitHub's server. When someone says "the repo," they mean one of those two directories. When they say "clone the repo," they mean: download a copy of that server directory to your machine. When they say "push to the repo," they mean: upload your local changes to the server's copy. There is no mysticism here. Repository = versioned directory. Repo = short for repository. Repos = more than one. The word "repository" sounds like it belongs in a library or a pharmaceutical warehouse, which is why it confuses people. It doesn't. It's a folder with a history log.</td></tr>
       <tr><td>git</td><td>The version control system that tracks changes to files over time. It lets you save snapshots (commits), try experiments on separate branches, and go back to any previous state. git itself is a command-line tool. <strong>Products that provide git hosting and collaboration:</strong> GitHub (most popular, owned by Microsoft), GitLab (popular in enterprises, can be self-hosted), Bitbucket (popular with Atlassian/Jira shops), Azure DevOps (Microsoft's enterprise git platform), and Gitea/Forgejo (self-hosted open source options). GitHub is the public face of git for most developers.</td></tr>
       <tr><td>GitHub</td><td>A website (github.com) where developers store and share git repositories. Think of it as Google Drive for code, with version history and collaboration tools built in. Free for public projects. Owned by Microsoft. When someone says "it's on GitHub," they mean the source code is publicly available there.</td></tr>
       <tr><td>Branch</td><td>A parallel version of your code where you can try changes without affecting the main version. Like making a copy of a document to draft edits, then deciding whether to keep or discard the changes. <code>main</code> is the primary branch that is considered the "official" version.</td></tr>
@@ -2067,9 +2090,9 @@ const glossaryTerms = {
   '/help': 'Claude Code command that lists all available commands, tools, and session information.',
   'Auto memory': 'A feature where Claude automatically writes memory notes about things it discovers, without you asking. Persists across sessions.',
   // General Dev
-  'Repository': 'A project folder tracked by git. Contains your code, config files, and full change history. Often called "repo" for short.',
-  'repo': 'Short for repository — a project folder tracked by git with full change history.',
-  'repos': 'Plural of repo (repository). "I have three repos" means three separate tracked projects.',
+  'Repository': 'A directory. On your machine (C:\\repos\\MyProject) or on a server (GitHub). Same directory — one local, one remote. Version history is the only thing that makes it a "repository" instead of just a folder.',
+  'repo': 'Short for repository. Just a directory with version history tracking turned on.',
+  'repos': 'Plural of repo. "I have three repos" = three separate version-tracked project directories.',
   'Commit': 'A saved snapshot of your code at a point in time. Every commit has a unique ID. Like a save point you can always return to.',
   'Branch': 'A parallel version of your code for trying changes without affecting the main version. Like a draft copy of a document.',
   'Merge': 'Combining changes from one branch into another. Like accepting tracked changes in a Word document.',
