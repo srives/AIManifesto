@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initQuiz('firstquiz', firstSessionQuestions);
+  initQuiz('mcpdevquiz', mcpDevQuestions);
   initQuiz('shorter', shorterQuestions);
   initQuiz('larger', largerQuestions);
   initQuiz('plugins', pluginQuestions);
@@ -175,6 +176,144 @@ function initQuiz(prefix, questions) {
 // =====================================================
 // FIRST SESSION QUIZ - 10 scenario-based questions
 // =====================================================
+// =====================================================
+// MCP SERVER BUILDER QUIZ - 12 questions
+// =====================================================
+const mcpDevQuestions = [
+  {
+    question: "What transport mechanism does a local MCP server use to communicate with Claude Code?",
+    choices: [
+      "HTTP on localhost with a random port",
+      "WebSockets",
+      "stdin for input from Claude, stdout for responses back to Claude",
+      "Named pipes (Windows) or Unix domain sockets"
+    ],
+    answer: 2,
+    explanation: "<strong>stdin/stdout.</strong> Claude Code launches your program as a child process and communicates via its standard input/output streams using JSON-RPC 2.0. Each message is one line of JSON. This is the same mechanism as the Language Server Protocol (LSP) used by VS Code for IntelliSense."
+  },
+  {
+    question: "What is the single most critical rule when writing an MCP server?",
+    choices: [
+      "Always use TypeScript — other languages aren't supported",
+      "Never write anything to stdout except JSON-RPC responses — no console.log, no print, no debug output",
+      "Your server must respond within 5 seconds or Claude will kill it",
+      "You must implement at least 3 tools or the server won't register"
+    ],
+    answer: 1,
+    explanation: "<strong>Never write to stdout except JSON-RPC responses.</strong> Stdout is the protocol channel. A single console.log() or print() corrupts the JSON-RPC message stream. Claude will hang or report cryptic errors with no explanation. Write all logs to stderr or a file. In C#, this means explicitly redirecting logging to stderr."
+  },
+  {
+    question: "What are the three messages Claude sends to your MCP server at the start of every session?",
+    choices: [
+      "connect, authenticate, ready",
+      "initialize, tools/list, ping",
+      "initialize (handshake), tools/list (what can you do?), then tools/call (do this specific thing)",
+      "register, discover, execute"
+    ],
+    answer: 2,
+    explanation: "<strong>initialize → tools/list → tools/call.</strong> First Claude handshakes and negotiates capabilities. Then it asks what tools your server exposes. Claude caches the tool list for the session. Later, when the user asks for something your tool can help with, Claude sends tools/call with the tool name and arguments."
+  },
+  {
+    question: "What determines how well Claude uses your MCP server's tools?",
+    choices: [
+      "The programming language you wrote the server in",
+      "The speed of your server's responses",
+      "The quality of your tool descriptions — Claude reads them to decide when and how to call the tool",
+      "Whether you use the official TypeScript SDK"
+    ],
+    answer: 2,
+    explanation: "<strong>The tool description IS the interface.</strong> Claude reads your tool description and inputSchema to understand what the tool does, when to use it, and what parameters to pass. It doesn't read your source code. A vague description ('does stuff with data') will be ignored or misused. A good description ('creates a Jira issue in the specified project, returns the issue key') will be called correctly and reliably."
+  },
+  {
+    question: "You've written a CLI program that creates Jira tickets. Should you build an MCP server or let Claude use it via the Bash tool?",
+    choices: [
+      "Always build MCP — CLI tools are never appropriate",
+      "Always use Bash — MCP is overkill",
+      "Start with Bash to validate the tool works, then build MCP if you're using it daily, sharing with a team, or need credential safety",
+      "It depends on whether you use Windows or Mac"
+    ],
+    answer: 2,
+    explanation: "<strong>Start CLI, graduate to MCP.</strong> Let Claude call your tool via Bash first — it's faster to set up and good enough for experiments. If you're using it every day, sharing it with a team, or the tool handles sensitive credentials, invest the time to wrap it as an MCP server. MCP gives you: strict parameter handling via JSON Schema, credential safety (Claude never sees raw tokens), and structured responses Claude can act on precisely."
+  },
+  {
+    question: "In C#, what is the most common mistake developers make on their first MCP server?",
+    choices: [
+      "Using async/await incorrectly",
+      ".NET logging writes to stdout by default, corrupting the JSON-RPC protocol stream",
+      "Forgetting to add the NuGet package",
+      "Using the wrong .NET version"
+    ],
+    answer: 1,
+    explanation: "<strong>.NET logging defaults to stdout.</strong> This is the #1 issue for first-time C# MCP developers — the server appears to start but Claude can't communicate with it. The fix is to configure logging to stderr or set log levels to Warning/Error only. The official Microsoft example uses <code>LogToStandardErrorThreshold</code> to route all logging away from the protocol channel."
+  },
+  {
+    question: "You want to expose a tool that queries your company's private database. Why is an MCP server better than a CLI tool for this?",
+    choices: [
+      "MCP servers are faster than CLI tools",
+      "MCP servers can handle larger queries",
+      "The database credentials are configured inside the server — Claude never sees them and they're not exposed in shell history or process listings",
+      "Only MCP servers can connect to databases"
+    ],
+    answer: 2,
+    explanation: "<strong>Credential safety.</strong> When Claude calls a CLI tool via Bash, the credentials must be in environment variables or the command string — both visible in process listings and shell history. An MCP server holds credentials internally in the <code>env</code> block of its settings config. Claude asks the server to 'run this query'; the server handles authentication without exposing the credentials."
+  },
+  {
+    question: "If you build an MCP server for Claude Code, can Gemini CLI use it too?",
+    choices: [
+      "No — MCP servers are Claude-only",
+      "Yes — MCP is an open standard. The same server works across Claude Code, Gemini CLI, and OpenCode with only a config file change",
+      "Only if you rebuild it for each platform",
+      "Only the TypeScript version works cross-platform"
+    ],
+    answer: 1,
+    explanation: "<strong>Yes — MCP is an open standard.</strong> The JSON-RPC protocol is identical across Claude Code, Gemini CLI, and OpenCode. The only differences are the config file format and location (JSON for Claude and Gemini, TOML for Codex). Write once, configure per tool. This cross-platform compatibility is one of MCP's strongest selling points."
+  },
+  {
+    question: "What does the tools/list response from your server contain?",
+    choices: [
+      "A list of file paths to your tool implementations",
+      "An array of tool definitions, each with a name, description, and JSON Schema describing the input parameters",
+      "A list of supported programming languages",
+      "Your server's version number and dependencies"
+    ],
+    answer: 1,
+    explanation: "<strong>Tool definitions with name, description, and JSON Schema.</strong> This is the contract between your server and Claude. Each tool has: a name (used in tools/call), a description (Claude reads this to know when to use the tool), and an inputSchema (JSON Schema defining required and optional parameters with types). Claude caches this list for the session."
+  },
+  {
+    question: "Your MCP server handles a tools/call for 'create_ticket'. What format must the response be in?",
+    choices: [
+      "Plain text — Claude will parse it",
+      "HTML",
+      "JSON-RPC 2.0 result object with a content array containing text or structured data",
+      "CSV"
+    ],
+    answer: 2,
+    explanation: "<strong>JSON-RPC 2.0 result with content array.</strong> The response must be: <code>{\"jsonrpc\":\"2.0\",\"id\":N,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"Created PROJ-1234\"}]}}</code>. The content array can contain text blocks, images, or structured data. Claude reads the content and incorporates it into its response to the user. The id must match the id from the tools/call request."
+  },
+  {
+    question: "What is the quickest way to deploy an MCP server so other developers on your team can use it without installing anything?",
+    choices: [
+      "Email them the source code",
+      "Deploy it to a cloud server with HTTP transport and share the URL",
+      "Publish it as an npm package — teammates use npx -y your-package to run it without a permanent install",
+      "Check it into git and have everyone run it manually"
+    ],
+    answer: 2,
+    explanation: "<strong>Publish as an npm package, use npx.</strong> When your MCP server is on npm, the config entry is: <code>{\"command\": \"npx\", \"args\": [\"-y\", \"your-package-name\"]}</code>. <code>npx</code> downloads and runs the package on demand — no installation step for team members. Alternatively, deploy as a remote HTTP server for a shared team integration where everyone connects to the same instance."
+  },
+  {
+    question: "What is the correct way to handle errors in your MCP server?",
+    choices: [
+      "Write the error message to stdout as plain text",
+      "Crash the server — Claude will restart it",
+      "Return a JSON-RPC error object or include the error message in the content array",
+      "Write to stderr and return nothing"
+    ],
+    answer: 2,
+    explanation: "<strong>Return a structured error response.</strong> Either return a JSON-RPC error object (<code>{\"jsonrpc\":\"2.0\",\"id\":N,\"error\":{\"code\":-32000,\"message\":\"Ticket not found\"}}</code>) or include the error in the content array as a text message. This lets Claude read the error, explain it to the user, and potentially retry with corrected parameters. Never write errors to stdout as plain text — it corrupts the protocol stream."
+  }
+];
+
 const firstSessionQuestions = [
   {
     question: "You just installed Claude Code and want to try it on a real project. What's the best first move?",
@@ -1460,15 +1599,15 @@ const pluginQuestions = [
     explanation: "<strong>MCP Servers.</strong> They are the only mechanism that adds entirely new tools to Claude. Skills teach behavior, hooks run shell commands on events, slash commands are stored prompts. MCP servers add new capabilities (database queries, API calls, etc.) that didn't exist before."
   },
   {
-    question: "When someone says 'install this Claude Code plugin,' they almost certainly mean:",
+    question: "When someone says 'install this Claude Code plugin,' they mean:",
     choices: [
+      "Configure an MCP server in settings.json — that's all a plugin can contain",
+      "Run /plugin install, which installs a bundle that can contain slash commands, subagents, hooks, and/or MCP configs",
       "Copy a SKILL.md file into .claude/skills/",
-      "Add an MCP server entry to settings.json",
-      "Install a VS Code extension",
-      "Add a hook to .claude/hooks/"
+      "Install a VS Code extension"
     ],
     answer: 1,
-    explanation: "<strong>Add an MCP server entry to settings.json.</strong> There is no formal 'plugin' concept in Claude Code. The word 'plugin' informally refers to MCP servers, which are configured in <code>~/.claude/settings.json</code> under the <code>mcpServers</code> key."
+    explanation: "<strong>Run /plugin install.</strong> A Claude Code Plugin is an installable bundle — it can contain any combination of slash commands, subagents, hooks, and MCP server configs. It is NOT the same as an MCP server. An MCP server is one possible ingredient inside a plugin. <code>/plugin install package-name</code> installs everything the plugin contains in one step. The most popular example is Superpowers (~54K GitHub stars), which installs a full TDD methodology framework."
   },
   {
     question: "How does an MCP server communicate with Claude Code?",
@@ -1667,6 +1806,28 @@ const pluginQuestions = [
     ],
     answer: 2,
     explanation: "<strong>Claude loses the tools but continues.</strong> MCP servers are separate processes. If one crashes, Claude can no longer call its tools, but the conversation and all other functionality continue normally. You may need to restart Claude Code to reconnect."
+  },
+  {
+    question: "What is 'Superpowers' and why do developers recommend it?",
+    choices: [
+      "An MCP server that connects Claude to 500+ SaaS apps",
+      "A plugin (~54K GitHub stars) that enforces a structured development methodology: brainstorming, spec writing, TDD, parallel subagents, and code review",
+      "A skill document that teaches Claude advanced SQL",
+      "A hook that runs security audits before every commit"
+    ],
+    answer: 1,
+    explanation: "<strong>Superpowers is a methodology framework plugin.</strong> It's the most starred Claude Code plugin with ~54K GitHub stars and is in Anthropic's official marketplace. Install with <code>/plugin install superpowers</code>. It doesn't just add tools — it enforces a discipline: Socratic brainstorming first, detailed spec writing, test-driven development, parallel subagent implementation, then structured code review. It's what developers mean when they say 'I use Claude Code properly.'"
+  },
+  {
+    question: "A plugin can contain which of the following? (choose the most complete answer)",
+    choices: [
+      "Only MCP server configurations",
+      "Only slash commands and skills",
+      "Any combination of slash commands, subagents, MCP configs, and hooks",
+      "Only hooks and subagents"
+    ],
+    answer: 2,
+    explanation: "<strong>Any combination of all four.</strong> A plugin is a bundle. It can contain slash commands (pre-canned prompts), subagents (specialized agents), MCP configs (connections to external systems), and hooks (automated triggers). One <code>/plugin install</code> sets up whatever the plugin includes. Some plugins contain only slash commands. Some contain only MCP configs. Superpowers contains all four working together."
   }
 ];
 

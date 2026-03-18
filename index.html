@@ -23,6 +23,9 @@
           <button class="tab-btn" data-tab="remote">Control Claude from your Phone</button>
           <button class="tab-btn" data-tab="compare">Other AI CLIs</button>
           <button class="tab-btn" data-tab="pricing">Pricing &amp; Purchasing</button>
+          <button class="tab-btn" data-tab="mcpdev">Advanced: Building MCP Servers</button>
+          <button class="tab-btn" data-tab="mcpdevquiz">MCP Server Builder Quiz</button>
+          <button class="tab-btn" data-tab="demystify">Confusing Terms</button>
           <button class="tab-btn" data-tab="glossary">Glossary</button>
           <button class="tab-btn" data-tab="about">About</button>
         </div>
@@ -78,12 +81,13 @@
       <li><a href="#ch8">10. Plans</a></li>
       <li><a href="#ch9">11. Memory (mini-CLAUDE.md files)</a></li>
       <li><a href="#ch9b">12. Documentation as Dormant Memory</a></li>
-      <li><a href="#ch10">13. Plugins (Model Context Protocol / MCP Servers)</a></li>
-      <li><a href="#ch11">14. The Context Window</a></li>
-      <li><a href="#ch12">15. The File System Layout</a></li>
-      <li><a href="#ch13">16. Scope and Distribution</a></li>
-      <li><a href="#ch14">17. The Prompt Engineering Trap</a></li>
-      <li><a href="#ch15">18. Bonus Features</a></li>
+      <li><a href="#ch10">13. Plugins (<code>/plugin install</code>)</a></li>
+      <li><a href="#ch10b">14. MCP Config (Model Context Protocol)</a></li>
+      <li><a href="#ch11">15. The Context Window</a></li>
+      <li><a href="#ch12">16. The File System Layout</a></li>
+      <li><a href="#ch13">17. Scope and Distribution</a></li>
+      <li><a href="#ch14">18. The Prompt Engineering Trap</a></li>
+      <li><a href="#ch15">19. Bonus Features</a></li>
     </ol>
   </div>
 
@@ -685,7 +689,7 @@ Ask me for the component name and path before starting.</code></pre>
         <tr><td><strong>Auto memory</strong></td><td>Claude (automatically)</td><td><span class="cross">Every message, this project</span></td><td>You, on this project</td><td>Never</td><td>Things Claude decides are worth remembering without you asking</td></tr>
         <tr><td><strong>Skills</strong></td><td>You</td><td><span class="check">Only when invoked</span></td><td>You or team, this project</td><td>Optional</td><td>Detailed procedures, reference docs, specialised workflows</td></tr>
         <tr><td><strong>Scoped rules (.claude/rules/)</strong></td><td>You or Claude</td><td><span class="cross">Every message (in scope)</span></td><td>Project or subdirectory</td><td>Optional</td><td>Finer-grained rules per directory; emerging feature, check current docs</td></tr>
-        <tr><td><strong>Documentation files</strong></td><td>You (or Claude when you ask)</td><td><span class="check">Zero — until you read the file</span></td><td>Anyone — any AI, any developer, any platform</td><td>Yes — checked into git</td><td>Architectural facts, decisions, hard-won knowledge that any tool needs. Platform-agnostic. <a class="gloss-link" data-tab="confession" data-anchor="ch9b" href="#">See "Documentation as Dormant Memory" below</a></td></tr>
+        <tr><td><strong>Documentation files [your_file.md]</strong></td><td>You (or Claude when you ask)</td><td><span class="check">Zero — until you read the file</span></td><td>Anyone — any AI, any developer, any platform</td><td>Yes — checked into git</td><td>Architectural facts, decisions, hard-won knowledge that any tool needs. Platform-agnostic. <a class="gloss-link" data-tab="confession" data-anchor="ch9b" href="#">See "Documentation as Dormant Memory" below</a></td></tr>
       </tbody>
     </table>
 
@@ -707,9 +711,9 @@ Ask me for the component name and path before starting.</code></pre>
 
     <p>Memory files and CLAUDE.md are always wired in — they load every session, cost tokens every message, and are specific to Claude. There is another kind of persistent knowledge that costs nothing at rest, survives any AI platform, and can be shared with your whole team: <strong>documentation</strong>.</p>
 
-    <p>A <code>README.md</code>, an <code>ARCHITECTURE.md</code>, a <code>DECISIONS.md</code> — these are files you write as you build, recording facts, decisions, and context about your project. They sit on disk, in git, doing nothing until someone reads them. They are <strong>sleeping memory</strong>: available when you need them, invisible when you don't.</p>
+    <p>A <code>README.md</code>, an <code>ARCHITECTURE.md</code>, a <code>DECISIONS.md</code>, a <code>[your_file.md]</code>, etc. — these are files you write as you build, recording facts, decisions, and context about your project. They sit on disk, in git, doing nothing until someone reads them. They are <strong>sleeping memory</strong>: available when you need them, invisible when you don't.</p>
 
-    <div class="aha">Documentation is platform-agnostic memory. Claude can read it. Copilot can read it. Gemini can read it. A new developer on your team can read it. Memory files are wired to Claude's brain. Documentation is wired to the project.</div>
+    <div class="aha">Documentation is platform-agnostic memory. Claude can read it. Copilot can read it. Gemini can read it. A new developer on your team can read it. Memory files are wired to Claude's brain. Documentation is a spare brain.</div>
 
     <h3>Documentation vs. Memory Files — The Key Difference</h3>
     <table class="compare-table">
@@ -731,6 +735,9 @@ Ask me for the component name and path before starting.</code></pre>
       <li><strong>DECISIONS.md</strong> — Architecture Decision Records (ADRs). What was decided, why, what alternatives were considered. Written at the time of the decision, not reconstructed later.</li>
       <li><strong>README.md</strong> — What the project is, how to build it, how to run it, where to start. The first file any AI or developer reads.</li>
       <li><strong>GOTCHAS.md</strong> — Hard-won facts that don't fit anywhere else. "The payments module has no tests." "The config file is read at startup only — restart required for changes." These are things you'd put in memory files, except here they cost no tokens and any tool can see them.</li>
+      <li><strong>CODE_SCORE.md</strong> — A running assessment of code quality, technical debt, areas that need attention, and what you'd fix if you had the time. Give any AI a code quality briefing before a refactor session.</li>
+      <li><strong>COMPETITOR_ANALYSIS.md</strong> — What competing products exist, how they differ, what they do better or worse. Any AI helping you make product decisions should know the landscape.</li>
+      <li><strong>ROADMAP_IDEAS.md</strong> — Feature ideas, future directions, things that didn't make the cut but are worth revisiting. A scratchpad that survives sessions and platforms, so good ideas don't get lost in a conversation that expires.</li>
     </ul>
 
     <h3>Activating Documentation in a Session</h3>
@@ -753,41 +760,91 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- ==================== CHAPTER 10 ==================== -->
+  <!-- ==================== CHAPTER 13: PLUGINS ==================== -->
   <div class="chapter" id="ch10">
     <div class="chapter-number">Chapter 13</div>
-    <h2>Plugins (Model Context Protocol / MCP Servers)</h2>
+    <h2>Plugins (<code>/plugin install</code>)</h2>
 
-    <p>MCP (Model Context Protocol) servers are external processes that give Claude new capabilities. By default, Claude can read files, edit files, run shell commands, and search code. If you need Claude to query a database, call a REST API, interact with Jira, or access any external system, you need an MCP server.</p>
+    <p>A <strong>Claude Code Plugin</strong> is an installable package — a bundle that can contain slash commands, subagents, hooks, and MCP configs. One <code>/plugin install</code> command sets all of it up at once. MCP configs are one possible ingredient; see Chapter 14 for MCP specifically.</p>
 
-    <div class="analogy">Like COM objects or plugin DLLs. Your application has built-in functionality, but you can extend it by loading COM objects that expose new interfaces. The COM server runs as a separate process, exposes methods via a well-defined protocol, and your application calls those methods. MCP servers are the same: separate processes that expose tools via the Model Context Protocol.</div>
+    <pre><code>/plugin install package-name</code></pre>
 
-    <div class="analogy-alt">Like adding a NuGet package that provides new functions. Or like VS Code extensions: they run in a separate process (the extension host), expose new commands and capabilities via an API, and the editor calls them when needed. An MCP server is an extension for Claude Code.</div>
+    <div class="analogy">Like installing a VS Code extension pack — one install delivers multiple capabilities packaged for a specific workflow.</div>
 
-    <div class="analogy-human">Like giving a new hire a key card that gets them into the building, a login to Salesforce, and access to the shared drive. Without those credentials, they can answer questions and write documents but they can't actually do anything in your systems. An MCP server is the key card — it gives Claude access to your actual systems so it can act, not just advise.</div>
+    <h3>Popular Plugins — Real Examples</h3>
 
-    <h3>How MCP Works</h3>
-    <p>The MCP server runs as a separate process and communicates with Claude Code via JSON-RPC (typically over stdin/stdout for local servers, or HTTP for remote ones). It's similar to the Language Server Protocol (LSP) that powers IntelliSense in VS Code: a standardized protocol for tool communication.</p>
-
-    <p>The MCP server declares what tools it provides (e.g., <code>query_database</code>, <code>create_jira_ticket</code>, <code>send_slack_message</code>). Claude sees these tools and can call them during conversation, just like it calls the built-in Read and Edit tools.</p>
-
-    <h3>MCP Server Examples</h3>
+    <div class="compare-section-title blue">Methodology Frameworks</div>
     <ul>
-      <li><strong>Database MCP:</strong> Exposes <code>run_query</code>, <code>list_tables</code>, <code>describe_table</code>. Claude can query your database during conversation.</li>
-      <li><strong>Jira MCP:</strong> Exposes <code>create_issue</code>, <code>update_status</code>, <code>search_issues</code>. Claude can manage Jira tickets.</li>
-      <li><strong>Slack MCP:</strong> Exposes <code>send_message</code>, <code>search_messages</code>. Claude can post to Slack channels.</li>
-      <li><strong>GitHub MCP:</strong> Exposes <code>create_pr</code>, <code>list_issues</code>. Claude can interact with GitHub.</li>
+      <li><strong>Superpowers</strong> (<code>/plugin install superpowers</code>) — The most starred Claude Code plugin (~54K GitHub stars, in Anthropic's official marketplace). Enforces a full structured development methodology: Socratic brainstorming first, detailed spec writing, test-driven development, parallel subagent implementation, and built-in code review. If you install one plugin, this is the one developers recommend first. <a href="https://github.com/obra/superpowers" style="color:var(--accent-blue)">github.com/obra/superpowers</a></li>
+      <li><strong>cc-sessions</strong> — An opinionated extension set combining hooks, subagents, and commands into a workflow that manages long coding sessions with context preservation and structured handoffs between sessions.</li>
     </ul>
 
-    <h3>MCP vs. Everything Else</h3>
-    <p>MCP servers are the <em>only</em> mechanism that adds new tools to Claude. Skills teach Claude how to use existing tools better. CLAUDE.md configures behavior. Hooks run shell commands on events. MCP servers add entirely new capabilities that didn't exist before.</p>
+    <div class="compare-section-title green">Slash Command Collections</div>
+    <ul>
+      <li><strong>commands</strong> (~1.7K stars) — A curated collection of production-ready slash commands: <code>/review</code>, <code>/explain</code>, <code>/test</code>, <code>/refactor</code>, <code>/security-audit</code>, and more. Drop-in shortcuts for the most common developer tasks.</li>
+      <li><strong>awesome-slash</strong> — 40+ agents and 26 skills for Claude Code, OpenCode, and Codex. Mix-and-match commands across AI platforms.</li>
+    </ul>
 
-    <div class="real-talk">MCP servers manage their own credentials. The Jira MCP server has your Jira API token configured within itself &mdash; Claude never sees the raw token. This is a security feature: Claude asks the MCP server to "create a ticket," and the server handles authentication internally. Never put credentials in CLAUDE.md or skills.</div>
+    <div class="compare-section-title orange">Memory and Context</div>
+    <ul>
+      <li><strong>claude-mem</strong> (~20K stars in its first two days) — Long-term memory across sessions. Automatically writes and reads project memory so Claude remembers what you've built, what decisions were made, and what still needs doing — across any number of sessions.</li>
+    </ul>
 
-    <h3>Installing an MCP Server (Someone Hands You a Plugin)</h3>
-    <p>When someone says "install this MCP server," here's what actually happens:</p>
+    <div class="compare-section-title purple">Integrations and SaaS Connectors</div>
+    <ul>
+      <li><strong>connect-apps</strong> (Composio) — Instantly connects Claude to 500+ SaaS apps: GitHub, Slack, Gmail, Notion, Jira, Salesforce, and more. Real actions directly from the CLI — not just reading, but writing, creating, updating.</li>
+      <li><strong>ship</strong> — Full PR automation pipeline: linting, testing, review, and production deployment triggered from Claude. Handles the entire commit-to-deploy loop.</li>
+    </ul>
+
+    <div class="compare-section-title red">Code Quality and Testing</div>
+    <ul>
+      <li><strong>local-review</strong> — Parallel local diff code reviews. Claude spawns multiple review subagents simultaneously, each focusing on a different concern (security, performance, style, logic), then consolidates findings.</li>
+      <li><strong>ralph-wiggum</strong> — Visual testing plugin. Takes screenshots, compares against baselines, and reports regressions. Claude can see what users see.</li>
+      <li><strong>TypeScript LSP / Rust LSP plugins</strong> — Real compiler type-checking inside Claude sessions. Catches type errors as Claude writes code, not after.</li>
+    </ul>
+
+    <div class="compare-section-title">Where to Find More</div>
+    <ul>
+      <li><a href="https://claude.com/plugins" style="color:var(--accent-blue)">claude.com/plugins</a> — Anthropic's official plugin directory</li>
+      <li><a href="https://github.com/hesreallyhim/awesome-claude-code" style="color:var(--accent-blue)">awesome-claude-code</a> — Community curated list of skills, hooks, slash commands, and plugins</li>
+      <li><a href="https://github.com/rohitg00/awesome-claude-code-toolkit" style="color:var(--accent-blue)">awesome-claude-code-toolkit</a> — 135 agents, 42 commands, 150+ plugins, 19 hooks</li>
+    </ul>
+  </div>
+
+  <!-- ==================== CHAPTER 13B: MCP SERVERS ==================== -->
+  <div class="chapter" id="ch10b">
+    <div class="chapter-number">Chapter 14</div>
+    <h2>MCP Config (Model Context Protocol)</h2>
+
+    <div class="real-talk"><strong>"MCP server" is a misnomer — Anthropic's own term, used consistently in their docs, but technically misleading.</strong> Here is what actually happens: Claude Code launches a <em>program</em> as a child process. That program listens for JSON-RPC messages on its stdin, executes tool calls, and writes results back on stdout. It is a local process acting as a tool dispatcher — not a server in any meaningful sense of that word. There is no port. There is no network. There is no deployment. It starts when your Claude Code session starts and stops when the session ends. Calling it a "server" is like calling a calculator a "computation server." The word stuck because the underlying protocol (MCP) borrowed server/client terminology from web architecture, even though the actual implementation is just two programs talking through pipes on your own machine. We use "MCP server" throughout because that is what every doc, tutorial, and developer uses — but now you know what it actually is.</div>
+
+    <p>An MCP server gives Claude access to external systems — databases, APIs, Jira, Slack, GitHub. Without one, Claude can read and edit your files and run shell commands, but it cannot call external APIs in a structured, credential-safe way. An MCP server is the bridge between Claude and the outside world.</p>
+
+    <div class="aha"><strong>Claude Code can run any program on your machine without MCP.</strong> Through its Bash tool, Claude has access to every CLI program in your PATH. Git, curl, the Atlassian CLI, AWS CLI, kubectl, psql — if you can run it in a terminal, Claude can run it. MCP is the structured, credential-safe approach. The Bash tool + an installed CLI is the shortcut — simpler to set up, less elegant, same result for many tasks.</div>
+
+    <div class="analogy">Like COM objects or plugin DLLs. A separate process exposes methods via a well-defined protocol. Your application calls those methods without knowing the implementation. MCP servers are the same: separate local processes exposing tools via the Model Context Protocol (JSON-RPC over stdin/stdout).</div>
+
+    <div class="analogy-alt">Like a VS Code extension running in the extension host process. It exposes commands and capabilities via an API; the editor calls them when needed. An MCP server does the same for Claude Code.</div>
+
+    <div class="analogy-human">Like giving a new hire credentials to Salesforce, Jira, and the database. Without those logins they can answer questions but can't act. An MCP server is those credentials — properly configured so Claude can act, not just advise.</div>
+
+    <h3>How It Works</h3>
+    <p>Claude Code launches the MCP server as a child process at session start. The server declares what tools it provides. Claude sees those tools and can call them during conversation exactly like its built-in Read, Edit, and Bash tools.</p>
+
+    <h3>Examples</h3>
+    <ul>
+      <li><strong>Database MCP:</strong> Exposes <code>run_query</code>, <code>list_tables</code>. Claude can query your database.</li>
+      <li><strong>Jira MCP:</strong> Exposes <code>create_issue</code>, <code>update_status</code>, <code>search_issues</code>. Claude can manage tickets.
+        <div class="aha">You can bypass the Jira MCP entirely by installing the official Atlassian CLI (ACLI). Claude calls it through the Bash tool — no MCP needed. This works for most enterprise tools with a CLI.</div>
+      </li>
+      <li><strong>Slack MCP:</strong> Exposes <code>send_message</code>, <code>search_messages</code>.</li>
+      <li><strong>GitHub MCP:</strong> Exposes <code>create_pr</code>, <code>list_issues</code>.</li>
+    </ul>
+
+    <h3>Installing an MCP Server Manually</h3>
     <ol>
-      <li><strong>Get the package.</strong> Most MCP servers are npm packages or Python packages. Example: <code>npm install -g @anthropic/mcp-server-filesystem</code></li>
-      <li><strong>Configure it in settings.</strong> Add an entry to your settings file under the <code>mcpServers</code> key. Use <code>C:\Users\YourName\.claude\settings.json</code> for personal tools, or <code>C:\repos\MyProject\.claude\settings.local.json</code> for project-specific tools:</li>
+      <li><strong>Get the package.</strong> Most are npm or Python packages.</li>
+      <li><strong>Add it to your settings file</strong> under the <code>mcpServers</code> key:</li>
     </ol>
     <pre><code>{
   "mcpServers": {
@@ -801,44 +858,25 @@ Ask me for the component name and path before starting.</code></pre>
   }
 }</code></pre>
     <ol start="3">
-      <li><strong>Restart Claude Code.</strong> MCP servers are loaded at session start. After adding the config, start a new session.</li>
-      <li><strong>Use it.</strong> Claude automatically sees the new tools. Just ask: "Query the users table" and Claude will call the MCP server's <code>run_query</code> tool.</li>
+      <li><strong>Restart Claude Code.</strong> MCP servers load at session start.</li>
+      <li><strong>Use it.</strong> Just ask Claude: "Query the users table."</li>
     </ol>
 
-    <div class="analogy">Like registering a COM server. You install the DLL, add a registry entry (the config in settings.json), and then any application that speaks COM can call its methods. The "registry entry" here is the <code>mcpServers</code> block in settings.json. The "DLL" is the npm/Python package. The "COM protocol" is MCP (JSON-RPC over stdin/stdout).</div>
-
-    <h3>Creating Your Own MCP Server</h3>
-    <p>An MCP server is a program that:</p>
-    <ol>
-      <li>Reads JSON-RPC requests from stdin</li>
-      <li>Declares its available tools (name, description, parameters)</li>
-      <li>Executes tool calls and returns results to stdout</li>
-    </ol>
-    <p>You can write one in any language. Anthropic provides SDKs for TypeScript (<code>@anthropic-ai/sdk</code>) and Python (<code>mcp</code>) that handle the protocol plumbing. A minimal MCP server in TypeScript is about 50 lines.</p>
-
-    <div class="analogy-alt">Like writing a Windows Service that exposes a named pipe or REST endpoint. You define the interface (what tools you offer), implement the handlers, and register it so the system knows how to launch it. The MCP SDK handles the protocol layer &mdash; you just write the business logic, like writing a WCF service where the framework handles serialization.</div>
-
-    <h3>Scope: User vs. Repo MCP Servers</h3>
+    <h3>Scope</h3>
     <ul>
-      <li><strong>Personal / all projects</strong> &mdash; <code>C:\Users\YourName\.claude\settings.json</code> — available in every session on your machine. Good for personal tools (your database, your Jira).</li>
-      <li><strong>Project-only, private</strong> &mdash; <code>C:\repos\MyProject\.claude\settings.local.json</code> — NOT checked in to git. Good for project-specific servers with credentials.</li>
-      <li><strong>Project-only, shared with team</strong> &mdash; <code>C:\repos\MyProject\.claude\settings.json</code> — committed to git. Your team gets it automatically on clone. Use environment variables for credentials.</li>
+      <li><strong>Personal</strong> — <code>C:\Users\YourName\.claude\settings.json</code> — available in every session, never in git</li>
+      <li><strong>Project-private</strong> — <code>C:\repos\MyProject\.claude\settings.local.json</code> — project-specific, NOT in git</li>
+      <li><strong>Team-shared</strong> — <code>C:\repos\MyProject\.claude\settings.json</code> — committed to git, team gets it on clone</li>
     </ul>
 
-    <h3>Security: What to Watch For</h3>
-    <p>An MCP server is a process running on your machine with whatever permissions you gave it. If someone tells you to install an MCP server:</p>
-    <ul>
-      <li>Read the source code or at least the package description</li>
-      <li>Check if it's from a known publisher (Anthropic, GitHub, etc.)</li>
-      <li>Understand what tools it exposes &mdash; a "file system" MCP server can read and write files</li>
-      <li>Be cautious with <code>env</code> variables &mdash; those are credentials being passed to the server process</li>
-    </ul>
-    <div class="real-talk">MCP servers are the most powerful extension point in Claude Code. They're also the most dangerous. A malicious MCP server could exfiltrate code, modify files, or send data to external servers. Treat installing an MCP server like installing a VS Code extension from an unknown publisher &mdash; inspect before you trust.</div>
+    <h3>Security</h3>
+    <p>An MCP server runs on your machine with your user permissions. A malicious one could read files, exfiltrate code, or send data externally. Treat it like installing a VS Code extension from an unknown publisher — inspect before you trust.</p>
+    <div class="real-talk">MCP servers manage their own credentials. Claude never sees your raw API token — it just asks the server to "create a ticket" and the server handles auth. Never put credentials in CLAUDE.md or skills.</div>
   </div>
 
   <!-- ==================== CHAPTER 11 ==================== -->
   <div class="chapter" id="ch11">
-    <div class="chapter-number">Chapter 14</div>
+    <div class="chapter-number">Chapter 15</div>
     <h2>The Context Window</h2>
 
     <p>The context window is the total amount of text (measured in tokens) that Claude can "see" at once during a conversation. Everything &mdash; every message, every file read, every CLAUDE.md instruction, every skill, every tool result &mdash; occupies tokens in this finite window.</p>
@@ -893,7 +931,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 12 ==================== -->
   <div class="chapter" id="ch12">
-    <div class="chapter-number">Chapter 15</div>
+    <div class="chapter-number">Chapter 16</div>
     <h2>The File System Layout</h2>
 
     <p>Everything in Claude Code's architecture maps to a file in a predictable location. There is no registry, no database, no opaque binary format. Once you know the directory structure, you can inspect, edit, backup, or debug anything with a text editor.</p>
@@ -942,7 +980,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 13 ==================== -->
   <div class="chapter" id="ch13">
-    <div class="chapter-number">Chapter 16</div>
+    <div class="chapter-number">Chapter 17</div>
     <h2>Scope and Distribution</h2>
 
     <p>Every piece of Claude Code configuration has a scope (who it affects) and a distribution method (how it spreads). Understanding this prevents "where do I put this?" confusion.</p>
@@ -985,7 +1023,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 14 ==================== -->
   <div class="chapter" id="ch14">
-    <div class="chapter-number">Chapter 17</div>
+    <div class="chapter-number">Chapter 18</div>
     <h2>The Prompt Engineering Trap</h2>
 
     <p>You know how to prompt. You've been prompting AI tools for months or years. You can write a prompt that gets Claude to produce good code. So why does any of this architecture matter?</p>
@@ -1020,7 +1058,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 15 ==================== -->
   <div class="chapter" id="ch15">
-    <div class="chapter-number">Chapter 18</div>
+    <div class="chapter-number">Chapter 19</div>
     <h2>Bonus Features</h2>
     <p>These are real Claude Code features that don't fit neatly into the earlier chapters but are essential for power users.</p>
   </div>
@@ -1585,6 +1623,483 @@ Ask me for the component name and path before starting.</code></pre>
     <li><strong>Don't read files unnecessarily.</strong> If you ask Claude to "look at everything," it will. Be specific about which files matter.</li>
     <li><strong>Start fresh sessions for new tasks.</strong> A clean session has an empty context window. Carrying forward a 100-message conversation history into a new task wastes tokens.</li>
   </ul>
+
+</section>
+
+<section id="mcpdev" class="tab-panel">
+
+  <h2>Advanced: Building MCP Servers</h2>
+
+  <div class="real-talk"><strong>This page is for developers who want to build their own MCP servers.</strong> If you just want to use existing ones, you don't need this. But if you've ever thought "I wish Claude could access my company's internal API" or "I want Claude to query our private database" — this is how you do that. Building an MCP server is the difference between using Claude as a general-purpose tool and making it a specialist that knows your systems.</div>
+
+  <div class="compare-section-title blue">Why Would You Build One?</div>
+  <ul>
+    <li><strong>Your company has an internal API</strong> no public MCP server covers — HR systems, proprietary databases, internal tooling, legacy systems with REST APIs. You build the bridge.</li>
+    <li><strong>You want Claude to query your private database</strong> — production Postgres, SQL Server, MongoDB. You control the credentials, the queries allowed, and what data is exposed.</li>
+    <li><strong>You're building a product on top of Claude Code</strong> — your SaaS wants to offer Claude Code integration with your own tools pre-wired.</li>
+    <li><strong>You want to wrap an existing CLI tool cleanly</strong> — instead of Claude calling the Atlassian CLI via Bash (messy), you build a thin MCP adapter that presents clean structured tools like <code>create_ticket(summary, priority)</code>.</li>
+    <li><strong>You want Claude to interact with IoT, hardware, or unusual systems</strong> — anything you can call from code, you can expose as an MCP tool.</li>
+  </ul>
+
+  <div class="compare-section-title green">The Contract: What Your Program Must Do</div>
+  <p>There is no interface file, no IDL, no .h header. The "contract" is the MCP protocol — a set of JSON-RPC 2.0 messages your program must understand. When Claude Code connects to your server:</p>
+  <ol>
+    <li><strong>Claude sends <code>initialize</code></strong> — handshake and capability negotiation. Your program responds with what it supports.</li>
+    <li><strong>Claude sends <code>tools/list</code></strong> — "what tools do you expose?" Your program returns a list of tool definitions (name, description, JSON Schema for parameters). Claude caches this for the session.</li>
+    <li><strong>Claude sends <code>tools/call</code></strong> — "call this tool with these arguments." Your program executes the action and returns the result as JSON.</li>
+  </ol>
+  <p>That's the entire protocol for basic tool exposure. Three message types. The rest is your business logic.</p>
+
+  <div class="compare-section-title orange">The Secret Sauce: Tool Definitions</div>
+  <p>The quality of your tool definitions determines how well Claude uses your server. Claude reads the description to understand what the tool does and decides when to call it. The JSON Schema tells it what parameters to provide. Get the description wrong and Claude will misuse or ignore your tool.</p>
+
+  <pre><code>{
+  "name": "create_ticket",
+  "description": "Creates a new Jira issue in the specified project. Use when the user wants to file a bug, create a task, or track work in Jira. Returns the new issue key (e.g. PROJ-1234).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "summary": {
+        "type": "string",
+        "description": "The issue title — one sentence, specific"
+      },
+      "priority": {
+        "type": "string",
+        "enum": ["Low", "Medium", "High", "Critical"],
+        "description": "Issue priority"
+      },
+      "project_key": {
+        "type": "string",
+        "description": "Jira project key (e.g. PROJ, INFRA). Ask the user if unknown."
+      }
+    },
+    "required": ["summary", "project_key"]
+  }
+}</code></pre>
+
+  <div class="compare-section-title blue">Message Sequence: What Actually Flows Between Claude and Your Server</div>
+
+  <div class="seq-diagram">
+    <div class="seq-actors">
+      <div class="seq-actor">Claude Code</div>
+      <div class="seq-actor">Your MCP Program</div>
+    </div>
+
+    <div class="seq-row">
+      <div class="seq-arrow">
+        <span class="arr">──────────────────────────&rarr;</span>
+        <span class="msg">initialize</span>
+        <span class="detail">{ protocolVersion, capabilities }</span>
+      </div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-arrow" style="flex-direction:row-reverse">
+        <span class="arr">&larr;──────────────────────────</span>
+        <span class="msg">initialize result</span>
+        <span class="detail">{ serverInfo, capabilities }</span>
+      </div>
+    </div>
+
+    <div class="seq-note">— Handshake complete. Claude now asks what you can do. —</div>
+
+    <div class="seq-row">
+      <div class="seq-arrow">
+        <span class="arr">──────────────────────────&rarr;</span>
+        <span class="msg">tools/list</span>
+        <span class="detail">{}</span>
+      </div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-arrow" style="flex-direction:row-reverse">
+        <span class="arr">&larr;──────────────────────────</span>
+        <span class="msg">tools/list result</span>
+        <span class="detail">[ { name, description, inputSchema }, ... ]</span>
+      </div>
+    </div>
+
+    <div class="seq-note">— Claude caches your tool list. Session continues. User asks something. —</div>
+
+    <div class="seq-row">
+      <div class="seq-arrow">
+        <span class="arr">──────────────────────────&rarr;</span>
+        <span class="msg">tools/call</span>
+        <span class="detail">{ name: "create_ticket", arguments: { summary: "...", project_key: "PROJ" } }</span>
+      </div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-arrow" style="flex-direction:row-reverse">
+        <span class="arr">&larr;──────────────────────────</span>
+        <span class="msg">tools/call result</span>
+        <span class="detail">{ content: [ { type: "text", text: "Created PROJ-1234" } ] }</span>
+      </div>
+    </div>
+
+    <div class="seq-note">— Claude shows the result to the user. More tool calls may follow. —</div>
+  </div>
+
+  <div class="compare-section-title orange">The Raw Protocol — Real JSON Examples</div>
+  <p>Every message is JSON-RPC 2.0 over stdin/stdout. Here is exactly what flows through the pipe:</p>
+
+  <p><strong>Claude sends to your program (stdin):</strong></p>
+  <pre><code>{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"claude-code","version":"2.1.75"}}}
+
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
+
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"create_ticket","arguments":{"summary":"Login button broken on Safari","project_key":"PROJ","priority":"High"}}}</code></pre>
+
+  <p><strong>Your program responds (stdout):</strong></p>
+  <pre><code>{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"my-jira-server","version":"1.0.0"}}}
+
+{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"create_ticket","description":"Creates a Jira issue. Use when user wants to file a bug or track work.","inputSchema":{"type":"object","properties":{"summary":{"type":"string"},"project_key":{"type":"string"},"priority":{"type":"string","enum":["Low","Medium","High","Critical"]}},"required":["summary","project_key"]}}]}}
+
+{"jsonrpc":"2.0","id":3,"result":{"content":[{"type":"text","text":"Created PROJ-1234: Login button broken on Safari\nhttps://yourjira.atlassian.net/browse/PROJ-1234"}]}}</code></pre>
+
+  <p>Each message is one line of JSON terminated by a newline. Your program reads lines from stdin, parses the JSON, acts on the method, and writes a response line to stdout. That is the entire transport layer.</p>
+
+  <div class="aha"><strong>The description IS the interface.</strong> Claude does not read your source code. It reads your tool description and decides when and how to call the tool based on that text alone. Write descriptions the way you'd write a function's docstring for a junior developer — explicit, specific, including when to use it and what it returns.</div>
+
+  <div class="compare-section-title purple">Hello World in C# — For the Windows Developer</div>
+  <p>Since this guide is written for Windows developers, here's the simplest possible MCP server in C# using the official <code>ModelContextProtocol</code> NuGet package. This is a real, working implementation:</p>
+
+  <pre><code>// 1. Create a new console app: dotnet new console -n MyMcpServer
+// 2. Add the package: dotnet add package ModelContextProtocol
+// 3. Add to Program.cs:
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ModelContextProtocol.Server;
+
+var builder = Host.CreateApplicationBuilder(args);
+
+// CRITICAL: Log to stderr, NOT stdout — stdout is the protocol channel
+builder.Logging.AddFilter("*", LogLevel.Warning);
+
+builder.Services.AddMcpServer()
+    .WithStdioServerTransport()   // reads stdin, writes stdout
+    .WithToolsFromAssembly();     // discovers tools via [McpServerTool] attribute
+
+await builder.Build().RunAsync();</code></pre>
+
+  <pre><code>// MyTools.cs — define your tools here
+using ModelContextProtocol.Server;
+using System.ComponentModel;
+
+[McpServerToolType]
+public static class MyTools
+{
+    [McpServerTool, Description("Says hello. Use when user wants a greeting.")]
+    public static string SayHello(
+        [Description("The name to greet")] string name)
+    {
+        return $"Hello, {name}! This response came from your C# MCP server.";
+    }
+
+    [McpServerTool, Description("Adds two numbers. Use for arithmetic.")]
+    public static int Add(
+        [Description("First number")] int a,
+        [Description("Second number")] int b)
+    {
+        return a + b;
+    }
+}</code></pre>
+
+  <pre><code>// Configure in Claude Code ~/.claude/settings.json:
+{
+  "mcpServers": {
+    "my-csharp-server": {
+      "command": "dotnet",
+      "args": ["run", "--project", "C:\\MyMcpServer\\MyMcpServer.csproj"]
+    }
+  }
+}</code></pre>
+
+  <p>Restart Claude Code, and Claude will discover <code>SayHello</code> and <code>Add</code> as tools it can call. Ask Claude "say hello to Steve" and it will call your C# method directly.</p>
+
+  <div class="gotcha"><strong>The logging trap in C#.</strong> By default .NET logs to stdout — which corrupts the JSON-RPC protocol stream. Always configure logging to stderr (<code>LogToStandardErrorThreshold</code>) or set log levels to Warning/Error only. This is the #1 issue when first-time C# MCP developers can't get their server to respond.</div>
+
+  <div class="compare-section-title purple">Implementation: Any Language, Any Executable</div>
+  <p>Any program in any language that can read stdin and write stdout is a valid MCP server. You are not limited to npm packages. A compiled Rust binary, a Python script, a Go executable, a PowerShell script — all work. Anthropic provides SDKs for TypeScript and Python that handle the protocol boilerplate, but they're optional.</p>
+
+  <div class="gotcha"><strong>Never write anything to stdout except JSON-RPC responses.</strong> Stdout is the protocol channel. A single <code>console.log()</code>, <code>print()</code>, or debug statement corrupts the message stream and breaks your server silently. Claude will hang or report tool errors with no explanation. Write all logs and debug output to a file or stderr.</div>
+
+  <p><strong>The minimal Python MCP server is about 30–50 lines:</strong></p>
+  <pre><code># Install: pip install mcp
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+import mcp.types as types
+
+app = Server("my-server")
+
+@app.list_tools()
+async def list_tools():
+    return [
+        types.Tool(
+            name="hello",
+            description="Says hello to someone",
+            inputSchema={
+                "type": "object",
+                "properties": {"name": {"type": "string"}},
+                "required": ["name"]
+            }
+        )
+    ]
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "hello":
+        return [types.TextContent(type="text", text=f"Hello, {arguments['name']}!")]
+
+async def main():
+    async with stdio_server() as (read, write):
+        await app.run(read, write, app.create_initialization_options())
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())</code></pre>
+
+  <div class="compare-section-title red">MCP Server vs. CLI Program — Which Should You Build?</div>
+
+  <p>This is the right question to ask. You can already give Claude access to any CLI program through its Bash tool. So why write an MCP server at all?</p>
+
+  <p><strong>Yes, you can absolutely just write a CLI program.</strong> If you write <code>my-tool.exe --create-ticket "Bug in login" --project PROJ</code>, Claude can call that from the Bash tool. It works. Claude is smart enough to figure out parameters from a <code>--help</code> output or your instructions. This is the quickest path to "Claude can use my tool."</p>
+
+  <table class="compare-table">
+    <thead><tr><th></th><th>CLI program (Bash tool)</th><th>MCP server</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Setup time</strong></td><td>Minutes — write the program, Claude uses it</td><td>Hours — implement the protocol, write tool definitions</td></tr>
+      <tr><td><strong>How Claude calls it</strong></td><td>By constructing a shell command string</td><td>By calling a named tool with structured JSON parameters</td></tr>
+      <tr><td><strong>Parameter handling</strong></td><td>Claude guesses flags from --help or your instructions; prone to errors</td><td>Strict JSON Schema — Claude always passes correct types</td></tr>
+      <tr><td><strong>Output parsing</strong></td><td>Claude reads stdout as text and interprets it</td><td>Structured JSON response — no interpretation needed</td></tr>
+      <tr><td><strong>Credentials</strong></td><td>Must be in environment variables Claude can see, or hardcoded</td><td>Configured in the server — Claude never sees raw credentials</td></tr>
+      <tr><td><strong>Error handling</strong></td><td>Claude reads stderr/exit codes and guesses what went wrong</td><td>Structured error responses Claude can act on precisely</td></tr>
+      <tr><td><strong>Security</strong></td><td>Claude can run ANY bash command — including bad ones if confused</td><td>Only exposes defined tools — Claude can't go "off script"</td></tr>
+      <tr><td><strong>Works across AI tools</strong></td><td>Yes — any AI can run a CLI command</td><td>Yes — any MCP-compatible AI can use the server</td></tr>
+      <tr><td><strong>Best for</strong></td><td>Quick experiments, one-off tasks, tools you already have</td><td>Production integrations, team tools, credential-safe access, repeated daily use</td></tr>
+    </tbody>
+  </table>
+
+  <div class="aha"><strong>Start with CLI, graduate to MCP.</strong> The right path for most developers: first, let Claude call your tool via Bash. Get it working. Understand the parameters. Then, if you're using it every day or sharing it with a team, invest the hour to wrap it in an MCP server for the structured interface and credential safety. Don't build MCP first for something you've never tested.</div>
+
+  <p><strong>The concrete reasons to choose MCP over CLI:</strong></p>
+  <ul>
+    <li><strong>Your tool handles credentials</strong> — API keys, database passwords. CLI tools expose these in shell history and process listings. MCP keeps them inside the server process.</li>
+    <li><strong>You want reliable parameter passing</strong> — Claude occasionally mangles complex CLI flag syntax. JSON Schema parameters are exact.</li>
+    <li><strong>You're sharing with a team</strong> — a packaged MCP server with a <code>/plugin install</code> or settings.json entry is far easier to distribute than "install this CLI tool and configure these flags."</li>
+    <li><strong>The output is structured data</strong> — if your tool returns JSON that Claude needs to act on, returning it as a structured MCP response is cleaner than having Claude parse text output.</li>
+    <li><strong>You want it to work across multiple AI tools</strong> — one MCP server, Claude + Gemini + OpenCode can all use it.</li>
+  </ul>
+
+  <div class="compare-section-title red">Cross-Platform Compatibility</div>
+  <p>MCP is an open standard. The same MCP server works across multiple AI CLI tools — this is one of its biggest strengths. Write once, use everywhere:</p>
+
+  <table class="compare-table">
+    <thead><tr><th>CLI Tool</th><th>MCP Support</th><th>Config Format</th><th>Config Location</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Claude Code</strong></td><td><span class="check">Yes — full</span></td><td>JSON (<code>mcpServers</code>)</td><td><code>~/.claude/settings.json</code></td></tr>
+      <tr><td><strong>Gemini CLI</strong></td><td><span class="check">Yes</span></td><td>JSON (<code>mcpServers</code>)</td><td><code>~/.gemini/settings.json</code></td></tr>
+      <tr><td><strong>OpenCode</strong></td><td><span class="check">Yes</span></td><td>JSON (<code>mcp</code>)</td><td><code>~/.config/opencode/opencode.json</code></td></tr>
+      <tr><td><strong>Copilot CLI</strong></td><td><span class="partial">Partial — via extensions</span></td><td>GitHub extension format</td><td>GitHub Copilot settings</td></tr>
+      <tr><td><strong>Codex CLI</strong></td><td><span class="partial">Partial</span></td><td>TOML (<code>[mcp_servers]</code>)</td><td><code>~/.codex/config.toml</code></td></tr>
+    </tbody>
+  </table>
+
+  <p>The JSON-RPC protocol is identical across all supporting tools. The only difference is the config file format and location. If you build an MCP server for Claude Code, Gemini CLI can usually use it with only a config change.</p>
+
+  <div class="compare-section-title">Deployment: Where Does Your Server Live?</div>
+  <ul>
+    <li><strong>Local script</strong> — The most common. Your server is a Python script or Node.js file on your machine. Claude Code launches it with <code>python my_server.py</code> or <code>node my_server.js</code>. No installation required beyond the script being accessible.</li>
+    <li><strong>npm package</strong> — Package your server as an npm module. Claude Code launches it with <code>npx -y your-package</code>. Users don't need to install anything manually — npx downloads and runs on demand.</li>
+    <li><strong>Compiled binary</strong> — Rust, Go, or C++ servers compile to a single executable. Fast startup, no runtime dependencies. Point the config at the binary path.</li>
+    <li><strong>Remote server (HTTP)</strong> — MCP also supports HTTP transport for remote servers. Your server runs in the cloud; Claude connects via HTTPS. Useful for shared team infrastructure — one server, many developers.</li>
+    <li><strong>Docker container</strong> — Run your server in a container for isolation. Claude Code launches it with a <code>docker run</code> command.</li>
+  </ul>
+
+  <div class="compare-section-title">Resources for Building</div>
+  <ul>
+    <li><a href="https://modelcontextprotocol.io/docs/develop/build-server" style="color:var(--accent-blue)">Official MCP build-a-server guide</a> — Anthropic's documentation with TypeScript and Python examples</li>
+    <li><a href="https://github.com/anthropics/claude-code/tree/main/plugins" style="color:var(--accent-blue)">Claude Code plugins repository</a> — Official plugin examples to study</li>
+    <li><a href="https://github.com/hesreallyhim/awesome-claude-code" style="color:var(--accent-blue)">awesome-claude-code</a> — Community examples of MCP servers and plugins</li>
+  </ul>
+
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: MCP SERVER BUILDER QUIZ                  -->
+<!-- ============================================ -->
+<section id="mcpdevquiz" class="tab-panel">
+  <div class="time-estimate">Estimated time: 8-10 minutes | 12 scenario-based questions</div>
+  <div class="quiz-header">
+    <div class="quiz-title">MCP Server Builder Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="mcpdevquiz-score">0</span> / <span class="total" id="mcpdevquiz-total">0</span></div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="mcpdevquiz-progress"></div>
+  </div>
+  <div class="quiz-controls">
+    <button data-filter-quiz="mcpdevquiz" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="mcpdevquiz" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="mcpdevquiz" data-filter="incorrect">Incorrect</button>
+  </div>
+  <div id="mcpdevquiz-questions"></div>
+  <div class="final-score" id="mcpdevquiz-final">
+    <div class="big-score" id="mcpdevquiz-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="mcpdevquiz-reset">Reset Quiz</button>
+  </div>
+</section>
+
+<section id="demystify" class="tab-panel">
+
+  <h2>Confusing Terms</h2>
+  <p>This guide has uncovered a surprising amount of confused terminology, misleading names, and inconsistent definitions in the world of AI coding tools. Some of this is Anthropic's fault. Some is the broader AI industry's fault. Some is just the natural fog that forms when technical people name things for themselves and forget that others have to understand them too.</p>
+  <p>Here is a complete accounting of everything we found.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>The Confusing Term</th>
+        <th>What People Think It Means</th>
+        <th>What It Actually Means</th>
+        <th>Who's Responsible</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="anthropic-row">
+        <td><strong>"MCP Server"</strong></td>
+        <td>A deployed server — something with a port, a network, a cloud deployment</td>
+        <td>A local program launched as a child process. Listens for JSON-RPC on stdin, writes results to stdout. No port. No network. Stops when your session ends. A tool dispatcher, not a server.</td>
+        <td>Anthropic — borrowed "server/client" terminology from web architecture even though the implementation is just two programs talking through pipes on your machine</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>"Plugin" vs "MCP Server"</strong></td>
+        <td>Interchangeable terms for the same thing</td>
+        <td>Completely different. A Plugin (<code>/plugin install</code>) is a bundle containing slash commands, subagents, hooks, and/or MCP configs. An MCP server is one possible ingredient inside a plugin.</td>
+        <td>Anthropic — two distinct concepts with overlapping informal usage</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>"API Usage" / "Usage" / "Tokens"</strong></td>
+        <td>Three different things</td>
+        <td>All the same concept — token consumption — described from different angles on the same pricing page. "Usage" alone means two different things: messages in your plan window, OR tokens consumed through the API.</td>
+        <td>Anthropic — their pricing page uses four words for one concept, acknowledged as "one of the most confusing product pages in the industry"</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>"Extended Context Model"</strong></td>
+        <td>A different, more powerful AI model</td>
+        <td>The same Opus 4.6 or Sonnet 4.6, with a larger reading window enabled (1M instead of 200K tokens). Same brain, more desk space. Not a new model.</td>
+        <td>Anthropic</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>"Skill"</strong></td>
+        <td>Something that runs — like an Alexa skill or a Windows service</td>
+        <td>A markdown document that sits dormant until you invoke it. Does nothing on its own. Not a running process. Rename it mentally to "instruction document" or "playbook."</td>
+        <td>Anthropic — the word "skill" carries active connotations across other platforms</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>Memory files (cost)</strong></td>
+        <td>Free persistent storage — a nice bonus feature</td>
+        <td>Mini-CLAUDE.md files. They load automatically every session and cost input tokens on every prompt — just like CLAUDE.md. They are not free. They accumulate silently.</td>
+        <td>Anthropic — naming implies cost-free persistence; the token cost is not prominently disclosed</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>CLAUDE.md size</strong></td>
+        <td>A config file — bigger = more features, no cost</td>
+        <td>Every token in CLAUDE.md is charged as input tokens on every single message, every session, forever. A 500-line CLAUDE.md might cost 3,000–5,000 tokens per message. Treat it like code — refactor and trim it.</td>
+        <td>Anthropic — not disclosed prominently; discovered by developers monitoring token costs</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>CLAUDE.md "auto-updates"</strong></td>
+        <td>Claude automatically records what it learns</td>
+        <td>It doesn't. Claude reads CLAUDE.md every session but only writes to it when you explicitly ask. If you don't tell Claude to update it, knowledge from a session is lost forever.</td>
+        <td>Anthropic — the passive loading behavior makes users assume writing is also automatic</td>
+      </tr>
+      <tr>
+        <td><strong>"Fork" vs "Agent"</strong></td>
+        <td>Two words for spawning a separate Claude instance</td>
+        <td>Fork = git branch for a session. Copies full conversation history. Becomes a new permanent independent session. Agent = subprocess. Starts fresh with only its task brief. Terminates when done. You keep working.</td>
+        <td>AI industry — both "split off" from current context, but are architecturally opposite</td>
+      </tr>
+      <tr>
+        <td><strong>"Plugin" (informal)</strong></td>
+        <td>An MCP server — something that connects Claude to external tools</td>
+        <td>Informally used to mean MCP server by most tutorials and developers. Formally means a bundle that can contain MCP configs plus slash commands, subagents, and hooks.</td>
+        <td>AI industry — informal usage has diverged from the formal product definition</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>Which "Claude"?</strong></td>
+        <td>One product</td>
+        <td>At least six different surfaces: Claude.ai (website), Claude Desktop Chat tab, Claude Desktop Code tab, Claude Code CLI, Claude in VS Code/JetBrains, Claude in Slack, Claude in CI/CD. The Code tab in Claude Desktop IS Claude Code. They're the same engine.</td>
+        <td>Anthropic — poor surface naming; "Claude Code" appears as both a tab name and a product name</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>"Claude Code" vs "Claude the model"</strong></td>
+        <td>The same thing — "Claude"</td>
+        <td>Claude Code is the tool (like Visual Studio). Claude Opus/Sonnet/Haiku are the AI models inside it (like the compiler version). You can switch models mid-session. They are independent.</td>
+        <td>Anthropic — "Claude" is used for both the platform and the model family</td>
+      </tr>
+      <tr>
+        <td><strong>"Governance features" (Enterprise)</strong></td>
+        <td>A capability upgrade — makes Claude smarter or more powerful</td>
+        <td>Audit logs, SSO, SCIM, RBAC, custom data retention. Organizational compliance plumbing. Makes IT and legal teams happy. Does not make Claude smarter by one IQ point.</td>
+        <td>Enterprise software industry — "governance" is a feature category, but buyers often conflate it with capability</td>
+      </tr>
+      <tr>
+        <td><strong>"~/.claude/" notation</strong></td>
+        <td>Incomprehensible Unix gibberish</td>
+        <td>On Windows: <code>C:\Users\YourName\.claude\</code>. The tilde means "your home directory." The dot means "config folder." <code>~/.claude/</code> (with tilde) = your personal folder. <code>.claude/</code> (no tilde) = inside your current repo. Two completely different places.</td>
+        <td>AI industry — Unix conventions applied without translation for Windows users</td>
+      </tr>
+      <tr>
+        <td><strong>"Repository" / "repo"</strong></td>
+        <td>A mystical technical concept</td>
+        <td>A folder with version history tracking turned on. That's it. Your local repo is a folder on your hard drive. The GitHub repo is the same folder on GitHub's server.</td>
+        <td>Software industry — the word "repository" carries unnecessary gravitas</td>
+      </tr>
+      <tr>
+        <td><strong>"Pull Request"</strong></td>
+        <td>Pulling someone else's changes</td>
+        <td>A request to push your changes for others to review before merging. You're pushing, not pulling. The name is backwards from the user's perspective.</td>
+        <td>GitHub — a naming decision that has confused developers for 15+ years</td>
+      </tr>
+      <tr>
+        <td><strong>"IQ" and "Awareness"</strong></td>
+        <td>One dimension — how good the AI is</td>
+        <td>Two completely independent dimensions. IQ = reasoning quality (how well it thinks per token). Awareness = context window size (how much it can hold in mind at once, measured in pages). A genius seeing 267 pages beats a mediocre model seeing 1,333 pages on focused tasks — but loses on large codebase reasoning.</td>
+        <td>AI industry — "model quality" is discussed as a single axis; the context/reasoning split is rarely taught</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>Skills are "contextually loaded"</strong></td>
+        <td>Claude automatically detects when a skill applies and loads it</td>
+        <td>False. There is no background skill-matching. Skills sit dormant. You are always the trigger — either via slash command or explicit mention. Older docs described "contextual loading" which was misleading.</td>
+        <td>Anthropic — earlier documentation implied automatic skill activation</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>Skills "deactivate" cleanly</strong></td>
+        <td>Skills stay active for a session until you stop them</td>
+        <td>Skills can be silently dropped by /compact without warning. After compaction, Claude may stop following the skill's instructions with no error message. You won't notice until you see Claude ignoring the skill's rules.</td>
+        <td>Anthropic — undisclosed side effect of compaction; documented in GitHub issues, not official docs</td>
+      </tr>
+      <tr>
+        <td><strong>Documentation vs. Memory files</strong></td>
+        <td>Both "store" knowledge for Claude to use</td>
+        <td>Memory files: always loaded, cost tokens, Claude-only. Documentation (README.md etc.): costs zero until read, works with any AI, survives tool switching. Memory files are wired to Claude's brain. Documentation is a spare brain that any AI can borrow.</td>
+        <td>AI industry — the concept of "dormant, platform-agnostic memory" as distinct from "always-on AI memory" is not widely taught</td>
+      </tr>
+      <tr>
+        <td><strong>Plan Mode (Shift+Tab) vs. plain prompting</strong></td>
+        <td>Plan Mode is how professionals use Claude; prompting is for beginners</td>
+        <td>For most people, telling Claude "plan first, wait for approval" in a plain prompt produces the same result. Plan Mode's advantage is hard mechanical enforcement — it can't edit files during planning even if it wants to. The capability is identical; the guardrail is different.</td>
+        <td>AI industry — product features are marketed as necessary when prompting achieves the same outcome 95% of the time</td>
+      </tr>
+      <tr class="anthropic-row">
+        <td><strong>Enterprise plan = more Awareness</strong></td>
+        <td>Enterprise gets a larger context window than Max</td>
+        <td>As of March 2026, Max and Enterprise have identical 1M context windows. They equalized when Anthropic shipped 1M context generally. Pre-March 2026, Enterprise had 500K and Max had 200K — articles written then are now outdated.</td>
+        <td>Anthropic — tier benefits changed but old articles persist; the gap no longer exists at published tier level</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 22 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~6 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
 
 </section>
 
