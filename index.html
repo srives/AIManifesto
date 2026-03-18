@@ -929,9 +929,15 @@ Ask me for the component name and path before starting.</code></pre>
     <p>When your context window fills up, Claude auto-compresses older messages to make room. This is lossy &mdash; details get summarized and nuance is lost. <code>/compact</code> lets you trigger this compression manually, on your terms.</p>
 
     <h3>How /compact actually works — a sincere answer</h3>
-    <p>It is the second thing: <strong>Claude summarizes the older parts of the conversation to make room for new material.</strong> It is not like pages falling off a stack where the old content is simply gone. It is more like compressing a thick folder of notes into a single summary page — the detail is reduced, but the gist is preserved. The old pages are not wiped; they are condensed.</p>
+    <p><strong>Claude summarizes the older parts of the conversation to make room for new material.</strong> It is not like pages falling off a stack where the old content is simply gone. It is more like compressing a thick folder of notes into a single summary page — the detail is reduced, but the gist is preserved. The old pages are not wiped; they are condensed.</p>
     <p>So after <code>/compact</code>: the early part of your session becomes a dense summary (lower fidelity, still present). The recent part stays intact. Now there is space in the Awareness window to bring in new files, new code, new context. You have not lost everything — you have traded detail for room.</p>
-    <p>The risk: something important buried in a long tool output from two hours ago may have been dropped in the summary. That is why passing a hint matters — <code>/compact focus on the authentication refactor</code> tells Claude what must survive the compression.</p>
+    <p>The risk: something important buried in a long tool output from two hours ago may have been dropped in the summary. That is why you can pass a hint — a short phrase telling Claude what must survive the compression at all costs.</p>
+    <p><strong>Example:</strong> You have been debugging a payment processing bug for two hours. You have explored many dead ends. Now you are ready to write the fix, but the context window is getting full. You type:</p>
+    <pre><code>/compact focus on the payment bug — the root cause is in checkout.js line 142 where the tax calculation overflows</code></pre>
+    <p>Claude compresses the two hours of exploration history but keeps the critical finding — line 142 — intact. Without the hint, that specific detail might have been summarized away as "explored various files."</p>
+    <p><strong>Another example:</strong> You have been reading through 30 files trying to understand how the login system works. You now want to make changes but need to free up context. You type:</p>
+    <pre><code>/compact keep the authentication flow — specifically that session tokens are stored in Redis, not the database</code></pre>
+    <p>The exploration gets compressed, the key architectural fact survives.</p>
 
     <p><strong>What this means for Awareness:</strong> your plan determines the <em>maximum</em> Awareness your model can have — 267 pages on Pro, 1,333 pages on Max. But as a session runs, conversation history, file reads, and tool output accumulate and eat into that space. After an hour of coding, you might have consumed 150 of your 267 pages just on history — leaving only 117 pages for the actual work ahead. <code>/compact</code> shrinks the history back down, reclaiming Awareness. Think of it as freeing up screen real estate so the AI can see more of your project and less of its own conversation record. You are not upgrading your plan — you are clearing clutter within the plan you have.</p>
 
@@ -2963,7 +2969,7 @@ function initSearch() {
     if (e.key === 'Enter') matches.length && goToMatch((current + 1) % matches.length);
     if (e.key === 'Escape') closeSearch();
   });
-  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); openSearch(); } });
+  // Ctrl+F left to browser default — do not intercept
   document.addEventListener('click', e => { if (!box.contains(e.target) && e.target !== btn) closeSearch(); });
 }
 
