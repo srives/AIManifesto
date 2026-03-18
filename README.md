@@ -1,5 +1,11 @@
 # The Claude Code AI Manifesto
 
+<div align="center">
+
+***[https://srives.github.io/AIManifesto/](https://srives.github.io/AIManifesto/)***
+
+</div>
+
 **You use AI every day. You get good results. But you're only using 20% of the tool.**
 
 Skills, hooks, agents, MCP servers, memory, plans, slash commands — these aren't buzzwords. They're the architecture layer that separates "I can prompt" from "I can build systems."
