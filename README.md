@@ -1,8 +1,8 @@
-# The Claude Code AI Manifesto
+# The Claude Code AI Manifesto: Tutorial and Quiz Website
 
 <div align="center">
 
-***[https://srives.github.io/AIManifesto/](https://srives.github.io/AIManifesto/)***
+***[Go to the website now](https://srives.github.io/AIManifesto/)***
 
 </div>
 
