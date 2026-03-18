@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initQuiz('firstquiz', firstSessionQuestions);
   initQuiz('mcpdevquiz', mcpDevQuestions);
+  initQuiz('tokenquiz', tokenQuestions);
   initQuiz('shorter', shorterQuestions);
   initQuiz('larger', largerQuestions);
   initQuiz('plugins', pluginQuestions);
@@ -179,6 +180,144 @@ function initQuiz(prefix, questions) {
 // =====================================================
 // MCP SERVER BUILDER QUIZ - 12 questions
 // =====================================================
+// =====================================================
+// TOKENS QUIZ - 12 questions
+// =====================================================
+const tokenQuestions = [
+  {
+    question: "Where does the context window physically live?",
+    choices: [
+      "Your laptop's RAM",
+      "Your laptop's hard drive",
+      "GPU VRAM on Anthropic's servers in a data center",
+      "Anthropic's regular server RAM (not GPU)"
+    ],
+    answer: 2,
+    explanation: "<strong>GPU VRAM on Anthropic's servers.</strong> The context window is the KV cache — a GPU memory structure on Anthropic's data center hardware. Your laptop contributes nothing except tokenizing your text and sending it over HTTPS. This is why large context windows require massive GPU clusters and why they cost more to operate."
+  },
+  {
+    question: "Why do output tokens cost approximately 5x more than input tokens?",
+    choices: [
+      "Anthropic charges more because output is more valuable",
+      "Output tokens are larger than input tokens",
+      "Input tokens are processed in parallel (fast); output tokens are generated one at a time, each requiring a full model forward pass (slow and sequential)",
+      "Output tokens travel over a more expensive network connection"
+    ],
+    answer: 2,
+    explanation: "<strong>Parallel input vs sequential output.</strong> All your input tokens are processed simultaneously in the prefill phase — one big batch operation. Output tokens are generated one at a time (autoregressive generation) — each word requires a complete forward pass through all 80+ model layers reading the entire KV cache. You cannot parallelize this. One output token = ~5x the GPU compute of one input token. Hence $15/M vs $3/M on Sonnet."
+  },
+  {
+    question: "A reasonable median estimate for how much GPU VRAM one token occupies on Anthropic's servers is:",
+    choices: [
+      "4 bytes (the size of a token ID)",
+      "About 0.5 MB",
+      "About 50 MB",
+      "About 1 GB"
+    ],
+    answer: 1,
+    explanation: "<strong>About 0.5 MB per token.</strong> This is the KV cache cost: the key and value vectors stored for each token across all model layers. The range is 0.3–2.5 MB depending on model architecture (GQA models are at the low end). At 0.5 MB/token: 200K tokens ≈ 100 GB of GPU VRAM. 1M tokens ≈ 500 GB. This is why large context windows require data center hardware."
+  },
+  {
+    question: "If you use AI actively all day (about 50,000 tokens per hour), how long does it take to consume the entire Pro plan context window (200K tokens)?",
+    choices: [
+      "About 30 minutes",
+      "About 4 hours",
+      "About 2 full working days",
+      "It never fills up — the context window resets automatically"
+    ],
+    answer: 1,
+    explanation: "<strong>About 4 hours of active AI coding.</strong> At 50,000 tokens/hour (roughly 15-20 message exchanges per hour at ~3,000 tokens each): 200,000 / 50,000 = 4 hours. This is why heavy users hit Pro plan limits before the end of the workday. Max 5x ($100/month) gives you ~20 hours of context at that rate before hitting the wall."
+  },
+  {
+    question: "When you run /compact, what physically happens on Anthropic's servers?",
+    choices: [
+      "Nothing — it only affects your local display",
+      "Anthropic frees GPU VRAM by replacing your conversation history with a compressed summary in the KV cache",
+      "Your session is moved to a cheaper server",
+      "Your token count is reset to zero"
+    ],
+    answer: 1,
+    explanation: "<strong>GPU VRAM is freed on Anthropic's servers.</strong> The KV cache entries for old conversation turns are replaced with a compressed summary — fewer vectors, smaller cache, more room for new tokens. Anthropic literally reclaims GPU memory. This is why /compact helps not just your Awareness budget but reduces real server resource consumption. When your session ends, the entire KV cache is freed immediately."
+  },
+  {
+    question: "What is the KV cache?",
+    choices: [
+      "A database Anthropic uses to store your conversation history between sessions",
+      "A GPU memory structure that stores the Key and Value attention vectors for every token in your current session",
+      "A cache on your machine that stores Claude's responses for faster display",
+      "A billing cache that tracks how many tokens you have used"
+    ],
+    answer: 1,
+    explanation: "<strong>GPU memory storing attention vectors.</strong> The KV cache stores the Key (K) and Value (V) vectors computed for every token at every model layer. These vectors are what allows the model to 'attend' to all previous tokens when generating the next one. Without them, the model would have no memory of what you wrote. They live in GPU VRAM for the entire session and are freed when the session ends."
+  },
+  {
+    question: "Why does using GQA (Grouped Query Attention) make large context windows cheaper to serve?",
+    choices: [
+      "GQA compresses tokens before they are sent to the server",
+      "GQA reduces the number of KV heads (from e.g. 64 to 8), shrinking the KV cache size by up to 8x per token",
+      "GQA uses cheaper GPU memory types",
+      "GQA removes the need for a KV cache entirely"
+    ],
+    answer: 1,
+    explanation: "<strong>Fewer KV heads = smaller KV cache per token.</strong> In full multi-head attention, every attention head has its own Key-Value pair. In GQA, multiple heads share one KV pair. A model with 64 attention heads and 8 KV heads uses 8x less KV cache memory than a full-head model. This is the main architectural reason modern models (likely including Claude) can offer large context windows more affordably than older models."
+  },
+  {
+    question: "Why was Opus unavailable when Sonnet was not?",
+    choices: [
+      "Opus is newer software that wasn't fully deployed yet",
+      "Anthropic limits Opus to certain geographic regions",
+      "Opus runs on a separate GPU pool with fewer servers; during peak demand that pool was full — every GPU was already holding someone else's KV cache",
+      "Opus requires a special API key that you hadn't activated"
+    ],
+    answer: 2,
+    explanation: "<strong>The Opus GPU cluster was physically full.</strong> Different models run on different hardware pools. Opus is a larger model: bigger weights, more VRAM per session, fewer GPUs allocated because fewer users need it. During peak hours, every GPU in the Opus cluster was occupied by existing KV caches. The hardware was genuinely full. Sonnet had capacity because more Sonnet hardware exists and it serves more users."
+  },
+  {
+    question: "At the 0.5 MB per token median, how much GPU VRAM does a full 8-hour AI coding day consume (at 50,000 tokens/hour)?",
+    choices: [
+      "About 2 GB",
+      "About 20 GB",
+      "About 200 GB",
+      "About 2 TB"
+    ],
+    answer: 2,
+    explanation: "<strong>About 200 GB.</strong> 8 hours × 50,000 tokens/hour = 400,000 tokens. 400,000 × 0.5 MB = 200 GB. This is across multiple sessions throughout the day (each session freed when it ends), but at any one active moment your session is consuming tens to hundreds of GB of GPU VRAM. This is more than most entire servers hold in RAM."
+  },
+  {
+    question: "What is the 'prefill phase'?",
+    choices: [
+      "The time before you send your first message in a new session",
+      "The phase where all input tokens are processed simultaneously in parallel — the fast, cheap part of inference",
+      "The phase where Claude pre-loads your CLAUDE.md before the session starts",
+      "The time it takes for your message to reach Anthropic's servers"
+    ],
+    answer: 1,
+    explanation: "<strong>Parallel processing of all input tokens.</strong> When you send a message, all input tokens are processed at once as a batch — this is the prefill phase. Fast because it is parallel. This is what you pay $3/M for on Sonnet. It contrasts with the generation phase (output tokens), which is slow and sequential. Understanding these two phases explains the entire input/output price difference."
+  },
+  {
+    question: "Why does a bigger CLAUDE.md cost you money on every message?",
+    choices: [
+      "Anthropic charges extra for CLAUDE.md processing",
+      "CLAUDE.md is loaded as input tokens at the start of every session and stays in the KV cache for the entire session, consuming GPU VRAM and counting toward your context window",
+      "CLAUDE.md is sent to Anthropic every time you type a message",
+      "Bigger CLAUDE.md files require more storage on your laptop"
+    ],
+    answer: 1,
+    explanation: "<strong>CLAUDE.md tokens live in the KV cache for the entire session.</strong> CLAUDE.md is loaded as input tokens at session start. Those tokens occupy KV cache entries — GPU VRAM on Anthropic's servers — for every message you send. A 500-line CLAUDE.md might be 3,000-5,000 tokens, permanently consuming 1.5-2.5 GB of server GPU memory throughout the session. This is why keeping CLAUDE.md concise is not just organizational advice — it is literally saving server hardware cost."
+  },
+  {
+    question: "If you send a message with 10,000 tokens of context and Claude responds with 2,000 tokens, what is the approximate API cost on Sonnet?",
+    choices: [
+      "$0.01",
+      "$0.06",
+      "$0.60",
+      "$6.00"
+    ],
+    answer: 1,
+    explanation: "<strong>About $0.06.</strong> Input: 10,000 tokens × $3/million = $0.03. Output: 2,000 tokens × $15/million = $0.03. Total: $0.06. This is why individual exchanges are cheap — the cost adds up across thousands of exchanges over a month. At 400,000 tokens/day of AI coding, that is about $2/day on Sonnet at API rates. On a subscription plan, this cost is pre-paid in your monthly fee."
+  }
+];
+
 const mcpDevQuestions = [
   {
     question: "What transport mechanism does a local MCP server use to communicate with Claude Code?",
@@ -473,7 +612,7 @@ const shorterQuestions = [
       "Network bandwidth"
     ],
     answer: 1,
-    explanation: "<strong>RAM.</strong> The context window is the total working memory of a conversation. CLAUDE.md, skills, conversation history, file contents &mdash; all of it occupies tokens in the window. When it fills up, older content gets summarized (compressed), like virtual memory paging to disk. You have roughly 200K tokens, and every loaded document reduces what's left for actual work."
+    explanation: "<strong>RAM</strong> — specifically, GPU VRAM on Anthropic's servers (not your laptop). The context window is the working memory of a conversation, physically stored in the KV cache on a remote GPU cluster. CLAUDE.md, skills, conversation history, file contents — all of it occupies tokens in that window. When it fills up, older content gets summarized (compressed), like virtual memory paging to disk. You have roughly 200K tokens on Pro, and every loaded document reduces what's left for actual work."
   },
   {
     question: "Hooks are most similar to which development concept?",

@@ -419,6 +419,30 @@ tr.anthropic-row td { color: var(--text-primary); }
   padding-top: 0.4rem;
 }
 
+/* === Advanced Info Box === */
+.advanced-box {
+  border: 2px solid var(--accent-blue);
+  border-radius: 8px;
+  padding: 1.5rem 1.75rem;
+  margin: 1.5rem 0;
+  background: rgba(88, 166, 255, 0.04);
+}
+
+.advanced-box-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-blue);
+  margin-bottom: 1rem;
+}
+
+.advanced-box h3 {
+  color: var(--accent-blue);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 /* === About === */
 .about-section { text-align: center; padding: 3rem 1rem; }
 .about-ascii { font-family: var(--font-mono); font-size: 0.55rem; line-height: 1.1; color: var(--accent-blue); white-space: pre; display: inline-block; margin: 1.5rem 0; }

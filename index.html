@@ -23,6 +23,8 @@
           <button class="tab-btn" data-tab="remote">Control Claude from your Phone</button>
           <button class="tab-btn" data-tab="compare">Other AI CLIs</button>
           <button class="tab-btn" data-tab="pricing">Pricing &amp; Purchasing</button>
+          <button class="tab-btn" data-tab="tokenlife">Life of a Token</button>
+          <button class="tab-btn" data-tab="tokenquiz">Tokens Quiz</button>
           <button class="tab-btn" data-tab="mcpdev">Advanced: Building MCP Servers</button>
           <button class="tab-btn" data-tab="mcpdevquiz">MCP Server Builder Quiz</button>
           <button class="tab-btn" data-tab="demystify">Confusing Terms</button>
@@ -765,7 +767,7 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="chapter-number">Chapter 13</div>
     <h2>Plugins (<code>/plugin install</code>)</h2>
 
-    <p>A <strong>Claude Code Plugin</strong> is an installable package — a bundle that can contain slash commands, subagents, hooks, and MCP configs. One <code>/plugin install</code> command sets all of it up at once. MCP configs are one possible ingredient; see Chapter 14 for MCP specifically.</p>
+    <p>A <strong>Claude Code Plugin</strong> is an installable package — a bundle that can contain slash commands, subagents, hooks, and MCP configs (see <a class="gloss-link" data-tab="confession" data-anchor="ch10b" href="#">MCP Config</a> below). One <code>/plugin install</code> command sets all of it up at once.</p>
 
     <pre><code>/plugin install package-name</code></pre>
 
@@ -927,6 +929,55 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Here is something Anthropic does not advertise loudly: when you fill a very large context window, AI models tend to remember what's at the very beginning and the very end much better than what's buried in the middle. This is called the <strong>"lost in the middle"</strong> problem, documented in AI research.</p>
     <p>In practice: if you load 1,333 pages of code, the files you loaded first and the files you loaded last will get the most attention. Files in the middle may be effectively invisible. Claude handles this better than other models at large context sizes — but it is not perfect, and real developer testing confirms the effective useful window is often smaller than the advertised maximum.</p>
     <div class="real-talk">Developer testing on Reddit and GitHub Issues shows mixed results at 1M context. Sessions under ~500K tokens (667 pages) seem reliable. Beyond that, quality can degrade. The 1M window is real and useful — just don't assume Claude is giving equal attention to all 1,333 pages simultaneously.</div>
+
+    <div class="advanced-box">
+      <div class="advanced-box-label">&#9672; Advanced — What a Context Window Actually Is Physically</div>
+
+      <p><strong>Tokens do not map to your laptop's RAM at all.</strong> The context window lives entirely on Anthropic's servers, in GPU VRAM — graphics card memory on a data center GPU cluster, not regular RAM, and certainly not anything on your machine.</p>
+
+      <h3>What Happens When You Send a Message</h3>
+      <ol>
+        <li>Your text is tokenized on your machine — trivially small, a few kilobytes</li>
+        <li>The tokens are sent over HTTPS to Anthropic's data center</li>
+        <li>Anthropic's GPU cluster loads your entire conversation into <strong>GPU VRAM</strong></li>
+        <li>The model processes every token and generates a response token by token</li>
+        <li>The response streams back to you over HTTPS</li>
+      </ol>
+      <p>Your laptop contributes essentially nothing to the computation — just tokenizing your text and the network connection.</p>
+
+      <h3>The Full Journey — One Idea, Five Names</h3>
+      <p>This is why the terminology feels like a moving target. It's the same underlying thing measured at a different stage:</p>
+      <table class="compare-table">
+        <thead><tr><th>Stage</th><th>What it's called</th><th>What it actually is</th></tr></thead>
+        <tbody>
+          <tr><td>You type text</td><td>Characters</td><td>Letters, spaces, punctuation on your screen</td></tr>
+          <tr><td>Text is split up</td><td>Tokens</td><td>~4-character chunks, the unit Claude processes and bills</td></tr>
+          <tr><td>Tokens flow to Anthropic</td><td>HTTPS request</td><td>Your tokens sent over the internet to a data center</td></tr>
+          <tr><td>Model processes them</td><td>KV cache</td><td>GPU memory storing attention data for each token</td></tr>
+          <tr><td>How much fits</td><td>Context window</td><td>The total KV cache capacity (200K or 1M tokens)</td></tr>
+          <tr><td>Teaching metric</td><td>Awareness (pages)</td><td>Context window expressed in human-readable page counts</td></tr>
+        </tbody>
+      </table>
+      <p>Same idea. Six names. One journey from your keyboard to a GPU in a data center.</p>
+
+      <h3>What "200K Tokens" Means Physically — The Math</h3>
+      <p>Each token in the context window requires memory in the <strong>KV cache</strong> — a GPU memory structure storing attention computation vectors (Key and Value vectors) for every token at every model layer. Here is the actual calculation for a Claude-class model:</p>
+      <ul>
+        <li><strong>KV cache per token: a reasonable middle estimate is ~0.5 MB</strong> (range: 0.3–2.5 MB depending on model design). Modern GQA models are at the low end; older full-head models at the high end. Formula: 2 × layers × KV_heads × head_dim × bytes_per_element</li>
+        <li><strong>200K tokens ≈ 100 GB</strong> at the 0.5 MB median (range: ~60–500 GB)</li>
+        <li><strong>1M tokens ≈ 500 GB</strong> at the 0.5 MB median (range: ~300 GB–2.5 TB)</li>
+      </ul>
+      <p>A reasonable middle-of-the-road estimate: <strong>1 token ≈ 0.5 MB of server GPU VRAM</strong>. That means 200K tokens costs around 100 GB, and 1M tokens around 500 GB — though the real number varies significantly by model design (range: 0.3–2.5 MB/token). Either way, a Pro-plan session consumes more GPU memory than most servers hold in total RAM. This is not a software feature. It is a real infrastructure cost.</p>
+      <p>A single large-context Claude session may consume more GPU memory than most consumer graphics cards hold in total. This is why large context windows require massive GPU clusters and why they cost more to run.</p>
+
+      <h3>Why This Matters to You</h3>
+      <ul>
+        <li><strong>Latency:</strong> Larger context = more GPU compute = slower first response. You've noticed this — a fresh session responds faster than one with 50,000 tokens of history.</li>
+        <li><strong>Cost:</strong> More tokens = more GPU time = more cost to Anthropic = why larger context plans cost more.</li>
+        <li><strong>The "lost in the middle" problem:</strong> The KV cache stores all tokens, but the attention mechanism pays disproportionate attention to recent and early tokens. Middle tokens are physically present in memory — they're just attended to less. This is a GPU math problem, not a storage problem.</li>
+        <li><strong>Local models (Ollama etc.) ARE limited by your hardware:</strong> When you run a model locally, the KV cache lives in your GPU's VRAM. A 16GB graphics card running a 7B model may only support 4K–8K context before running out of VRAM — which is why local models feel so much more limited than cloud models.</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ==================== CHAPTER 12 ==================== -->
@@ -1626,6 +1677,173 @@ Ask me for the component name and path before starting.</code></pre>
 
 </section>
 
+<section id="tokenlife" class="tab-panel">
+
+  <h2>Life of a Token</h2>
+  <p>You type a message. Claude responds. What actually happened? The answer crosses your keyboard, your network card, the public internet, a data center, dozens of GPU chips, and back again. The same piece of data gets called something different at every stop. This page traces the complete journey.</p>
+
+  <div class="compare-section-title blue">The Complete Journey</div>
+
+  <div class="seq-diagram">
+    <div class="seq-actors">
+      <div class="seq-actor">Your Machine</div>
+      <div class="seq-actor">Internet</div>
+      <div class="seq-actor">GPU Cluster (Data Center)</div>
+    </div>
+
+    <div class="seq-note">You type a message</div>
+    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 1</span><span class="msg">Tokenization</span><span class="detail">Your text is split into token IDs. "Hello world" maps to [9906, 1917]. Done locally in milliseconds. Trivially small data.</span></div></div>
+
+    <div class="seq-note">Tokens travel to Anthropic</div>
+    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 2 &rarr;</span><span class="msg">HTTPS Request</span><span class="detail">Token IDs plus conversation history sent as JSON over TLS. A few kilobytes crossing the public internet to Anthropic's load balancer.</span></div></div>
+
+    <div class="seq-note">Inside the data center</div>
+    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 3</span><span class="msg">Routing to Model GPU Pool</span><span class="detail">Load balancer routes to a GPU server running the model you requested. Opus goes to the Opus hardware pool. Sonnet goes to the Sonnet pool. Different models live on different machines. This is why one can be unavailable when the other is not.</span></div></div>
+    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 4</span><span class="msg">Prefill Phase (Input Tokens)</span><span class="detail">ALL input tokens processed in PARALLEL. Key and Value vectors computed for each token and stored in the KV cache in GPU VRAM. Fast because it is parallel. This is what you pay $3/M for.</span></div></div>
+    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 5</span><span class="msg">Generation Phase (Output Tokens)</span><span class="detail">Model generates ONE token at a time. Each requires a full forward pass through ALL model layers reading the entire KV cache. Cannot parallelize. This is why output costs $15/M (5x input).</span></div></div>
+
+    <div class="seq-note">Response streams back</div>
+    <div class="seq-row"><div class="seq-arrow" style="flex-direction:row-reverse"><span class="arr">&larr; Step 6</span><span class="msg">Streaming Response</span><span class="detail">Each output token sent back as generated. This is why Claude streams word by word rather than appearing all at once.</span></div></div>
+    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 7</span><span class="msg">De-tokenization</span><span class="detail">Token IDs converted back to text characters on your machine. Words appear on screen.</span></div></div>
+  </div>
+
+  <div class="compare-section-title green">What the Token Is Called at Each Step</div>
+  <table class="compare-table">
+    <thead><tr><th>Stage</th><th>What it is called</th><th>Where it lives</th><th>Size</th></tr></thead>
+    <tbody>
+      <tr><td>On your screen</td><td>Characters / text</td><td>Your RAM / display</td><td>Bytes</td></tr>
+      <tr><td>After tokenization</td><td>Token ID (an integer, 0 to ~100K)</td><td>Your machine, briefly</td><td>4 bytes per token</td></tr>
+      <tr><td>In transit</td><td>JSON payload</td><td>Network packets (TLS encrypted)</td><td>KB total</td></tr>
+      <tr><td>Being processed (input)</td><td>Input token — prefill phase</td><td>GPU compute cores, processed in parallel</td><td>Batch</td></tr>
+      <tr><td><strong>Stored on GPU</strong></td><td><strong>KV cache entry</strong></td><td><strong>GPU VRAM on Anthropic's servers</strong></td><td><strong>~0.5 MB per token</strong> (median estimate; range 0.3–2.5 MB by architecture)</td></tr>
+      <tr><td>Being generated (output)</td><td>Output token — generation phase</td><td>GPU compute cores, one at a time</td><td>Sequential</td></tr>
+      <tr><td>Streaming back to you</td><td>Streamed token</td><td>Network packets</td><td>Bytes</td></tr>
+      <tr><td>Reused from prior call</td><td>Cache token (prompt cache hit)</td><td>GPU VRAM retained between calls</td><td>$0.30/M instead of $3/M</td></tr>
+    </tbody>
+  </table>
+
+  <div class="compare-section-title orange">Why Output Tokens Cost 5x More Than Input Tokens</div>
+  <div class="advanced-box">
+    <div class="advanced-box-label">&#9672; The Physics of Why</div>
+    <p><strong>Input tokens are processed in parallel.</strong> When you send 10,000 tokens, the GPU processes all 10,000 simultaneously in the prefill phase. One big matrix multiplication. Fast. Efficient. $3/M on Sonnet.</p>
+    <p><strong>Output tokens are generated sequentially, one at a time.</strong> To generate the next word, the model runs a complete forward pass through every single layer (80+ for a large model), reading the entire KV cache on each pass. It cannot generate word 2 until word 1 is finished, because word 2 depends on word 1. This is called autoregressive generation.</p>
+    <p>One output token equals one full model forward pass, which equals approximately 5x the GPU compute of processing one input token in a batch. Hence $15/M output vs $3/M input. The 5:1 ratio is not arbitrary. It is physics.</p>
+    <div class="analogy">Like the difference between reading a book (fast parallel scan) and writing one word at a time where each word depends on everything written before it. Reading is fast. Writing is slow. The model reads your input all at once and writes its response one word at a time.</div>
+  </div>
+
+  <div class="compare-section-title purple">How Long Does a Token Stay in GPU VRAM?</div>
+  <p>The KV cache for your session lives in GPU VRAM <strong>for the entire duration of your session</strong>. Every token you have sent and every token Claude has generated stays in VRAM as the KV cache. That is how Claude remembers what you discussed 100 messages ago. It is all right there in GPU memory on a server in a data center.</p>
+  <ul>
+    <li><strong>When you /compact</strong> — the KV cache is partially freed. Anthropic literally reclaims GPU memory. This is why /compact reduces server costs, not just your Awareness.</li>
+    <li><strong>When your session ends</strong> — the KV cache is freed immediately. Gone. That GPU VRAM is reallocated to someone else's session within milliseconds.</li>
+    <li><strong>Prompt caching</strong> — Anthropic can retain frequently-used KV entries (like your CLAUDE.md or system prompt) in VRAM between sessions. Cache read tokens cost $0.30/M instead of $3/M because the expensive compute already happened once and the vectors are still in memory.</li>
+  </ul>
+
+  <div class="compare-section-title red">Why Nvidia and Why Data Centers</div>
+  <div class="advanced-box">
+    <div class="advanced-box-label">&#9672; The Hardware Reality</div>
+    <p>The KV cache math explains Nvidia's $3 trillion valuation and why AI companies are spending hundreds of billions on data centers.</p>
+    <p><strong>Why Nvidia specifically:</strong> H100 and H200 GPUs have 80 to 96 GB of HBM (High Bandwidth Memory) each. A 1M token session needs 1 to 2 TB of KV cache, which requires 12 to 25 H100s connected via NVLink — Nvidia's GPU-to-GPU interconnect running at 900 GB/s. AMD has competing GPU specs but lacks CUDA, the programming model that 15 years of AI frameworks are built on. You cannot easily swap Nvidia for AMD in a running production cluster.</p>
+    <p><strong>Why data centers:</strong> A single Pro-plan Claude session ties up around 100 GB of GPU VRAM for its KV cache at median estimates (range: tens to hundreds of GB). Anthropic serves millions of sessions simultaneously. Millions of sessions times tens-to-hundreds of GB each equals exabytes of GPU VRAM required. Impossible without massive purpose-built facilities with specialized power, cooling, and GPU interconnect networking. Data centers do double duty: holding the model weights (terabytes per model, always loaded) and the KV caches for all live sessions (constantly changing as sessions start and end).</p>
+    <div class="real-talk">When you see news about Microsoft spending $80 billion on AI data centers, or Meta ordering 350,000 H100 GPUs, this is why. Every concurrent AI session in the world needs its own slice of GPU VRAM for its KV cache. The world is running out of VRAM.</div>
+  </div>
+
+  <div class="compare-section-title">Why Opus Was Unavailable When Sonnet Was Not</div>
+  <p>Different models run on different hardware pools. Opus 4.6 is a larger model than Sonnet 4.6. Larger model means:</p>
+  <ul>
+    <li>More parameters means more GPUs needed just to hold the model weights</li>
+    <li>Larger KV cache per token means more VRAM consumed per active session</li>
+    <li>Each Opus session ties up significantly more hardware than a Sonnet session</li>
+  </ul>
+  <p>Anthropic allocates separate GPU capacity per model. The Opus pool fills up first during peak demand because it is smaller. Fewer Opus GPUs exist because fewer users need it and it costs more per session to serve. When you saw "Opus unavailable," every GPU in the Opus cluster was already holding someone else's KV cache. The cluster was physically full.</p>
+  <p>Sonnet had capacity because more Sonnet hardware exists and it is more efficiently served. The model you chose directly determined which hardware cluster handled your request, and whether that cluster had room.</p>
+  <div class="aha">Higher-tier plans get priority in the queue when a GPU cluster is under load. Max and Enterprise do not just mean more tokens. They mean you are higher priority for access to the premium model hardware pools when demand exceeds capacity.</div>
+
+
+  <div class="compare-section-title blue">Token Scale: Mileage and Cost Chart</div>
+  <p>These tables answer: how much RAM, how many files, how much money, and how much working time?</p>
+  <p><em>Assumptions: 0.5 MB GPU VRAM per token (median). Average source file ≈ 1,500 tokens (300 lines × 5 tokens/line). Blended API cost ≈ $5/M tokens (80% input at $3/M + 20% output at $15/M). Active AI coding session ≈ 50,000 tokens/hour (15–20 exchanges/hour at ~3,000 tokens each).</em></p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Tokens</th>
+        <th>Server GPU VRAM (KV cache)</th>
+        <th>Equivalent source files</th>
+        <th>Pages of text</th>
+        <th>API cost (blended)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>1 token</strong></td><td>0.5 MB</td><td>1 word</td><td>0.001 pages</td><td>$0.000005</td></tr>
+      <tr><td><strong>1,000 tokens</strong></td><td>0.5 GB</td><td>~0.7 files</td><td>1.3 pages</td><td>$0.005</td></tr>
+      <tr><td><strong>10,000 tokens</strong></td><td>5 GB</td><td>~7 files</td><td>13 pages</td><td>$0.05</td></tr>
+      <tr><td><strong>50,000 tokens</strong></td><td>25 GB</td><td>~33 files</td><td>67 pages</td><td>$0.25</td></tr>
+      <tr><td><strong>100,000 tokens</strong></td><td>50 GB</td><td>~67 files</td><td>133 pages</td><td>$0.50</td></tr>
+      <tr><td><strong>200,000 tokens</strong><br><em>(Pro plan max)</em></td><td>100 GB</td><td>~133 files</td><td>267 pages</td><td>$1.00</td></tr>
+      <tr><td><strong>500,000 tokens</strong></td><td>250 GB</td><td>~333 files</td><td>667 pages</td><td>$2.50</td></tr>
+      <tr><td><strong>1,000,000 tokens</strong><br><em>(Max/Enterprise)</em></td><td>500 GB</td><td>~667 files</td><td>1,333 pages</td><td>$5.00</td></tr>
+    </tbody>
+  </table>
+
+  <div class="compare-section-title green">Your Workday Token Budget</div>
+  <p>Assumption: you use AI heavily all day. Active AI coding = ~50,000 tokens per hour (about 15 exchanges per hour at ~3,000 tokens each — prompt + response). An 8-hour day = ~400,000 tokens consumed.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Token amount</th>
+        <th>Time at your pace (50K/hr)</th>
+        <th>What it feels like</th>
+        <th>API cost</th>
+        <th>Pro plan ($20/mo) usage</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>10,000</strong></td><td>~12 minutes</td><td>A quick focused task. 4–5 back-and-forth exchanges.</td><td>$0.05</td><td>~4% of daily budget</td></tr>
+      <tr><td><strong>50,000</strong></td><td>~1 hour</td><td>A solid morning session on one feature.</td><td>$0.25</td><td>~20% of daily budget</td></tr>
+      <tr><td><strong>100,000</strong></td><td>~2 hours</td><td>Half a working day of active AI coding.</td><td>$0.50</td><td>~40% of daily budget</td></tr>
+      <tr><td><strong>200,000</strong></td><td>~4 hours</td><td>Pro plan max context. A full half-day session before needing /compact or a new session.</td><td>$1.00</td><td>Pro plan limit hit</td></tr>
+      <tr><td><strong>400,000</strong></td><td>~8 hours (full day)</td><td>Your typical full working day of AI-assisted development.</td><td>$2.00</td><td>Requires 2 Pro sessions or Max plan</td></tr>
+      <tr><td><strong>1,000,000</strong></td><td>~20 hours (~2.5 days)</td><td>Max/Enterprise context limit. A major feature or week-long sprint worth of context.</td><td>$5.00</td><td>Requires Max plan</td></tr>
+    </tbody>
+  </table>
+
+  <div class="real-talk"><strong>The math that surprises most people:</strong> at your pace (50K tokens/hour), you can burn through the entire Pro plan context window (200K tokens) in about 4 hours of active work. That is why heavy users hit limits before lunch. Max 5× ($100/month) gives you ~5 days of context at that rate before hitting the wall. Max 20× ($200/month) covers your full active workday without rationing. These plans are not priced arbitrarily — the pricing reflects real GPU time consumed.</div>
+
+  <div class="compare-section-title orange">Why This Also Explains Nvidia's Valuation</div>
+  <p>Your single full workday of AI coding (400K tokens) ties up roughly <strong>200 GB of Anthropic's GPU VRAM</strong> for the duration of active sessions. Multiply by millions of developers worldwide doing the same thing simultaneously, and the scale becomes clear:</p>
+  <ul>
+    <li>1 million active developers × 200 GB each = <strong>200 petabytes of GPU VRAM</strong> needed simultaneously</li>
+    <li>An H100 GPU has 80 GB of VRAM</li>
+    <li>That is roughly <strong>2.5 million H100 GPUs</strong> just to serve the KV caches of active sessions</li>
+    <li>At ~$30,000 per H100, that is <strong>$75 billion in GPUs</strong> just for active user sessions</li>
+    <li>This is before model weights, training, redundancy, and future capacity</li>
+  </ul>
+  <p>This is why Microsoft announced $80 billion in AI data center investment for 2026 alone. The numbers make sense when you trace a single developer's workday back to server hardware.</p>
+
+</section>
+
+<section id="tokenquiz" class="tab-panel">
+  <div class="time-estimate">Estimated time: 8-10 minutes | 12 questions</div>
+  <div class="quiz-header">
+    <div class="quiz-title">Tokens Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="tokenquiz-score">0</span> / <span class="total" id="tokenquiz-total">0</span></div>
+  </div>
+  <div class="progress-bar-container"><div class="progress-bar" id="tokenquiz-progress"></div></div>
+  <div class="quiz-controls">
+    <button data-filter-quiz="tokenquiz" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="tokenquiz" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="tokenquiz" data-filter="incorrect">Incorrect</button>
+  </div>
+  <div id="tokenquiz-questions"></div>
+  <div class="final-score" id="tokenquiz-final">
+    <div class="big-score" id="tokenquiz-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="tokenquiz-reset">Reset Quiz</button>
+  </div>
+</section>
+
 <section id="mcpdev" class="tab-panel">
 
   <h2>Advanced: Building MCP Servers</h2>
@@ -2096,10 +2314,16 @@ if __name__ == "__main__":
         <td>As of March 2026, Max and Enterprise have identical 1M context windows. They equalized when Anthropic shipped 1M context generally. Pre-March 2026, Enterprise had 500K and Max had 200K — articles written then are now outdated.</td>
         <td>Anthropic — tier benefits changed but old articles persist; the gap no longer exists at published tier level</td>
       </tr>
+      <tr>
+        <td><strong>"Context window" / "tokens"</strong> — what they physically are</td>
+        <td>Something on your laptop, like RAM or disk storage</td>
+        <td>The same idea travels through six names: Characters → Tokens → HTTPS request → KV cache → Context window → Awareness (pages). It starts on your keyboard and ends in GPU VRAM on Anthropic's servers. Your laptop contributes nothing except sending text over the internet. The math: <strong>1 token ≈ ~0.5 MB of GPU VRAM</strong> (median estimate; range 0.3–2.5 MB). 200K tokens ≈ 100 GB. 1M tokens ≈ 500 GB. Real number varies by model design. A single Pro session can consume more GPU memory than 10 gaming PCs combined.</td>
+        <td>AI industry — each name is technically correct at its layer, but nobody explains the journey. "Tokens" sounds like a billing unit. "Context window" sounds like a software setting. Neither hints that you're reserving terabytes of server GPU memory. <a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (advanced box)</a></td>
+      </tr>
     </tbody>
   </table>
 
-  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 22 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~6 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 23 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
 
 </section>
 
@@ -3252,8 +3476,8 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>MCP Server (Plugin)</td><td>An external process that gives Claude new tools (database queries, API calls). The closest thing to a plugin system.<a class="gloss-link" data-tab="confession" data-anchor="ch10" href="#">→ Chapter XI</a></td></tr>
       <tr><td>Plan / Plan Mode</td><td>A structured design-before-coding approach. Claude outlines the implementation strategy before writing code.</td></tr>
       <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.<a class="gloss-link" data-tab="confession" data-anchor="ch9" href="#">→ Chapter X</a></td></tr>
-      <tr><td>Context Window</td><td>The total token capacity Claude can "see" at once (~200K tokens). Everything loaded consumes space in this window.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter XII</a></td></tr>
-      <tr><td>Token</td><td>A unit of text (roughly 4 characters or 3/4 of a word). Claude processes, counts, and bills by tokens.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>Context Window</td><td>The total token capacity Claude can hold at once. Lives in GPU VRAM on Anthropic's servers (the KV cache), not your laptop. Median cost: ~0.5 MB per token. 200K tokens (Pro) ≈ 100 GB of server VRAM. 1M tokens (Max/Enterprise) ≈ 500 GB. Bigger context windows are real hardware costs, not just software features.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (advanced box)</a></td></tr>
+      <tr><td>Token</td><td>A unit of text (~4 characters, ~¾ of a word). Physically: each token occupies ~0.5 MB of GPU VRAM on Anthropic's servers (the KV cache). 200K tokens ≈ 100 GB of server GPU memory. Billed as input tokens ($3/M) or output tokens ($15/M on Sonnet). Your laptop contributes nothing to this storage.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>Governance (features)</td><td>Controls that let an organization manage, monitor, and restrict how employees use a tool. In Claude Enterprise: audit logs (who sent what), SSO (employees log in with company accounts), RBAC (which employees can use which features), SCIM (auto-add/remove users when they join or leave). None of it makes Claude smarter — it makes IT and legal teams happy.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible "thinking" tokens. Costs more but produces better answers for complex problems.<a class="gloss-link" data-tab="confession" data-anchor="ch15-10" href="#">→ Chapter 15.10</a></td></tr>
       <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.<a class="gloss-link" data-tab="confession" data-anchor="ch15-1" href="#">→ Chapter 15.1</a></td></tr>
@@ -3303,6 +3527,16 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>/cost</td><td>A Claude Code command. Shows token usage and estimated dollar cost for the current session.<a class="gloss-link" data-tab="confession" data-anchor="ch15-8" href="#">→ Chapter 15.8</a></td></tr>
       <tr><td>/help</td><td>A Claude Code command. Lists all available commands, built-in tools, and current session information.<a class="gloss-link" data-tab="confession" data-anchor="ch15" href="#">→ Chapter XV</a></td></tr>
       <tr><td>Auto memory</td><td>A Claude Code feature where Claude automatically writes memory notes about things it discovers, without being asked. These notes persist across sessions.<a class="gloss-link" data-tab="confession" data-anchor="ch9" href="#">→ Chapter X</a></td></tr>
+      <tr><td>GQA (Grouped Query Attention)</td><td>A modern AI architecture technique where the model uses far fewer KV heads than total attention heads. Instead of one Key-Value pair per attention head, multiple heads share a single KV head. A model with 64 total heads might have only 8 KV heads — reducing KV cache size by 8x. The main reason modern models are far more memory-efficient than older ones. Claude almost certainly uses GQA.</td></tr>
+      <tr><td>KV heads</td><td>The number of Key-Value head pairs in a model. In full multi-head attention: KV heads = total heads. In GQA models: KV heads is much smaller (e.g. 8 vs 64 total). KV heads directly determine KV cache size per token. The correct KV cache formula is: 2 × layers × KV_heads × head_dim × bytes — not total heads.</td></tr>
+      <tr><td>MQA (Multi-Query Attention)</td><td>The extreme version of GQA where all attention heads share exactly one KV head. Maximum memory efficiency. Slight quality trade-off at very long contexts. Both GQA and MQA exist specifically to shrink the KV cache and make long-context inference affordable.</td></tr>
+      <tr><td>Autoregressive generation</td><td>How language models generate output: one token at a time, each token depending on all previous tokens. Cannot be parallelized. This is why output tokens cost 5x more than input tokens — each requires a full forward pass through the entire model.</td></tr>
+      <tr><td>Prefill phase</td><td>The fast phase where all input tokens are processed in parallel as one batch. What you pay input token prices for ($3/M on Sonnet). Contrast with the generation phase (output tokens), which is slow and sequential.</td></tr>
+      <tr><td>Forward pass</td><td>One complete computation through all layers of a neural network. Each output token requires one full forward pass. For a model with 80+ layers, this is expensive — hence output tokens cost 5x input tokens.</td></tr>
+      <tr><td>HBM (High Bandwidth Memory)</td><td>The memory type used in AI GPUs (H100, H200). Stacked directly on the GPU for maximum bandwidth (~3.35 TB/s on H100). Essential because the KV cache must be read on every forward pass — bandwidth is the bottleneck, not compute.</td></tr>
+      <tr><td>NVLink</td><td>Nvidia's GPU-to-GPU interconnect (~900 GB/s on H100s). Required when a session's KV cache exceeds one GPU's VRAM. Allows 12-25 GPUs to share a single massive KV cache. This interconnect advantage, combined with CUDA, is why Nvidia dominates AI infrastructure.</td></tr>
+      <tr><td>KV (Key-Value)</td><td>In AI: the "Key-Value" cache — a GPU memory structure that stores attention computations for every token in the context window. The K and V stand for Key and Value vectors — internal mathematical representations the model needs to "remember" what it has read. For every token, at every model layer, two vectors are stored. This is what the context window physically occupies on Anthropic's servers.</td></tr>
+      <tr><td>KV Cache</td><td>The GPU memory structure where every token's attention data is stored during a conversation. Grows linearly with context size. Median estimate: ~0.5 MB per token (range 0.3–2.5 MB by model design). 200K tokens ≈ 100 GB. 1M tokens ≈ 500 GB. Bigger context windows are not a software feature — they reflect real infrastructure cost. This is why large context windows are expensive and require data center hardware.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (Context Window)</a></td></tr>
       <tr><td>Corporate proxy</td><td>A network intermediary in enterprise environments that routes and inspects outbound internet traffic. Can require special configuration for CLI tools that make HTTPS requests.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
 
       <!-- Model names -->
@@ -3436,7 +3670,7 @@ const glossaryTerms = {
   'Subagent': 'Same as Agent — a separate Claude instance that handles a subtask independently and reports back.',
   'Worktree': 'An isolated copy of your repo where an agent can work safely. If the experiment fails, your real files are untouched.',
   'Memory': 'Persistent notes stored in your personal Claude folder. Survives across sessions. Claude loads them automatically for the relevant project.',
-  'Token': 'The unit Claude uses to measure and bill text. Roughly 4 characters or 3/4 of a word. Everything loaded — prompts, files, history — costs tokens. "API usage" is just tokens counted from the billing side — same thing, different label.',
+  'Token': 'Unit of text (~4 characters). Physically: each token occupies ~0.5 MB of GPU VRAM on Anthropic's servers (the KV cache). 200K tokens ≈ 100 GB of server GPU memory. Billed as input tokens ($3/M) or output tokens ($15/M).',
   'Allowlist': 'A pre-approved list of tools or commands in settings.json. Claude won\'t ask permission before running allowlisted actions.',
   'Remote Control': 'A Claude Code feature that lets you control a running CLI session from your phone or another device via QR code.',
   'Context Window': 'The total amount of text Claude can "see" at once. Everything loaded (files, history, instructions) takes up space in this finite window.',
@@ -3466,6 +3700,21 @@ const glossaryTerms = {
   'Group Policy': 'Windows enterprise feature for centrally controlling what employees can install and run. May block Claude Code until IT whitelists it.',
   'Audit log': 'A record of who did what and when. Enterprise Claude logs every prompt and response for compliance review.',
   'ADR': 'Architecture Decision Record. A short document recording a significant architectural decision: what, why, alternatives considered, consequences. Written before the work, not after.',
+  'GQA': 'Grouped Query Attention. A modern AI technique where multiple attention heads share a single KV head pair, dramatically reducing KV cache size. A model with 64 heads might use only 8 KV heads. Claude almost certainly uses GQA.',
+  'Grouped Query Attention': 'A technique that reduces KV heads below total attention heads, shrinking KV cache memory by 4-8x vs older models.',
+  'MQA': 'Multi-Query Attention. Extreme version of GQA where all heads share one KV pair. Maximum memory efficiency, slight quality trade-off.',
+  'KV heads': 'The number of Key-Value head pairs in a model. Fewer KV heads (GQA) = smaller KV cache = less GPU VRAM per token. The correct formula uses KV heads, not total attention heads.',
+  'Autoregressive': 'How LLMs generate output: one token at a time, each depending on all previous. Cannot parallelize. Reason output tokens cost 5x more than input.',
+  'Prefill': 'The fast parallel phase where all input tokens are processed at once. What you pay input token prices for.',
+  'Forward pass': 'One complete computation through all model layers. Each output token requires one full forward pass through 80+ layers.',
+  'HBM': 'High Bandwidth Memory. Memory type on AI GPUs (H100/H200). ~3.35 TB/s bandwidth. Critical for KV cache reads on every forward pass.',
+  'NVLink': 'Nvidia GPU-to-GPU interconnect (~900 GB/s). Allows multiple GPUs to share a KV cache larger than one card can hold. Core reason Nvidia dominates AI.',
+  'KV cache': 'Key-Value cache. A GPU memory structure on Anthropic\'s servers that stores attention computations for every token in the context window. Grows linearly with context size. This is what the "context window" physically occupies — GPU VRAM on a remote server, not your laptop.',
+  'GPU VRAM': 'Graphics card memory on a server. Where Claude\'s context window physically lives. Not your laptop\'s RAM. Each token in context occupies space here in the KV cache.',
+  'VRAM': 'Video RAM — memory on a graphics card. Claude\'s context window lives in VRAM on Anthropic\'s GPU servers. Local models (Ollama) are limited by your own GPU\'s VRAM.',
+  'JSON-RPC': 'A lightweight remote procedure call protocol using JSON messages. How MCP servers communicate with Claude Code — over stdin/stdout for local servers. One JSON message per line.',
+  'Tool definition': 'The JSON description of an MCP server tool: name, description (what Claude reads to decide when to call it), and inputSchema (JSON Schema for parameters). The description IS the interface — write it clearly.',
+  'Superpowers': 'The most popular Claude Code plugin (~54K GitHub stars). Installs a full development methodology: brainstorming, spec writing, TDD, parallel subagents, code review. Install with /plugin install superpowers.',
   'Architecture Decision Record': 'A short document recording why a significant architectural decision was made. What was decided, why, what alternatives were considered. Written before the work starts — same discipline as Plan Mode in Claude Code.',
   'Red-green': 'A testing practice: write a failing test first (red), then write code that makes it pass (green). Proves the test catches the problem.',
   'Runbook': 'A step-by-step procedure document for completing a task. Skills in Claude Code are essentially runbooks for AI.',
