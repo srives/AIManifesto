@@ -10,6 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // === Tab Navigation ===
+function goToAnchor(tabId, anchorId) {
+  switchTab(tabId);
+  setTimeout(() => {
+    const el = document.getElementById(anchorId);
+    if (!el) return;
+    const header = document.querySelector('.site-header');
+    const offset = header ? header.getBoundingClientRect().height + 12 : 80;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }, 50);
+}
+
 function switchTab(tabId) {
   const btns = document.querySelectorAll('.tab-btn');
   const panels = document.querySelectorAll('.tab-panel');
@@ -29,6 +41,14 @@ function initTabs() {
     btn.addEventListener('click', () => {
       switchTab(btn.dataset.tab);
       if (drawer) drawer.classList.remove('open');
+    });
+  });
+
+  // Glossary back-links
+  document.querySelectorAll('.gloss-link').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      goToAnchor(a.dataset.tab, a.dataset.anchor);
     });
   });
 

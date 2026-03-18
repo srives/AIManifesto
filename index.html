@@ -14,16 +14,26 @@
 <header class="site-header">
   <div class="header-content">
     <div class="header-top">
+      <div class="search-wrap">
+        <button class="search-btn" id="search-btn" aria-label="Search">&#128269;</button>
+        <div class="search-box" id="search-box">
+          <input type="text" id="search-input" placeholder="Search..." autocomplete="off" spellcheck="false">
+          <span class="search-count" id="search-count"></span>
+          <button class="search-nav" id="search-prev" title="Previous">&#8593;</button>
+          <button class="search-nav" id="search-next" title="Next">&#8595;</button>
+          <button class="search-close" id="search-close">&#10005;</button>
+        </div>
+      </div>
       <div class="hamburger-wrap">
         <button class="hamburger-btn" id="hamburger-btn" aria-label="More">&#9776;</button>
         <div class="nav-drawer" id="nav-drawer">
-          <button class="tab-btn" data-tab="pricing">Pricing &amp; Purchasing</button>
           <button class="tab-btn" data-tab="starthere">Find Your Path</button>
           <button class="tab-btn" data-tab="firstsession">First 15 Minute Session</button>
           <button class="tab-btn" data-tab="firstquiz">First Session Quiz</button>
           <button class="tab-btn" data-tab="remote">Control Claude from your Phone</button>
           <button class="tab-btn" data-tab="compare">Other AI CLIs</button>
           <button class="tab-btn" data-tab="glossary">Glossary</button>
+          <button class="tab-btn" data-tab="pricing">Pricing &amp; Purchasing</button>
           <button class="tab-btn" data-tab="about">About</button>
         </div>
       </div>
@@ -490,6 +500,30 @@ Ask me for the component name and path before starting.</code></pre>
       <li><strong>Project-level and user-level subagent definitions</strong> — You can define named agents with specific instructions in <code>.claude/agents/</code> (project) or <code>C:\Users\YourName\.claude\agents\</code> (personal). These are like pre-configured specialists you can invoke by name.</li>
     </ul>
     <p>For most users, automatic delegation is all you need to understand. The deeper agent configuration is useful when you want specialized agents for recurring tasks in a project.</p>
+
+    <h3>Can You Write a Prompt and Send It to the Background?</h3>
+    <p>Yes — and this is one of the most useful things Claude Code can do. Here's how it works:</p>
+
+    <p><strong>Method 1: Ctrl+B while Claude is working.</strong> You send a prompt normally (hit Enter). Claude starts working. While it's running, press <strong>Ctrl+B</strong> to push the current task to the background. Claude keeps working. Your prompt returns and you can start a new task, type something else, or run shell commands — all while the background task continues. Press <strong>Ctrl+T</strong> to see the background task list and check status.</p>
+
+    <p><strong>Method 2: Run multiple tasks in parallel.</strong> Write your first prompt, send it. While Claude responds, type your next prompt and send it too. Claude Code can handle multiple background tasks simultaneously. Each one buffers its output and you collect results when it finishes.</p>
+
+    <p><strong>Method 3: Skill with background agent.</strong> Create a skill that explicitly tells Claude to spawn a subagent with <code>run_in_background: true</code> and <code>isolation: "worktree"</code>. The skill defines the task; invoking it with a slash command kicks off a background worktree agent that works independently while you continue in the main session.</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Key</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>Ctrl+B</code></td><td>Push current running task to background. Keep your prompt.</td></tr>
+        <tr><td><code>Ctrl+B Ctrl+B</code></td><td>Same, for tmux users (tmux intercepts the first Ctrl+B)</td></tr>
+        <tr><td><code>Ctrl+T</code></td><td>Show background task list and status</td></tr>
+        <tr><td><code>Ctrl+F</code></td><td>Kill all background agents if something goes wrong</td></tr>
+        <tr><td><code>Shift+Enter</code></td><td>Insert a newline in your prompt without sending it (write multi-line prompts)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="real-talk">There is no single slash command that says "run this as a background agent." The background behavior is triggered by Ctrl+B after sending, or by explicitly spawning agents via skills/agent definitions. The idea you described — write a prompt, prepend a command, send to background — is closest to creating a named agent skill and invoking it with a slash command. That gives you a one-keystroke "go do this in the background" workflow for recurring task types.</div>
+
+    <div class="analogy-human">Like assigning a task to a team member and walking away. You don't wait by their desk for them to finish. You brief them (the prompt), they start working (Ctrl+B), and you go do something else. When they're done, the result is waiting for you.</div>
   </div>
 
   <!-- ==================== CHAPTER 8 ==================== -->
@@ -818,7 +852,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.1 Worktrees -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-1">
     <div class="chapter-number">15.1</div>
     <h2>Worktrees (Isolated Agent Sandboxes)</h2>
     <p>When Claude spawns a subagent, it normally edits your working tree &mdash; the same files you're looking at. Worktrees change that: the agent gets its own isolated copy of the repo (a git worktree), works there, and the results are merged back only if successful.</p>
@@ -833,7 +867,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.2 Task Tool -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-2">
     <div class="chapter-number">15.2</div>
     <h2>Task Tool (Built-in Todo Tracker)</h2>
     <p>Claude Code has a built-in task/todo system that persists within a conversation. You can create tasks, mark them in-progress, mark them complete, and track what's left.</p>
@@ -848,7 +882,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.3 Model Switching -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-3">
     <div class="chapter-number">15.3</div>
     <h2>Model Switching Mid-Session (<code>/model</code>)</h2>
     <p>You don't have to pick one model for an entire session. Type <code>/model</code> to switch between Opus, Sonnet, and Haiku without starting over.</p>
@@ -870,10 +904,17 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.4 /compact -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-4">
     <div class="chapter-number">15.4</div>
     <h2><code>/compact</code> (Manual Context Compression)</h2>
     <p>When your context window fills up, Claude auto-compresses older messages to make room. This is lossy &mdash; details get summarized and nuance is lost. <code>/compact</code> lets you trigger this compression manually, on your terms.</p>
+
+    <h3>How /compact actually works — a sincere answer</h3>
+    <p>It is the second thing: <strong>Claude summarizes the older parts of the conversation to make room for new material.</strong> It is not like pages falling off a stack where the old content is simply gone. It is more like compressing a thick folder of notes into a single summary page — the detail is reduced, but the gist is preserved. The old pages are not wiped; they are condensed.</p>
+    <p>So after <code>/compact</code>: the early part of your session becomes a dense summary (lower fidelity, still present). The recent part stays intact. Now there is space in the Awareness window to bring in new files, new code, new context. You have not lost everything — you have traded detail for room.</p>
+    <p>The risk: something important buried in a long tool output from two hours ago may have been dropped in the summary. That is why passing a hint matters — <code>/compact focus on the authentication refactor</code> tells Claude what must survive the compression.</p>
+
+    <p><strong>What this means for Awareness:</strong> your plan determines the <em>maximum</em> Awareness your model can have — 267 pages on Pro, 1,333 pages on Max. But as a session runs, conversation history, file reads, and tool output accumulate and eat into that space. After an hour of coding, you might have consumed 150 of your 267 pages just on history — leaving only 117 pages for the actual work ahead. <code>/compact</code> shrinks the history back down, reclaiming Awareness. Think of it as freeing up screen real estate so the AI can see more of your project and less of its own conversation record. You are not upgrading your plan — you are clearing clutter within the plan you have.</p>
 
     <p><strong>Why you'd want this:</strong> if you've done a lot of exploratory reading (file reads, searches) that generated verbose output you no longer need, <code>/compact</code> frees that space while you're still in control of what's important. If you wait for auto-compression, it happens at an unpredictable moment and may compress something you still need.</p>
 
@@ -882,10 +923,12 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy-human">Like cleaning out your inbox before starting a new project phase. You archive the old threads, keep the active ones, and start fresh with clarity. If you don't do it intentionally, the system will eventually do it for you — but it won't know which emails you still needed. /compact is that intentional cleanup, done on your schedule.</div>
 
     <p>You can also pass a summary hint: <code>/compact focus on the authentication refactor</code> tells the compressor what to prioritize keeping.</p>
+
+    <p><em>See also: <a class="tab-btn-inline" data-tab="confession">Chapter XI — The Context Window</a> for how Awareness is consumed, and <a class="tab-btn-inline" data-tab="compare">IQ vs. Awareness on the Other AI CLIs page</a> for how your plan determines your maximum Awareness.</em></p>
   </div>
 
   <!-- 15.5 Permissions -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-5">
     <div class="chapter-number">15.5</div>
     <h2>Permissions Model</h2>
     <p>Claude Code asks permission before doing things &mdash; editing files, running commands, making web requests. The permission system has tiers:</p>
@@ -908,7 +951,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.6 settings.json -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-6">
     <div class="chapter-number">15.6</div>
     <h2><code>settings.json</code> and <code>settings.local.json</code></h2>
     <p>These are Claude Code's configuration files. They control much more than MCP servers:</p>
@@ -933,7 +976,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.7 Resume -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-7">
     <div class="chapter-number">15.7</div>
     <h2><code>--resume</code> and <code>--continue</code></h2>
     <p>You don't have to start a new session every time. You can pick up where you left off:</p>
@@ -952,7 +995,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.8 Cost Tracking -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-8">
     <div class="chapter-number">15.8</div>
     <h2>Cost Tracking</h2>
     <p>Every message costs money. Claude Code tracks token usage so you can monitor spend.</p>
@@ -980,7 +1023,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.9 CLAUDE.md Inheritance -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-9">
     <div class="chapter-number">15.9</div>
     <h2>The CLAUDE.md Inheritance Chain</h2>
     <p>There isn't just one CLAUDE.md. There's a stack, and they all get loaded and composed:</p>
@@ -1001,7 +1044,7 @@ Ask me for the component name and path before starting.</code></pre>
   </div>
 
   <!-- 15.10 Extended Thinking -->
-  <div class="chapter">
+  <div class="chapter" id="ch15-10">
     <div class="chapter-number">15.10</div>
     <h2>Extended Thinking</h2>
     <p>Sometimes Claude pauses for 10-30 seconds before responding. This isn't lag &mdash; it's <strong>extended thinking</strong>, a mode where Claude does deeper reasoning before generating a response.</p>
@@ -1223,8 +1266,8 @@ Ask me for the component name and path before starting.</code></pre>
     models2.forEach(m => {
       const iqPct = m.iq;
       const awarePct = Math.min(100, Math.round((m.aware / maxA) * 100));
-      const iqColor = m.iq >= 85 ? 'iq-bar' : m.iq >= 65 ? '' : 'iq-low';
-      const awareColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? '' : 'aware-low';
+      const iqColor = m.iq >= 85 ? 'iq-bar' : m.iq >= 65 ? 'iq-bar' : 'iq-low';
+      const awareColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? 'aware-bar' : 'aware-low';
       html += `<div class="model-name">${m.name}<div class="sub">${m.sub}</div></div>`;
       html += `<div class="bar-wrap"><div class="bar ${iqColor}" style="width:${iqPct}%"><span class="bar-label">${m.iq}/100</span></div></div>`;
       html += `<div class="bar-wrap"><div class="bar ${awareColor}" style="width:${awarePct}%"><span class="bar-label${awarePct < 20 ? ' outside' : ''}">${m.aware.toLocaleString()} pages</span></div></div>`;
@@ -2212,9 +2255,9 @@ else if (platform == "codex") { doZ() }</code></pre>
     models.forEach(m => {
       const iqPct = m.iq;
       const awarePct = Math.min(100, Math.round((m.aware / maxAware) * 100));
-      const iqColor = m.iq >= 85 ? 'iq-bar' : m.iq >= 65 ? '' : 'iq-low';
-      const awareColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? '' : 'aware-low';
-      const awareBarColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? 'bar' : 'aware-low';
+      const iqColor = m.iq >= 85 ? 'iq-bar' : m.iq >= 65 ? 'iq-bar' : 'iq-low';
+      const awareColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? 'aware-bar' : 'aware-low';
+      const awareBarColor = m.aware >= 1000 ? 'aware-bar' : m.aware >= 300 ? 'aware-bar' : 'aware-low';
       html += `<div class="model-name">${m.name}<div class="sub">${m.sub}</div></div>`;
       html += `<div class="bar-wrap"><div class="bar ${iqColor}" style="width:${iqPct}%"><span class="bar-label">${m.iq}/100</span></div></div>`;
       html += `<div class="bar-wrap"><div class="bar ${awareBarColor}" style="width:${awarePct}%"><span class="bar-label${awarePct < 20 ? ' outside' : ''}">${m.aware.toLocaleString()} pages</span></div></div>`;
@@ -2333,7 +2376,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>GUI</td><td>Graphical User Interface</td><td>A visual interface with windows, buttons, and mouse interaction. What most people think of as "an application."</td></tr>
       <tr><td>IDE</td><td>Integrated Development Environment</td><td>A code editor with built-in tools (debugger, compiler, etc.). Visual Studio, VS Code, JetBrains products.</td></tr>
       <tr><td>API</td><td>Application Programming Interface</td><td>A defined way for programs to talk to each other. Think of it as a drive-through window: you send a request in a standard format, the system processes it, and sends back a response. Claude's API lets software applications send prompts to Claude and receive responses — programmatically, without a human typing.</td></tr>
-      <tr><td>API Usage</td><td>API Usage</td><td>The same thing as token consumption — just described from the billing side. "API usage" means: how many tokens your application consumed through the API. When Anthropic says "API usage billed separately," they mean: every prompt sent and response received burns tokens, and those tokens cost money at per-token rates. It is not a separate concept from tokens — it IS tokens, counted and charged.</td></tr>
+      <tr><td>API Usage</td><td>API Usage</td><td>The same thing as token consumption — just described from the billing side. "API usage" means: how many tokens your application consumed through the API. When Anthropic says "API usage billed separately," they mean: every prompt sent and response received burns tokens, and those tokens cost money at per-token rates. It is not a separate concept from tokens — it IS tokens, counted and charged.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>REST</td><td>Representational State Transfer</td><td>A common style for web APIs. Uses HTTP methods (GET, POST, PUT, DELETE) on URLs. Most web services expose REST APIs.</td></tr>
       <tr><td>MCP</td><td>Model Context Protocol</td><td>Anthropic's protocol for connecting external tools (plugins) to Claude. JSON-RPC over stdin/stdout.</td></tr>
       <tr><td>SDK</td><td>Software Development Kit</td><td>A library/package that makes it easier to use an API or protocol. Anthropic provides MCP SDKs for TypeScript and Python.</td></tr>
@@ -2369,21 +2412,21 @@ else if (platform == "codex") { doZ() }</code></pre>
   <table class="compare-table">
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
-      <tr><td>Session</td><td>A conversation with Claude Code. Has a unique ID, persists as a .jsonl file, can be resumed later.</td></tr>
-      <tr><td>CLAUDE.md</td><td>A markdown file of instructions that Claude reads at the start of every session. Your project's configuration for AI behavior.</td></tr>
-      <tr><td>Skill</td><td>A SKILL.md instruction file in <code>.claude/skills/</code>. Loaded into context when relevant. Not a running process &mdash; a document that informs behavior.</td></tr>
-      <tr><td>Slash Command</td><td>A custom command defined as a file in <code>.claude/commands/</code>. Typing <code>/foo</code> loads the prompt from that file.</td></tr>
-      <tr><td>Hook</td><td>A shell command that executes in response to an event (before/after tool use, session start). Unlike skills, hooks actually run code.</td></tr>
+      <tr><td>Session</td><td>A conversation with Claude Code. Has a unique ID, persists as a .jsonl file, can be resumed later.<a class="gloss-link" data-tab="confession" data-anchor="ch1" href="#">→ Chapter II</a></td></tr>
+      <tr><td>CLAUDE.md</td><td>A markdown file of instructions that Claude reads at the start of every session. Your project's configuration for AI behavior.<a class="gloss-link" data-tab="confession" data-anchor="ch2" href="#">→ Chapter III</a></td></tr>
+      <tr><td>Skill</td><td>A SKILL.md instruction file in <code>.claude/skills/</code>. Loaded into context when relevant. Not a running process &mdash; a document that informs behavior.<a class="gloss-link" data-tab="confession" data-anchor="ch4" href="#">→ Chapter V</a></td></tr>
+      <tr><td>Slash Command</td><td>A custom command defined as a file in <code>.claude/commands/</code>. Typing <code>/foo</code> loads the prompt from that file.<a class="gloss-link" data-tab="confession" data-anchor="ch5" href="#">→ Chapter VI</a></td></tr>
+      <tr><td>Hook</td><td>A shell command that executes in response to an event (before/after tool use, session start). Unlike skills, hooks actually run code.<a class="gloss-link" data-tab="confession" data-anchor="ch6" href="#">→ Chapter VII</a></td></tr>
       <tr><td>Agent / Subagent</td><td>A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back. Like a child process.</td></tr>
       <tr><td>MCP Server (Plugin)</td><td>An external process that gives Claude new tools (database queries, API calls). The closest thing to a plugin system.</td></tr>
       <tr><td>Plan / Plan Mode</td><td>A structured design-before-coding approach. Claude outlines the implementation strategy before writing code.</td></tr>
-      <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.</td></tr>
-      <tr><td>Context Window</td><td>The total token capacity Claude can "see" at once (~200K tokens). Everything loaded consumes space in this window.</td></tr>
-      <tr><td>Token</td><td>A unit of text (roughly 4 characters or 3/4 of a word). Claude processes, counts, and bills by tokens.</td></tr>
+      <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.<a class="gloss-link" data-tab="confession" data-anchor="ch9" href="#">→ Chapter X</a></td></tr>
+      <tr><td>Context Window</td><td>The total token capacity Claude can "see" at once (~200K tokens). Everything loaded consumes space in this window.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter XII</a></td></tr>
+      <tr><td>Token</td><td>A unit of text (roughly 4 characters or 3/4 of a word). Claude processes, counts, and bills by tokens.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>Governance (features)</td><td>Controls that let an organization manage, monitor, and restrict how employees use a tool. In Claude Enterprise: audit logs (who sent what), SSO (employees log in with company accounts), RBAC (which employees can use which features), SCIM (auto-add/remove users when they join or leave). None of it makes Claude smarter — it makes IT and legal teams happy.</td></tr>
       <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible "thinking" tokens. Costs more but produces better answers for complex problems.</td></tr>
-      <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.</td></tr>
-      <tr><td>Remote Control</td><td>Feature that lets you control a local Claude Code session from your phone or another device via QR code or URL.</td></tr>
+      <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.<a class="gloss-link" data-tab="confession" data-anchor="ch15-1" href="#">→ Chapter 15.1</a></td></tr>
+      <tr><td>Remote Control</td><td>Feature that lets you control a local Claude Code session from your phone or another device via QR code or URL.<a class="gloss-link" data-tab="remote" data-anchor="remote" href="#">→ Remote Control tab</a></td></tr>
       <tr><td>Task Tool</td><td>Built-in todo/task tracker within a Claude Code conversation. Creates, tracks, and completes tasks.</td></tr>
       <tr><td><code>/compact</code></td><td>Manually compresses conversation history to free context window space. Lets you control when and what gets compressed.</td></tr>
       <tr><td><code>/model</code></td><td>Switches between AI models (Opus, Sonnet, Haiku) mid-session without losing conversation history.</td></tr>
@@ -2422,10 +2465,10 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Refactor</td><td>Restructuring code without changing its behavior. Improving organization, readability, or performance.</td></tr>
       <tr><td>Registry (in code)</td><td>A data structure that maps keys to behaviors. Avoids if-else chains. Add a new entry to support a new variant.</td></tr>
       <tr><td>WinGet</td><td>Windows Package Manager, built into Windows 10/11. Install software with <code>winget install PackageName</code>. Like apt (Linux) or Homebrew (Mac), but for Windows. Use <code>winget install Anthropic.Claude</code> to install Claude Code.</td></tr>
-      <tr><td>Plan Mode</td><td>A Claude Code mode activated with Shift+Tab. Claude describes its intended approach before making any changes. You review and approve the plan first.</td></tr>
-      <tr><td>/init</td><td>A Claude Code command. Analyzes your project and generates an initial CLAUDE.md automatically. Run it when starting a new project, or to improve an existing CLAUDE.md.</td></tr>
-      <tr><td>/compact</td><td>A Claude Code command. Manually compresses conversation history to free context window space. Useful in long sessions.</td></tr>
-      <tr><td>/cost</td><td>A Claude Code command. Shows token usage and estimated dollar cost for the current session.</td></tr>
+      <tr><td>Plan Mode</td><td>A Claude Code mode activated with Shift+Tab. Claude describes its intended approach before making any changes. You review and approve the plan first.<a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">→ Chapter IX</a></td></tr>
+      <tr><td>/init</td><td>A Claude Code command. Analyzes your project and generates an initial CLAUDE.md automatically. Run it when starting a new project, or to improve an existing CLAUDE.md.<a class="gloss-link" data-tab="confession" data-anchor="ch2" href="#">→ Chapter III</a></td></tr>
+      <tr><td>/compact</td><td>A Claude Code command. Manually compresses conversation history to free context window space. Useful in long sessions.<a class="gloss-link" data-tab="confession" data-anchor="ch15-4" href="#">→ Chapter 15.4</a></td></tr>
+      <tr><td>/cost</td><td>A Claude Code command. Shows token usage and estimated dollar cost for the current session.<a class="gloss-link" data-tab="confession" data-anchor="ch15-8" href="#">→ Chapter 15.8</a></td></tr>
       <tr><td>/help</td><td>A Claude Code command. Lists all available commands, built-in tools, and current session information.</td></tr>
       <tr><td>Auto memory</td><td>A Claude Code feature where Claude automatically writes memory notes about things it discovers, without being asked. These notes persist across sessions.</td></tr>
       <tr><td>Corporate proxy</td><td>A network intermediary in enterprise environments that routes and inspects outbound internet traffic. Can require special configuration for CLI tools that make HTTPS requests.</td></tr>
@@ -2467,8 +2510,8 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>SOP (Standard Operating Procedure)</td><td>A documented set of instructions for performing a routine task consistently. Similar to a runbook. When you write a Skill for Claude, you're writing an SOP for it to follow.</td></tr>
       <tr><td>Red-green testing</td><td>A development practice: write a test that FAILS first (red), then write code that makes it PASS (green). Proves the test actually detects the problem. A core practice in the Practitioner's Guide.</td></tr>
       <tr><td>Codebase</td><td>All the source code files that make up a project or application. "The codebase" = the entire collection of code, not just one file. When Claude Code "reads your codebase," it's scanning your project's files.</td></tr>
-      <tr><td>Awareness (AI)</td><td>How much information an AI can hold in mind at once. Measured in pages (1 page ≈ 500 words ≈ 750 tokens). A 200K token model has ~267 pages of Awareness. A 1M token model has ~1,333 pages. Distinct from IQ — a smart model with low Awareness misses things it simply cannot see.</td></tr>
-      <tr><td>IQ (AI)</td><td>The AI model's reasoning capability — how well it thinks, writes code, solves hard problems. Opus has higher IQ than Haiku. Distinct from Awareness (context window size). Both matter; they measure different things.</td></tr>
+      <tr><td>Awareness (AI)</td><td>How much information an AI can hold in mind at once. Measured in pages (1 page ≈ 500 words ≈ 750 tokens). A 200K token model has ~267 pages of Awareness. A 1M token model has ~1,333 pages. Distinct from IQ — a smart model with low Awareness misses things it simply cannot see.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">→ IQ/Awareness chart</a></td></tr>
+      <tr><td>IQ (AI)</td><td>The AI model's reasoning capability — how well it thinks, writes code, solves hard problems. Opus has higher IQ than Haiku. Distinct from Awareness (context window size). Both matter; they measure different things.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">→ IQ/Awareness chart</a></td></tr>
     </tbody>
   </table>
 
@@ -2720,6 +2763,98 @@ function initTooltips() {
 }
 
 document.addEventListener('DOMContentLoaded', initTooltips);
+
+// === Search ===
+function initSearch() {
+  const btn   = document.getElementById('search-btn');
+  const box   = document.getElementById('search-box');
+  const input = document.getElementById('search-input');
+  const count = document.getElementById('search-count');
+  const prev  = document.getElementById('search-prev');
+  const next  = document.getElementById('search-next');
+  const close = document.getElementById('search-close');
+  if (!btn) return;
+
+  let matches = [], current = -1;
+
+  function openSearch()  { box.classList.add('open'); input.focus(); input.select(); }
+  function closeSearch() {
+    box.classList.remove('open');
+    clearHighlights();
+    input.value = ''; count.textContent = ''; matches = []; current = -1;
+  }
+
+  function clearHighlights() {
+    document.querySelectorAll('.search-highlight').forEach(el => {
+      el.parentNode.replaceChild(document.createTextNode(el.textContent), el);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.normalize());
+  }
+
+  const SKIP = new Set(['SCRIPT','STYLE','CODE','PRE','INPUT','BUTTON','A']);
+
+  function highlightAll(term) {
+    clearHighlights(); matches = []; current = -1;
+    if (!term || term.length < 2) { count.textContent = ''; return; }
+    const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+
+    function walk(node) {
+      if (node.nodeType === 3) {
+        const text = node.nodeValue;
+        if (!re.test(text)) return;
+        re.lastIndex = 0;
+        const frag = document.createDocumentFragment();
+        let last = 0, m;
+        while ((m = re.exec(text)) !== null) {
+          if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+          const span = document.createElement('span');
+          span.className = 'search-highlight';
+          span.textContent = m[0];
+          frag.appendChild(span);
+          matches.push(span);
+          last = m.index + m[0].length;
+        }
+        if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      } else if (node.nodeType === 1 && !SKIP.has(node.tagName)) {
+        Array.from(node.childNodes).forEach(walk);
+      }
+    }
+
+    document.querySelectorAll('.tab-panel').forEach(walk);
+    count.textContent = matches.length ? `1 / ${matches.length}` : 'No results';
+    if (matches.length) goToMatch(0);
+  }
+
+  function goToMatch(idx) {
+    matches.forEach(m => m.classList.remove('current'));
+    if (!matches[idx]) return;
+    const m = matches[idx]; m.classList.add('current'); current = idx;
+    count.textContent = `${idx+1} / ${matches.length}`;
+    let el = m;
+    while (el && !el.classList?.contains('tab-panel')) el = el.parentElement;
+    if (el && typeof switchTab === 'function') switchTab(el.id);
+    setTimeout(() => {
+      const hdr = document.querySelector('.site-header');
+      const off = hdr ? hdr.getBoundingClientRect().height + 20 : 80;
+      window.scrollTo({ top: Math.max(0, m.getBoundingClientRect().top + window.scrollY - off), behavior: 'smooth' });
+    }, 50);
+  }
+
+  btn.addEventListener('click', e => { e.stopPropagation(); box.classList.contains('open') ? closeSearch() : openSearch(); });
+  close.addEventListener('click', closeSearch);
+  prev.addEventListener('click', () => matches.length && goToMatch((current - 1 + matches.length) % matches.length));
+  next.addEventListener('click', () => matches.length && goToMatch((current + 1) % matches.length));
+  input.addEventListener('input', () => highlightAll(input.value.trim()));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') matches.length && goToMatch((current + 1) % matches.length);
+    if (e.key === 'Escape') closeSearch();
+  });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); openSearch(); } });
+  document.addEventListener('click', e => { if (!box.contains(e.target) && e.target !== btn) closeSearch(); });
+}
+
+document.addEventListener('DOMContentLoaded', initSearch);
 
 </script>
 </body>
