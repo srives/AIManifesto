@@ -22,8 +22,8 @@
           <button class="tab-btn" data-tab="firstquiz">First Session Quiz</button>
           <button class="tab-btn" data-tab="remote">Control Claude from your Phone</button>
           <button class="tab-btn" data-tab="compare">Other AI CLIs</button>
-          <button class="tab-btn" data-tab="glossary">Glossary</button>
           <button class="tab-btn" data-tab="pricing">Pricing &amp; Purchasing</button>
+          <button class="tab-btn" data-tab="glossary">Glossary</button>
           <button class="tab-btn" data-tab="about">About</button>
         </div>
       </div>
@@ -712,9 +712,28 @@ Ask me for the component name and path before starting.</code></pre>
     <ul>
       <li><strong>Fixed costs:</strong> CLAUDE.md tokens (paid every session)</li>
       <li><strong>Variable costs:</strong> Files read, commands run, messages exchanged</li>
-      <li><strong>Budget:</strong> ~200K tokens total</li>
+      <li><strong>Budget:</strong> ~267 pages on Pro (200K tokens), ~1,333 pages on Max/Team/Enterprise (1M tokens)</li>
     </ul>
     <p>A bloated CLAUDE.md is like a high recurring expense: it reduces your available budget for everything else. This is why architecture (skills for on-demand loading, concise CLAUDE.md, memory for cross-session persistence) matters so much.</p>
+
+    <h3>What "Extended Context Model" Actually Means</h3>
+    <p>Anthropic uses the phrase "extended context model" on their pricing and Enterprise pages. It sounds like a different, fancier AI. It isn't. It is <strong>the same Opus 4.6 or Sonnet 4.6 you already use, with a larger reading window enabled</strong>. Think of it as the same brain, with more desk space to spread out on.</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Plan</th><th>Context window</th><th>Awareness (pages)</th><th>Monthly cost</th><th>How to unlock</th></tr></thead>
+      <tbody>
+        <tr><td>Pro</td><td>200K tokens</td><td>~267 pages</td><td>$20</td><td>Default</td></tr>
+        <tr><td>Pro (extended)</td><td>1M tokens</td><td>~1,333 pages</td><td>$20</td><td>Type <code>/extra-usage</code> in Claude Code</td></tr>
+        <tr><td>Max / Team / Enterprise</td><td>1M tokens</td><td>~1,333 pages</td><td>$100–$200+</td><td>Automatic — no opt-in needed</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>In practical terms:</strong> a codebase of 500 files averaging 200 lines each is roughly 100,000 lines of code. At ~50 lines per page, that's 2,000 pages. Neither 267 nor 1,333 covers that entire codebase at once — but 1,333 pages covers far more without needing to chunk, re-read, or lose earlier context. For large projects, the 1M window is the difference between Claude understanding your architecture and Claude seeing only a slice of it.</p>
+
+    <h3>The "Lost in the Middle" Problem — Be Warned</h3>
+    <p>Here is something Anthropic does not advertise loudly: when you fill a very large context window, AI models tend to remember what's at the very beginning and the very end much better than what's buried in the middle. This is called the <strong>"lost in the middle"</strong> problem, documented in AI research.</p>
+    <p>In practice: if you load 1,333 pages of code, the files you loaded first and the files you loaded last will get the most attention. Files in the middle may be effectively invisible. Claude handles this better than other models at large context sizes — but it is not perfect, and real developer testing confirms the effective useful window is often smaller than the advertised maximum.</p>
+    <div class="real-talk">Developer testing on Reddit and GitHub Issues shows mixed results at 1M context. Sessions under ~500K tokens (667 pages) seem reliable. Beyond that, quality can degrade. The 1M window is real and useful — just don't assume Claude is giving equal attention to all 1,333 pages simultaneously.</div>
   </div>
 
   <!-- ==================== CHAPTER 12 ==================== -->
@@ -1080,6 +1099,8 @@ Ask me for the component name and path before starting.</code></pre>
   <h2>Pricing &amp; Purchasing</h2>
   <div class="real-talk"><strong>Prices change. Always verify at <a href="https://claude.ai/upgrade" style="color:var(--accent-blue)">claude.ai/upgrade</a> before buying.</strong> The numbers here are accurate as of March 2026 but Anthropic adjusts pricing periodically.</div>
 
+  <div class="real-talk" style="border-color:var(--accent-orange);background:rgba(210,153,34,0.08)"><strong>Honest warning: Anthropic's pricing page is genuinely difficult to understand.</strong> It is not your fault. The same concept — how many tokens you consume — gets called "usage," "API usage," "tokens," and "context" depending on which section you are reading. Plans are described in ways that obscure direct comparison. The Enterprise page is intentionally vague. This is a common tactic in enterprise software sales: make pricing opaque so customers can't compare without a sales call. We have decoded it below as plainly as we can. If something still doesn't make sense, that's the page's problem, not yours. See the <strong>Decoder Ring</strong> in the Glossary tab for a term-by-term translation.</div>
+
   <!-- Step 1: Getting Set Up -->
   <div class="compare-section-title blue">Step 1: How to Get Set Up</div>
   <ol>
@@ -1165,12 +1186,12 @@ Ask me for the component name and path before starting.</code></pre>
     <li><strong>Fine-grained RBAC</strong> — control which employees can use which models, which tools, which features</li>
     <li><strong>Custom data retention</strong> — control how long conversation data is stored</li>
     <li><strong>Priority support</strong> — actual humans to call when something breaks</li>
-    <li><strong>Larger context window</strong> — access to extended context models</li>
+    <li><strong>"Larger context window — access to extended context models"</strong> <em>(Anthropic's words)</em> — Translation: Claude can see more of your project at once. In our terms: more <strong>Awareness</strong>. The standard plan gives Claude 200K tokens of Awareness (~267 pages). Max, Team, and Enterprise automatically unlock 1M tokens (~1,333 pages) — five times more. "Extended context model" sounds like a different AI; it isn't. It is the same Opus 4.6 or Sonnet 4.6 you already have, but with a larger reading window turned on. Pro users can get it too by typing <code>/extra-usage</code>, but it doesn't happen automatically. In money terms: this is the difference between Pro ($20/month) and Max ($100/month). In mileage terms: Claude goes from seeing 267 pages of your codebase to 1,333 pages in a single session — without forgetting the beginning by the time it reaches the end.</li>
   </ul>
   <p>None of that helps you write code faster. It helps your legal, security, and IT teams sleep at night.</p>
 
   <!-- Step 3: Tokens -->
-  <div class="compare-section-title orange">Tokens: Your Fuel</div>
+  <div class="compare-section-title orange">Tokens: Your Fuel (and What "Usage" Actually Means)</div>
   <p><strong>Tokens are like gas.</strong> You can measure gas two ways: by how far it gets you (miles per gallon) or by what it costs per gallon. Both are useful. Tokens work the same way:</p>
   <ul>
     <li><strong>How far it gets you:</strong> One token ≈ 4 characters ≈ ¾ of a word. A typical message exchange (your prompt + Claude's response + any files read) might burn 5,000–20,000 tokens. A complex coding session reading many files might burn 50,000+ tokens in a single exchange. The Pro plan's 45-message window is like a tank of gas — enough for the commute, not enough for a road trip.</li>
@@ -2405,6 +2426,22 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>JWT</td><td>JSON Web Token</td><td>A compact token format for authentication. Sometimes used by MCP servers or APIs for auth.</td></tr>
       <tr><td>regex</td><td>Regular Expression</td><td>A pattern-matching syntax for text. <code>^\d{3}-\d{4}$</code> matches phone numbers like <code>555-1234</code>. Used by Claude's Grep tool.</td></tr>
       <tr><td>glob</td><td>Global (pattern)</td><td>A file-matching pattern. <code>*.js</code> matches all JavaScript files. <code>src/**/*.ts</code> matches all TypeScript files in src/ recursively.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Anthropic's Terminology — A Decoder Ring</h3>
+  <div class="real-talk"><strong>Honest admission: Anthropic's pricing page is one of the most confusing product pages in the industry.</strong> The same concept gets called four different things depending on which section you're reading. This is not an accident — vague language makes it harder to compare prices and understand limits. Here is the decoder ring.</div>
+  <table class="compare-table">
+    <thead><tr><th>What Anthropic calls it</th><th>What it actually means</th><th>Our term</th></tr></thead>
+    <tbody>
+      <tr><td>"Token"</td><td>A unit of text, ~4 characters. The fundamental unit of everything Claude reads and writes.</td><td>Token</td></tr>
+      <tr><td>"API usage"</td><td>Tokens consumed. Same thing as tokens — just described from the billing side. "API usage billed separately" = you pay per token on top of the seat fee.</td><td>Token consumption</td></tr>
+      <tr><td>"Usage"</td><td>Depending on context, means either: (a) how many messages you've sent in the rolling 5-hour window, OR (b) tokens consumed through the API. Two completely different things, same word.</td><td>Messages (subscription) or Tokens (API)</td></tr>
+      <tr><td>"Context window"</td><td>How many tokens Claude can hold in mind at once. The maximum size of its working memory.</td><td>Awareness limit (in pages)</td></tr>
+      <tr><td>"Extended context model"</td><td>The same Opus 4.6 or Sonnet 4.6, but with the 1M context window enabled instead of 200K. Not a different AI. Not a new model. Just more Awareness turned on.</td><td>1M Awareness (Max/Team/Enterprise)</td></tr>
+      <tr><td>"Usage limits"</td><td>How many messages you can send in a 5-hour rolling window before Claude slows down or stops. Separate from token pricing.</td><td>Message budget</td></tr>
+      <tr><td>"Seat fee" (Enterprise)</td><td>The per-person monthly charge for access to Enterprise features (SSO, audit logs, etc.). Does NOT include token consumption — that's billed on top.</td><td>Access fee (tokens extra)</td></tr>
+      <tr><td>"Premium requests"</td><td>Copilot's term for using more capable AI models. Not a Claude term — but you'll see it when comparing platforms.</td><td>Higher-IQ model requests</td></tr>
     </tbody>
   </table>
 
