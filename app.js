@@ -1000,7 +1000,7 @@ const largerQuestions = [
       "A hook that corrects capitalization"
     ],
     answer: 1,
-    explanation: "<strong>Memory note.</strong> This is the kind of persistent, project-specific trivia that memory is designed for. It's not a coding standard (CLAUDE.md), not a workflow (skill/slash command), and not something that needs enforcement (hook). It's a fact that Claude should remember across sessions. Write it in memory: 'The CEO is Alex Chen. Always capitalize correctly. She prefers to be referred to as Alex, not Ms. Chen.'"
+    explanation: "<strong>Memory note.</strong> This is the kind of persistent, project-specific trivia that memory is designed for. It's not a coding standard (CLAUDE.md), not a workflow (skill/slash command), and not something that needs enforcement (hook). It's a fact that Claude should remember across sessions. Important caveat: memory files load automatically every session and cost input tokens on every prompt — just like CLAUDE.md. They're not free. Keep memory notes focused and prune stale ones. Write it in memory: 'The CEO is Alex Chen. Always capitalize correctly. She prefers to be referred to as Alex, not Ms. Chen.'"
   },
   {
     question: "What does it mean when we say MCP servers 'extend Claude's capabilities'?",
@@ -1253,7 +1253,7 @@ const largerQuestions = [
       "Use one long session for everything"
     ],
     answer: 1,
-    explanation: "<strong>Layered context management.</strong> Think of it like memory management in a program: (1) CLAUDE.md is like static globals &mdash; keep it concise since it's always allocated. (2) Skills are like lazy-loaded modules &mdash; only occupy space when needed. (3) Memory is like a database &mdash; persistent storage that doesn't consume context until read. (4) Targeted file reads are like reading specific struct members instead of loading whole files into RAM. Architecture lets you use the context window efficiently."
+    explanation: "<strong>Layered context management.</strong> Think of it like memory management in a program: (1) CLAUDE.md is like static globals &mdash; always allocated, keep it concise. (2) Skills are like lazy-loaded modules &mdash; only occupy space when invoked. (3) Memory files are like a second set of static globals &mdash; they load automatically every session, just like CLAUDE.md, so keep them trimmed too. They are NOT free. (4) Targeted file reads are like reading specific struct members instead of loading whole files into RAM. Architecture lets you use the context window efficiently."
   },
   {
     question: "Scenario: You're evaluating whether to use Claude Code for your team of 15 developers. What's the minimum viable setup for team-wide consistency?",
@@ -1386,6 +1386,61 @@ const largerQuestions = [
     ],
     answer: 1,
     explanation: "<strong>Fork = permanent copy with full history. Agent = temporary subprocess with task brief only.</strong> Forking is like git branch: the new session starts with everything you've discussed so far and continues as its own independent session. An agent is like spawning a subprocess: it gets only what you tell it, runs in isolation, reports back, and disappears. A fork is something you continue working in. An agent is something that works for you while you continue elsewhere."
+  },
+  {
+    question: "You discover a critical architectural fact: the payments module has no tests and was written by a contractor. You want this known to ALL AI tools you use (not just Claude). Where do you store it?",
+    choices: [
+      "A Claude memory file — it loads automatically every session",
+      "CLAUDE.md — it's always loaded and shared with the team",
+      "A documentation file like GOTCHAS.md checked into git — any AI or developer can read it",
+      "A skill — invoke it when working near the payments module"
+    ],
+    answer: 2,
+    explanation: "<strong>Documentation file in git.</strong> Memory files are Claude-specific — other AI tools cannot access them. CLAUDE.md is Claude-specific too, and costs tokens every session. A GOTCHAS.md or similar documentation file checked into git is platform-agnostic: Claude can read it, Copilot can read it, Gemini can read it, and a new developer can read it. It costs zero tokens at rest and is available to any tool that works with your repo."
+  },
+  {
+    question: "What is the main advantage of documentation files (ARCHITECTURE.md, DECISIONS.md) over Claude memory files?",
+    choices: [
+      "Documentation loads automatically on every session — memory files require invocation",
+      "Documentation is platform-agnostic and costs zero tokens at rest; memory files are Claude-specific and cost tokens every session",
+      "Documentation is more accurate than memory files",
+      "Memory files can't store architectural decisions"
+    ],
+    answer: 1,
+    explanation: "<strong>Platform-agnostic and zero cost at rest.</strong> Memory files are always loaded into Claude's context window — they cost input tokens on every message, every session. Documentation files (README.md, ARCHITECTURE.md, etc.) sit dormant on disk until you or Claude explicitly reads them. They cost nothing until activated. And they work with any AI: Copilot, Gemini, Codex, or a new developer can all read the same files. Memory files die when you switch AI tools. Documentation travels with the project."
+  },
+  {
+    question: "You're switching from Claude Code to Copilot CLI for a specific task. You want the new tool to understand your project's architecture. What do you rely on?",
+    choices: [
+      "Your Claude memory files — they're accessible to all AI tools",
+      "CLAUDE.md — it's read by all CLI tools",
+      "Documentation files (ARCHITECTURE.md, README.md) checked into git",
+      "You have to re-explain the architecture from scratch each time"
+    ],
+    answer: 2,
+    explanation: "<strong>Documentation files in git.</strong> Claude memory files are stored in <code>~/.claude/projects/</code> — Copilot CLI has no idea they exist. CLAUDE.md is also Claude-specific. Documentation files (ARCHITECTURE.md, README.md, DECISIONS.md) are just files in your repo. Any AI tool, any developer, any platform can read them. This is the core value of documentation as dormant memory: it's the universal language that survives AI platform changes."
+  },
+  {
+    question: "What is 'dormant memory' in the context of documentation?",
+    choices: [
+      "Memory files that have been compacted and are no longer active",
+      "Documentation files that sit on disk at zero token cost until explicitly read, then become active context for that session",
+      "Old CLAUDE.md files that have been archived",
+      "Skills that haven't been invoked yet"
+    ],
+    answer: 1,
+    explanation: "<strong>Documentation at rest, activated on demand.</strong> Dormant memory means knowledge stored in files (ARCHITECTURE.md, DECISIONS.md, GOTCHAS.md) that costs nothing until you need it. Unlike memory files and CLAUDE.md which load automatically on every session, documentation waits to be called. You activate it by asking Claude to read a file: 'Read ARCHITECTURE.md before we start.' That session gets the context. The next session starts clean again — the file is still there on disk, waiting."
+  },
+  {
+    question: "You want Claude to always read your ARCHITECTURE.md at the start of sessions involving new features. What is the most efficient way to set this up?",
+    choices: [
+      "Paste ARCHITECTURE.md into every session manually",
+      "Add its content to CLAUDE.md so it always loads",
+      "Add a line to CLAUDE.md instructing Claude to read ARCHITECTURE.md when starting feature work, or create a /load-docs slash command",
+      "Store it as a memory file so it auto-loads"
+    ],
+    answer: 2,
+    explanation: "<strong>CLAUDE.md instruction or slash command.</strong> Pasting manually wastes effort. Adding the full content to CLAUDE.md means paying for those tokens on every session even when not doing feature work. A line in CLAUDE.md like 'When starting a new feature, read ARCHITECTURE.md' triggers Claude to read it contextually — you pay only when relevant. A /load-docs slash command gives you explicit control: invoke it when you need a full project briefing, skip it for quick tasks. Both avoid the permanent token overhead of embedding large documentation in CLAUDE.md."
   }
 ];
 

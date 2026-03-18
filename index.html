@@ -77,6 +77,7 @@
       <li><a href="#ch7b">Running Multiple Background Prompts</a></li>
       <li><a href="#ch8">Plans</a></li>
       <li><a href="#ch9">Memory</a></li>
+      <li><a href="#ch9b">Documentation as Dormant Memory</a></li>
       <li><a href="#ch10">Plugins (Model Context Protocol / MCP Servers)</a></li>
       <li><a href="#ch11">The Context Window</a></li>
       <li><a href="#ch12">The File System Layout</a></li>
@@ -658,6 +659,12 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="chapter-number">Chapter IX</div>
     <h2>Memory</h2>
 
+    <p>Memory files are persistent notes stored in your personal Claude folder, inside a per-project subdirectory. Think of them as <strong>tiny auto-written CLAUDE.md entries</strong> — they load automatically every session, affect every prompt, and cost input tokens every message, just like CLAUDE.md. The difference is that Claude writes them itself (rather than you writing them), and they store discovered facts rather than rules.</p>
+
+    <div class="aha">Memory files are essentially auto-written micro-CLAUDE.md entries — they affect every prompt, cost tokens every session, and survive across sessions. They're not free. The difference from a skill is that you don't invoke them — they always load.</div>
+
+    <div class="gotcha"><strong>Memory files are not free — they load every session and cost tokens on every prompt, just like CLAUDE.md.</strong> When you say "remember that the payments module has no tests" and Claude writes a memory note, that note will be loaded at the start of every future session and charged as input tokens on every message for the life of the project. Memory files are essentially tiny auto-written CLAUDE.md entries. They're a skill that always loads — you never invoke them. Keep memory files focused and prune stale ones periodically, or they accumulate into a silent token cost you've forgotten about.</div>
+
     <p>Memory files are persistent notes stored in your personal Claude folder, inside a per-project subdirectory. On Windows, that's <code>C:\Users\YourName\.claude\projects\C--repos-MyProject\memory\</code> (where the project path <code>C:\repos\MyProject</code> becomes <code>C--repos-MyProject</code> with backslashes replaced by double-dashes). They survive across sessions. When you start a new session in a project that has memory files, Claude loads them automatically. This is how knowledge persists beyond a single session.</p>
 
     <div class="analogy">Like a developer's personal wiki or OneNote notebook for a project. Things you'd write on a sticky note and put on your monitor: "The prod database connection string is in Azure Key Vault, not in the config file." "The client requested we not use the word 'delete' in the UI &mdash; use 'archive' instead." "The payments module was written by a contractor and has no tests &mdash; be careful."</div>
@@ -670,13 +677,14 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Claude Code has several mechanisms for persisting knowledge. Here's how they compare:</p>
 
     <table class="compare-table">
-      <thead><tr><th>Mechanism</th><th>Who writes it</th><th>Scope</th><th>In git?</th><th>Best for</th></tr></thead>
+      <thead><tr><th>Mechanism</th><th>Who writes it</th><th>Token cost</th><th>Scope</th><th>In git?</th><th>Best for</th></tr></thead>
       <tbody>
-        <tr><td><strong>CLAUDE.md</strong> (repo root)</td><td>Claude (via /init or when you ask)</td><td>All team members on this project</td><td>Yes</td><td>Architecture rules, coding standards, forbidden patterns, build commands</td></tr>
-        <tr><td><strong>CLAUDE.md</strong> (personal global)</td><td>You or Claude</td><td>You, on all projects</td><td>Never</td><td>Your personal preferences: response style, output format, habits</td></tr>
-        <tr><td><strong>Memory files</strong></td><td>Claude (auto or on request)</td><td>You, on this project</td><td>Never</td><td>Tribal knowledge, discovered gotchas, session-to-session notes</td></tr>
-        <tr><td><strong>Auto memory</strong></td><td>Claude (automatically)</td><td>You, on this project</td><td>Never</td><td>Things Claude decides are worth remembering without you asking</td></tr>
-        <tr><td><strong>Scoped rules (.claude/rules/)</strong></td><td>You or Claude</td><td>Project or subdirectory</td><td>Optional</td><td>Finer-grained rules per directory; emerging feature, check current docs</td></tr>
+        <tr><td><strong>CLAUDE.md</strong> (repo root)</td><td>Claude (via /init or when you ask)</td><td><span class="cross">Every message, every session</span></td><td>All team members on this project</td><td>Yes</td><td>Architecture rules, coding standards, forbidden patterns, build commands</td></tr>
+        <tr><td><strong>CLAUDE.md</strong> (personal global)</td><td>You or Claude</td><td><span class="cross">Every message, every project</span></td><td>You, on all projects</td><td>Never</td><td>Your personal preferences: response style, output format, habits</td></tr>
+        <tr><td><strong>Memory files</strong></td><td>Claude (auto or on request)</td><td><span class="cross">Every message, this project</span></td><td>You, on this project</td><td>Never</td><td>Tribal knowledge, discovered gotchas, session-to-session notes</td></tr>
+        <tr><td><strong>Auto memory</strong></td><td>Claude (automatically)</td><td><span class="cross">Every message, this project</span></td><td>You, on this project</td><td>Never</td><td>Things Claude decides are worth remembering without you asking</td></tr>
+        <tr><td><strong>Skills</strong></td><td>You</td><td><span class="check">Only when invoked</span></td><td>You or team, this project</td><td>Optional</td><td>Detailed procedures, reference docs, specialised workflows</td></tr>
+        <tr><td><strong>Scoped rules (.claude/rules/)</strong></td><td>You or Claude</td><td><span class="cross">Every message (in scope)</span></td><td>Project or subdirectory</td><td>Optional</td><td>Finer-grained rules per directory; emerging feature, check current docs</td></tr>
       </tbody>
     </table>
 
@@ -689,6 +697,58 @@ Ask me for the component name and path before starting.</code></pre>
       <li><strong>On request</strong> — You say "remember that the payments module has no tests" and Claude writes it to memory.</li>
       <li><strong>Manually</strong> — You create or edit markdown files directly in the memory directory (<code>C:\Users\YourName\.claude\projects\C--repos-MyProject\memory\</code>).</li>
     </ul>
+  </div>
+
+  <!-- ==================== CHAPTER 9B: DOCUMENTATION ==================== -->
+  <div class="chapter" id="ch9b">
+    <div class="chapter-number">Chapter IX-B</div>
+    <h2>Documentation as Dormant Memory</h2>
+
+    <p>Memory files and CLAUDE.md are always wired in — they load every session, cost tokens every message, and are specific to Claude. There is another kind of persistent knowledge that costs nothing at rest, survives any AI platform, and can be shared with your whole team: <strong>documentation</strong>.</p>
+
+    <p>A <code>README.md</code>, an <code>ARCHITECTURE.md</code>, a <code>DECISIONS.md</code> — these are files you write as you build, recording facts, decisions, and context about your project. They sit on disk, in git, doing nothing until someone reads them. They are <strong>sleeping memory</strong>: available when you need them, invisible when you don't.</p>
+
+    <div class="aha">Documentation is platform-agnostic memory. Claude can read it. Copilot can read it. Gemini can read it. A new developer on your team can read it. Memory files are wired to Claude's brain. Documentation is wired to the project.</div>
+
+    <h3>Documentation vs. Memory Files — The Key Difference</h3>
+    <table class="compare-table">
+      <thead><tr><th></th><th>Memory files</th><th>Documentation (.md files)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Token cost</strong></td><td>Every session, every message — always on</td><td>Zero — until you explicitly ask Claude to read the file</td></tr>
+        <tr><td><strong>When active</strong></td><td>Always, automatically</td><td>Only when you or Claude reads the file</td></tr>
+        <tr><td><strong>Who can use it</strong></td><td>Claude only (Claude Code specific)</td><td>Any AI, any developer, any tool</td></tr>
+        <tr><td><strong>Survives AI switching</strong></td><td>No — tied to Claude Code's memory system</td><td>Yes — it's just a file in your repo</td></tr>
+        <tr><td><strong>In git</strong></td><td>Never — personal, outside the repo</td><td>Yes — shared with the whole team</td></tr>
+        <tr><td><strong>Best for</strong></td><td>Frequently-needed facts Claude should always know</td><td>Architectural decisions, context, facts that are needed occasionally or by multiple tools</td></tr>
+      </tbody>
+    </table>
+
+    <h3>What to Document</h3>
+    <p>Write documentation for anything that would need to be re-explained to a new person — or a new AI — starting fresh on the project:</p>
+    <ul>
+      <li><strong>ARCHITECTURE.md</strong> — How the system is structured. What the major components are and how they interact. Why you made the big structural decisions.</li>
+      <li><strong>DECISIONS.md</strong> — Architecture Decision Records (ADRs). What was decided, why, what alternatives were considered. Written at the time of the decision, not reconstructed later.</li>
+      <li><strong>README.md</strong> — What the project is, how to build it, how to run it, where to start. The first file any AI or developer reads.</li>
+      <li><strong>GOTCHAS.md</strong> — Hard-won facts that don't fit anywhere else. "The payments module has no tests." "The config file is read at startup only — restart required for changes." These are things you'd put in memory files, except here they cost no tokens and any tool can see them.</li>
+    </ul>
+
+    <h3>Activating Documentation in a Session</h3>
+    <p>Documentation is dormant until you wake it up. You control when it enters context:</p>
+    <ul>
+      <li><strong>Explicitly:</strong> "Read ARCHITECTURE.md before we start" — Claude reads it and it's in context for that session</li>
+      <li><strong>Via a skill:</strong> Create a skill that loads specific documentation files when you start a particular type of work</li>
+      <li><strong>Via CLAUDE.md:</strong> Add a line like "When starting a new feature, read ARCHITECTURE.md and DECISIONS.md" — Claude will do it automatically on relevant tasks</li>
+    </ul>
+    <p>When the session ends or compacts, the documentation content may be summarized away — but the file is still there on disk. Wake it up again in the next session with one sentence.</p>
+
+    <h3>Documentation Across AI Platforms</h3>
+    <p>This is the strongest argument for documentation over memory files: <strong>it works with any AI</strong>. If you switch from Claude Code to Copilot CLI, Codex, or Gemini CLI for a task, those tools have no access to your Claude memory files. But they can all read a <code>ARCHITECTURE.md</code> in your repo. Documentation is the universal language — it's just files.</p>
+
+    <div class="analogy">Like building permits and blueprints. The memory file is a note on your desk that only you see. The documentation is the official blueprint filed with the city — anyone who needs to work on the building can get a copy.</div>
+
+    <div class="analogy-human">Like a knowledge base article vs. a personal note. Your personal note (memory file) is always with you. A knowledge base article (documentation) sits on a shelf until someone needs it — but any team member, any tool, any future worker can find and use it.</div>
+
+    <div class="real-world">Create a <strong>slash command</strong> called <code>/load-docs</code> that instructs Claude to read your key documentation files at the start of a session: "Read README.md, ARCHITECTURE.md, and DECISIONS.md. Summarize what you learned before we begin." One command gives any AI a full project briefing at the cost of one read operation — not permanent token overhead.</div>
   </div>
 
   <!-- ==================== CHAPTER 10 ==================== -->
