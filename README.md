@@ -17,6 +17,8 @@ This guide teaches that architecture to working developers. No fluff. No hype. R
 | Tab | What It Is | Time |
 |-----|-----------|------|
 | **The Manifesto** | 16 chapters covering every concept in Claude Code's architecture | 45-60 min |
+| **First 15 Minutes** | Task-first walkthrough: open terminal, ask for overview, make a change, run tests | 15 min hands-on |
+| **First Session Quiz** | 10 scenario-based questions on your first real session | 5-8 min |
 | **Quick Quiz** | 40 multiple-choice questions — do you actually know this? | 15-20 min |
 | **Deep Quiz** | 55 scenario-based questions with detailed explanations | 30-40 min |
 | **Plugin Quiz** | 20 questions on MCP servers — the plugin system nobody explained | 10-15 min |

@@ -15,9 +15,11 @@
   <div class="header-content">
     <div class="site-title">The Claude Code <span>AI</span> Manifesto</div>
     <div class="site-subtitle">A systematic guide to the Claude Code Command Line Interface (CLI) &mdash; for new developers and competent power users who want to code with AI</div>
-    <div class="site-version">Current as of Claude Code v2.1 (Claude 4.x models) &mdash; <strong>Expires September 2026</strong> when Claude Code v3 with Claude 5.x models is expected &mdash; Full reading + all quizzes: ~3 hours</div>
+    <div class="site-version">Reviewed March 2026 &mdash; Update when Claude Code interfaces, install methods, memory behavior, or command/skill behavior materially change &mdash; Full reading + all quizzes: ~3 hours</div>
     <nav class="tab-bar">
       <button class="tab-btn active" data-tab="confession">The Manifesto</button>
+      <button class="tab-btn" data-tab="firstsession">First 15 Minutes</button>
+      <button class="tab-btn" data-tab="firstquiz">First Session Quiz</button>
       <button class="tab-btn" data-tab="shorter">Quick Quiz</button>
       <button class="tab-btn" data-tab="larger">Deep Quiz</button>
       <button class="tab-btn" data-tab="plugins">Plugin Quiz</button>
@@ -71,16 +73,19 @@
 
     <p>Before anything else: if you've ever sat in a meeting while someone threw out "Claude Code" and you nodded along while privately wondering what exactly they meant — you're not alone, and it's not your fault. Anthropic has done a poor job of naming things distinctly.</p>
 
-    <p>There are three different things people call "Claude":</p>
+    <p>Claude actually ships in several different surfaces. Here are the main ones:</p>
     <ul>
-      <li><strong>Claude.ai</strong> — The website. You open a browser, you chat. This is what most people mean when they say "I use Claude." It's the consumer product.</li>
-      <li><strong>Claude Desktop</strong> — A Windows (and Mac) application. Looks like the website, runs as an installed program. Can be extended with MCP servers. Still a chat interface.</li>
-      <li><strong>Claude Code</strong> — A command-line program. You install it, open a terminal, type <code>claude</code>, and it runs in your project directory with direct access to your files, tools, and environment. <strong>This is what this entire guide is about.</strong></li>
+      <li><strong>Claude.ai</strong> — The website. You open a browser, you chat. This is what most people mean when they say "I use Claude." The consumer product.</li>
+      <li><strong>Claude Desktop</strong> — A Windows/Mac application. Looks like the website, runs installed. Can be extended with MCP servers. Still primarily a chat interface.</li>
+      <li><strong>Claude Code (terminal CLI)</strong> — A command-line program. You install it, open a terminal, type <code>claude</code>, and it runs in your project directory with direct access to your files, tools, and environment. <strong>This is what this entire guide is about.</strong></li>
+      <li><strong>Claude in VS Code / JetBrains</strong> — IDE-native integrations that bring Claude into your editor. Built on the same Claude Code engine; some architecture concepts from this guide apply here too.</li>
+      <li><strong>Claude in Slack</strong> — A Slack app for conversational Claude access inside team channels. Chat-oriented, not code-oriented.</li>
+      <li><strong>Claude in CI/CD pipelines</strong> — Claude Code running headlessly in automated build/deploy pipelines, triggered by git events. Advanced usage; the same CLI, no interactive UI.</li>
     </ul>
 
-    <p>When a developer says "I use Claude Code," they mean the third one. When a manager says "we use Claude," they probably mean the first one. When IT says "we've deployed Claude Desktop with MCP," they mean the second one. They are completely different products with different capabilities, and the industry casually conflates all three.</p>
+    <p>When a developer says "I use Claude Code," they mean the terminal CLI. When a manager says "we use Claude," they probably mean the website. When IT says "we've deployed Claude Desktop with MCP," that's the installed app. They are completely different surfaces with different capabilities, and the industry casually conflates all of them.</p>
 
-    <div class="real-talk">It is genuinely embarrassing to be in a technical conversation where everyone assumes you know which "Claude" they mean. You're not slow. The naming is just bad. This guide is specifically, exclusively about the command-line program — Claude Code CLI.</div>
+    <div class="real-talk">It is genuinely embarrassing to be in a technical conversation where everyone assumes you know which surface they mean. You're not slow. The naming is just bad. This guide is specifically, exclusively about the terminal command-line program — Claude Code CLI. Some concepts (MCP servers, memory, CLAUDE.md) also apply to the IDE integrations, but the guide assumes you're working in a terminal.</div>
 
     <h3>Who This Is For</h3>
 
@@ -148,9 +153,9 @@
       </tbody>
     </table>
 
-    <p>The browser and desktop versions are capable tools, especially with MCP servers configured. The CLI's advantage is that file access, command execution, project awareness, skills, hooks, memory, and CLAUDE.md all work out of the box with zero configuration. The CLI is built for coding from the ground up; the desktop apps are chat interfaces that can be extended toward coding.</p>
+    <p>The browser, desktop, and IDE-integrated versions are genuinely capable tools — especially for conversational work, quick questions, and document drafting. The CLI's advantage isn't that GUI surfaces are crippled; it's that the CLI's <em>default affordances</em> are built for coding. File access, command execution, project awareness, skills, hooks, memory, and CLAUDE.md all work out of the box with zero configuration. On a GUI surface, most of those require deliberate setup. The real distinction is <strong>workflow shape</strong>: if your work is primarily conversational, a chat interface is great. If your work is primarily project-based (read files, run tests, make changes, verify), the CLI is shaped for that from the start. Note also that Claude Code now ships in VS Code and JetBrains IDE integrations — those bring many CLI capabilities into a GUI context, blurring the line further.</p>
 
-    <div class="real-talk"><strong>In corporate IT environments, MCP servers may not be self-service.</strong> Installing an MCP server can require: admin rights to install npm or Python packages, IT approval to run background processes, security review of what data the server can access, firewall rule changes for network-connected MCP servers, and Group Policy exceptions on managed Windows machines. This is real friction — potentially an IT ticket, a security review cycle, and weeks of waiting. The CLI's built-in file access runs under your own user account with no extra processes, no extra approvals, and no IT involvement. That's not a small difference in a managed enterprise environment. It's the difference between starting today and starting in Q2.</div>
+    <div class="real-talk"><strong>In corporate IT environments, MCP servers may not be self-service.</strong> Installing an MCP server can require: admin rights to install npm or Python packages, IT approval to run background processes, security review of what data the server can access, firewall rule changes for network-connected MCP servers, and Group Policy exceptions on managed Windows machines. This is real friction — potentially an IT ticket, a security review cycle, and weeks of waiting. The CLI often reduces setup friction because its built-in file access runs under your own user account with no extra processes to approve. However, enterprise environments can still add friction even for the CLI itself: corporate proxies, custom certificate authorities, firewall allowlists, and restricted networks can all require IT involvement regardless of which surface you use. The point isn't that CLI bypasses IT entirely — it's that the CLI's core capabilities require fewer moving parts to get working in the first place. That difference matters when you're trying to start today instead of Q2.</div>
 
     <h3>Why Not Both?</h3>
     <p>You can use both. Many people use Claude.ai or ChatGPT for quick questions, brainstorming, and research, and switch to Claude Code CLI when they need hands-on work done in their project. The browser is a notepad. The CLI is a power tool. This guide is about the power tool.</p>
@@ -159,6 +164,22 @@
     <p>On Windows: open <strong>Windows Terminal</strong>, <strong>PowerShell</strong>, or <strong>Command Prompt</strong>. On Mac/Linux: open <strong>Terminal</strong>. That black (or dark) window with the blinking cursor is your CLI. Type <code>claude</code> and press Enter to start Claude Code (assuming it's installed via <code>npm install -g @anthropic-ai/claude-code</code>).</p>
 
     <p>Everything in this guide happens in that window.</p>
+
+    <h3>Installing Claude Code</h3>
+    <p>There are three ways to install Claude Code on Windows. Use whichever fits your environment:</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Method</th><th>Command</th><th>When to use it</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Native installer (recommended)</strong></td><td>Download from <a href="https://claude.ai/download" style="color:var(--accent-blue)">claude.ai/download</a></td><td>Cleanest install. No Node.js required. Preferred for most users.</td></tr>
+        <tr><td><strong>WinGet</strong></td><td><code>winget install Anthropic.Claude</code></td><td>Good for managed Windows environments or scripted provisioning.</td></tr>
+        <tr><td><strong>npm (compatibility path)</strong></td><td><code>npm install -g @anthropic-ai/claude-code</code></td><td>Use if Node.js is already your primary toolchain, or if your environment requires npm-managed installs.</td></tr>
+      </tbody>
+    </table>
+
+    <p>After installing, run <code>claude --version</code> in a terminal to confirm. Then run <code>claude</code> to start your first session. You'll be prompted to log in with your Anthropic account.</p>
+
+    <div class="real-talk">Documentation online (including older versions of this guide) often shows only the npm path. If you're on Windows and don't already use Node.js, the native installer or WinGet is simpler and avoids Node version conflicts.</div>
   </div>
 
   <!-- ==================== CHAPTER 2 ==================== -->
@@ -198,7 +219,7 @@
     <div class="real-talk"><strong>You do not write or edit this file yourself.</strong> Claude writes it. You just tell Claude what to put in it. This is one of the most important things to understand about Claude Code &mdash; you are the manager, Claude is the one doing the typing.</div>
 
     <h3>Step One: Run /init</h3>
-    <p>When you start a new project, type <code>/init</code> in Claude Code. That's it. Claude will analyze your codebase &mdash; the languages, frameworks, directory structure, and patterns it finds &mdash; and create an initial CLAUDE.md automatically. You don't write it from scratch. You review what Claude produced and say "looks good" or "also add X."</p>
+    <p>When you start a new project, type <code>/init</code> in Claude Code. That's it. Claude will analyze your codebase &mdash; the languages, frameworks, directory structure, and patterns it finds &mdash; and create an initial CLAUDE.md automatically. You don't write it from scratch. You review what Claude produced and say "looks good" or "also add X." You can also run <code>/init</code> on an existing project to improve an existing CLAUDE.md — it will suggest additions based on what it now knows about the codebase.</p>
 
     <h3>What Is CLAUDE.md?</h3>
     <p>CLAUDE.md is a markdown file that contains instructions for Claude. When you start a session in a repository that has a CLAUDE.md at its root, that file is automatically loaded into Claude's context. Every message Claude generates in that session is influenced by those instructions.</p>
@@ -394,8 +415,10 @@ Follow our naming convention: PascalCase for components, camelCase for hooks.
 Ask me for the component name and path before starting.</code></pre>
     <p>Then you type <code>/new-component</code> and this entire prompt is sent to Claude.</p>
 
-    <h3>Slash Commands vs. Skills</h3>
-    <p>Slash commands are <em>prompts you send</em>. Skills are <em>instructions Claude loads</em>. A slash command initiates work ("Do this thing now"). A skill provides context for how to do work ("When doing this kind of thing, here's how").</p>
+    <h3>Slash Commands vs. Skills — A Note on Direction</h3>
+    <p>Conceptually: slash commands are <em>prompts you invoke</em>. Skills are <em>instructions Claude reads passively</em>. A slash command initiates work ("Do this thing now"). A skill provides standing context for how to do work ("When doing this kind of thing, here's how").</p>
+
+    <div class="real-talk"><strong>Current state as of early 2026:</strong> Custom commands (<code>.claude/commands/*.md</code>) still work exactly as described here. Skills are the broader umbrella concept that commands now live under. If you see documentation using "skills" to cover both, that's accurate — they share the same underlying mechanism. The distinction between "a command you invoke" and "a skill that loads contextually" is still useful for understanding behavior, but treat it as conceptual rather than a hard product boundary. Check current Anthropic docs if the exact file locations ever change.</div>
   </div>
 
   <!-- ==================== CHAPTER 6 ==================== -->
@@ -448,14 +471,14 @@ Ask me for the component name and path before starting.</code></pre>
       <li><strong>Access parent's loaded skills/CLAUDE.md:</strong> They start clean. (They may load their own CLAUDE.md from the repo.)</li>
     </ul>
 
-    <h3>When Subagents Are Used</h3>
-    <p>Claude spawns subagents when a task benefits from focused, parallel, or isolated work:</p>
+    <h3>How Subagents Get Used</h3>
+    <p>Three ways:</p>
     <ul>
-      <li>Searching across many files (the subagent focuses entirely on searching)</li>
-      <li>Analyzing a complex file without cluttering the main conversation</li>
-      <li>Performing a subtask that might produce a lot of intermediate output</li>
+      <li><strong>Automatic delegation</strong> — Claude decides to use a subagent when a task benefits from focused, isolated work. You'll see "I'll use the Agent tool" in Claude's response. This is the most common case.</li>
+      <li><strong>Manual via <code>/agents</code></strong> — Type <code>/agents</code> to manage, list, or configure agents directly. Useful for understanding what's running or reviewing available agent configurations.</li>
+      <li><strong>Project-level and user-level subagent definitions</strong> — You can define named agents with specific instructions in <code>.claude/agents/</code> (project) or <code>C:\Users\YourName\.claude\agents\</code> (personal). These are like pre-configured specialists you can invoke by name.</li>
     </ul>
-    <p>You don't usually spawn subagents manually &mdash; Claude decides when to use them. But understanding what they are helps you understand Claude's "I'll use the Agent tool" messages.</p>
+    <p>For most users, automatic delegation is all you need to understand. The deeper agent configuration is useful when you want specialized agents for recurring tasks in a project.</p>
   </div>
 
   <!-- ==================== CHAPTER 8 ==================== -->
@@ -504,15 +527,29 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy-human">Like the "tribal knowledge" document a good team member writes before going on leave. "Here's everything I know about this client that isn't in the CRM: they hate being called before 10am, the real decision-maker is the CFO not the VP, and they had a bad experience with our competitor's product two years ago." Memory files are that knowledge transfer document — the context that doesn't fit in a formal system but is critical to working effectively.</div>
 
-    <h3>Memory vs. CLAUDE.md</h3>
-    <ul>
-      <li><strong>CLAUDE.md</strong> is shared with the team (checked into git). Contains coding standards, architecture info, project rules.</li>
-      <li><strong>Memory</strong> is personal (in your <code>C:\Users\YourName\.claude\projects\</code> folder, managed by Claude). Contains your notes, discoveries, reminders. Not in git.</li>
-    </ul>
-    <p>Rule of thumb: If the whole team needs to know it, put it in CLAUDE.md. If it's your personal institutional knowledge, put it in memory.</p>
+    <h3>The Full Persistence Landscape</h3>
+    <p>Claude Code has several mechanisms for persisting knowledge. Here's how they compare:</p>
+
+    <table class="compare-table">
+      <thead><tr><th>Mechanism</th><th>Who writes it</th><th>Scope</th><th>In git?</th><th>Best for</th></tr></thead>
+      <tbody>
+        <tr><td><strong>CLAUDE.md</strong> (repo root)</td><td>Claude (via /init or when you ask)</td><td>All team members on this project</td><td>Yes</td><td>Architecture rules, coding standards, forbidden patterns, build commands</td></tr>
+        <tr><td><strong>CLAUDE.md</strong> (personal global)</td><td>You or Claude</td><td>You, on all projects</td><td>Never</td><td>Your personal preferences: response style, output format, habits</td></tr>
+        <tr><td><strong>Memory files</strong></td><td>Claude (auto or on request)</td><td>You, on this project</td><td>Never</td><td>Tribal knowledge, discovered gotchas, session-to-session notes</td></tr>
+        <tr><td><strong>Auto memory</strong></td><td>Claude (automatically)</td><td>You, on this project</td><td>Never</td><td>Things Claude decides are worth remembering without you asking</td></tr>
+        <tr><td><strong>Scoped rules (.claude/rules/)</strong></td><td>You or Claude</td><td>Project or subdirectory</td><td>Optional</td><td>Finer-grained rules per directory; emerging feature, check current docs</td></tr>
+      </tbody>
+    </table>
+
+    <p>Rule of thumb: <strong>Team knowledge → CLAUDE.md (checked in). Personal discoveries → memory files. Global habits → your personal CLAUDE.md.</strong></p>
 
     <h3>How Memory Gets Created</h3>
-    <p>Claude can write memory notes itself (when it discovers something worth remembering), or you can ask it to remember something. You can also manually create/edit markdown files in the memory directory.</p>
+    <p>Three ways:</p>
+    <ul>
+      <li><strong>Auto memory</strong> — Claude notices something worth remembering and writes a memory note on its own, without you asking.</li>
+      <li><strong>On request</strong> — You say "remember that the payments module has no tests" and Claude writes it to memory.</li>
+      <li><strong>Manually</strong> — You create or edit markdown files directly in the memory directory (<code>C:\Users\YourName\.claude\projects\C--repos-MyProject\memory\</code>).</li>
+    </ul>
   </div>
 
   <!-- ==================== CHAPTER 10 ==================== -->
@@ -979,6 +1016,133 @@ Ask me for the component name and path before starting.</code></pre>
     <p><strong>Practical tip:</strong> If you're doing simple tasks (rename a variable, add a comment), use Haiku &mdash; it doesn't need to think deeply. Save Opus + extended thinking for the problems that actually require deep reasoning.</p>
   </div>
 
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: FIRST SESSION                            -->
+<!-- ============================================ -->
+<section id="firstsession" class="tab-panel">
+  <div class="time-estimate">Estimated time: 15 minutes hands-on</div>
+
+  <h2>Your First 15 Minutes with Claude Code</h2>
+  <p>Theory later. Start here. Do these steps in order in a real project directory and you'll understand more in 15 minutes than you will from reading the whole Manifesto first.</p>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 1</div>
+    <h2>Open a Terminal in Your Project</h2>
+    <p>Navigate to a project you already know. Don't start with a new or empty folder — you'll get more value immediately if Claude has real code to look at.</p>
+    <pre><code>cd C:\repos\MyProject</code></pre>
+    <p>If you're in VS Code, open the integrated terminal with <strong>Ctrl+`</strong> and you're already in the right directory.</p>
+    <div class="analogy-human">Like briefing a new consultant by walking them through an existing project rather than handing them a blank whiteboard. Context first.</div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 2</div>
+    <h2>Start Claude Code</h2>
+    <pre><code>claude</code></pre>
+    <p>You'll see a prompt. You're now in a session. Claude can already see your project directory. It hasn't read any files yet — but it's ready to.</p>
+    <p>If this is your first time, it will ask you to authenticate with your Anthropic account. Follow the prompts.</p>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 3</div>
+    <h2>Ask for a Codebase Overview</h2>
+    <p>Type this:</p>
+    <pre><code>Give me a high-level overview of this codebase. What does it do, how is it structured, and what are the main entry points?</code></pre>
+    <p>Claude will read your project structure and key files, then give you a summary. Even if you built this codebase yourself, the description from an outside perspective is often useful. For someone new to the project, this is gold.</p>
+    <div class="analogy-human">Like asking a new team member to summarize what they've learned about the project in their first week. A fresh read often surfaces things the original author stopped noticing.</div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 4</div>
+    <h2>Ask Where a Feature Lives</h2>
+    <p>Pick something specific in your project. Ask:</p>
+    <pre><code>Where is the user authentication handled? Show me the relevant files and the flow.</code></pre>
+    <p>(Substitute your own feature.) Claude will search the codebase, find the relevant code, and trace the flow for you. This is the moment most people realize the CLI is fundamentally different from the chat box — it's actually looking at your code.</p>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 5</div>
+    <h2>Make One Safe Change</h2>
+    <p>Ask Claude to make a small, low-risk change. A good first one:</p>
+    <pre><code>Find any TODO comments in the codebase and list them with file paths and line numbers.</code></pre>
+    <p>Or ask it to add a comment, rename a variable in one file, or fix a typo. Watch it use the Edit tool to actually modify the file. Then open the file in your editor and see the change.</p>
+    <p>This moment — watching Claude edit your file directly — is what changes people's understanding of what a CLI AI tool actually is.</p>
+    <div class="real-talk">If you're nervous about Claude editing files, you can always undo with Ctrl+Z in your editor or revert with git. You're not locked in to anything.</div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 6</div>
+    <h2>Run Your Tests</h2>
+    <p>If your project has tests, ask Claude to run them:</p>
+    <pre><code>Run the tests and tell me if anything is failing.</code></pre>
+    <p>Claude will use the Bash tool to run your test command, read the output, and interpret the results. If tests fail, it can diagnose the failures and propose fixes. This is the loop described in the Practitioner's Guide — compressed into one step for your first session.</p>
+    <p>If you don't have tests yet, ask:</p>
+    <pre><code>What would a good test suite look like for this project? What's the most important thing to test first?</code></pre>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 7</div>
+    <h2>Ask for a Plan Before Making a Real Change</h2>
+    <p>Pick something non-trivial you've been meaning to do in the project. Before Claude touches any files, ask for a plan:</p>
+    <pre><code>I want to [add feature X / refactor Y / fix bug Z]. Before you start, describe your approach: which files you'll change, in what order, and what risks to watch for.</code></pre>
+    <p>Or press <strong>Shift+Tab</strong> to enter Plan Mode, then describe the task. Claude will produce a plan for you to review before anything gets touched.</p>
+    <p>Reviewing the plan takes 30 seconds and catches misunderstandings before they become edits you have to undo.</p>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">Step 8</div>
+    <h2>Learn These Four Commands</h2>
+    <p>Before you end your session, try each of these:</p>
+    <table class="compare-table">
+      <thead><tr><th>Command</th><th>What it does</th><th>When to use it</th></tr></thead>
+      <tbody>
+        <tr><td><code>/help</code></td><td>Lists all available slash commands and built-in commands</td><td>Whenever you're not sure what's available</td></tr>
+        <tr><td><code>/compact</code></td><td>Compresses conversation history to free context window space</td><td>Long sessions, before starting a new major task in the same session</td></tr>
+        <tr><td><code>/cost</code></td><td>Shows token usage and estimated cost for this session</td><td>Whenever you're curious about spend, or before a long expensive task</td></tr>
+        <tr><td><code>Ctrl+C</code> then <code>claude --continue</code></td><td>Exit and resume the same session later</td><td>When you need to stop and come back; keeps all context intact</td></tr>
+      </tbody>
+    </table>
+    <p><code>--resume</code> (instead of <code>--continue</code>) shows a list of all previous sessions to choose from. Useful when you have multiple projects or sessions running.</p>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-number">What's Next</div>
+    <h2>After Your First Session</h2>
+    <p>You've done the most important thing: you've seen it work on real code. Now the Manifesto chapters will make sense because you have concrete experience to attach them to.</p>
+    <ul>
+      <li><strong>Read Chapter II (Sessions)</strong> — now you understand what a session actually is</li>
+      <li><strong>Read Chapter III (CLAUDE.md)</strong> — now you know why you'd want persistent instructions</li>
+      <li><strong>Run <code>/init</code></strong> — let Claude generate a CLAUDE.md for your project</li>
+      <li><strong>Try the First Session Quiz</strong> — test what you just learned while it's fresh</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: FIRST SESSION QUIZ                       -->
+<!-- ============================================ -->
+<section id="firstquiz" class="tab-panel">
+  <div class="time-estimate">Estimated time: 5-8 minutes | 10 scenario-based questions</div>
+  <div class="quiz-header">
+    <div class="quiz-title">First Session Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="firstquiz-score">0</span> / <span class="total" id="firstquiz-total">0</span></div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="firstquiz-progress"></div>
+  </div>
+  <div class="quiz-controls">
+    <button data-filter-quiz="firstquiz" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="firstquiz" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="firstquiz" data-filter="incorrect">Incorrect</button>
+  </div>
+  <div id="firstquiz-questions"></div>
+  <div class="final-score" id="firstquiz-final">
+    <div class="big-score" id="firstquiz-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="firstquiz-reset">Reset Quiz</button>
+  </div>
 </section>
 
 <!-- ============================================ -->
@@ -1449,6 +1613,7 @@ else if (platform == "codex") { doZ() }</code></pre>
 <section id="compare" class="tab-panel">
 
   <h2>Other AI Coding CLIs</h2>
+  <div class="real-talk"><strong>Snapshot comparison as of March 2026.</strong> This space moves fast. Feature parity between tools changes with every release. Re-check vendor docs before relying on fine details. The table below favors concept-level comparisons over brittle feature minutiae — if a specific capability matters to your decision, verify it against the current docs for that tool.</div>
   <p>Claude Code isn't the only AI coding CLI. Here's how the major players compare on the features discussed in this guide. All of these are <strong>terminal-based</strong> coding assistants &mdash; not IDE plugins, not chat UIs.</p>
 
   <table class="compare-table">
@@ -1791,6 +1956,14 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Boilerplate</td><td>Repetitive, standard code that's needed but not interesting. Templates, imports, config setup. Good candidate for Haiku.</td></tr>
       <tr><td>Refactor</td><td>Restructuring code without changing its behavior. Improving organization, readability, or performance.</td></tr>
       <tr><td>Registry (in code)</td><td>A data structure that maps keys to behaviors. Avoids if-else chains. Add a new entry to support a new variant.</td></tr>
+      <tr><td>WinGet</td><td>Windows Package Manager, built into Windows 10/11. Install software with <code>winget install PackageName</code>. Like apt (Linux) or Homebrew (Mac), but for Windows. Use <code>winget install Anthropic.Claude</code> to install Claude Code.</td></tr>
+      <tr><td>Plan Mode</td><td>A Claude Code mode activated with Shift+Tab. Claude describes its intended approach before making any changes. You review and approve the plan first.</td></tr>
+      <tr><td>/init</td><td>A Claude Code command. Analyzes your project and generates an initial CLAUDE.md automatically. Run it when starting a new project, or to improve an existing CLAUDE.md.</td></tr>
+      <tr><td>/compact</td><td>A Claude Code command. Manually compresses conversation history to free context window space. Useful in long sessions.</td></tr>
+      <tr><td>/cost</td><td>A Claude Code command. Shows token usage and estimated dollar cost for the current session.</td></tr>
+      <tr><td>/help</td><td>A Claude Code command. Lists all available commands, built-in tools, and current session information.</td></tr>
+      <tr><td>Auto memory</td><td>A Claude Code feature where Claude automatically writes memory notes about things it discovers, without being asked. These notes persist across sessions.</td></tr>
+      <tr><td>Corporate proxy</td><td>A network intermediary in enterprise environments that routes and inspects outbound internet traffic. Can require special configuration for CLI tools that make HTTPS requests.</td></tr>
     </tbody>
   </table>
 
@@ -1885,6 +2058,14 @@ const glossaryTerms = {
   'Allowlist': 'A pre-approved list of tools or commands in settings.json. Claude won\'t ask permission before running allowlisted actions.',
   'Remote Control': 'A Claude Code feature that lets you control a running CLI session from your phone or another device via QR code.',
   'Context Window': 'The total amount of text Claude can "see" at once. Everything loaded (files, history, instructions) takes up space in this finite window.',
+  'WinGet': 'Windows Package Manager. Built into Windows 10/11. Install software from the command line: winget install Anthropic.Claude. Like apt or brew, but for Windows.',
+  'winget': 'Windows Package Manager command. Install software: winget install PackageName. Built into modern Windows.',
+  'Plan Mode': 'A Claude Code mode (Shift+Tab) where Claude describes its approach before making any changes. Review and approve the plan before anything is touched.',
+  '/init': 'Claude Code command that analyzes your project and generates an initial CLAUDE.md. Run it when starting a new project. Can also improve an existing CLAUDE.md.',
+  '/compact': 'Claude Code command that manually compresses conversation history to free context window space. Use in long sessions or before starting a new task.',
+  '/cost': 'Claude Code command that shows token usage and estimated dollar cost for the current session.',
+  '/help': 'Claude Code command that lists all available commands, tools, and session information.',
+  'Auto memory': 'A feature where Claude automatically writes memory notes about things it discovers, without you asking. Persists across sessions.',
   // General Dev
   'Repository': 'A project folder tracked by git. Contains your code, config files, and full change history. Often called "repo" for short.',
   'repo': 'Short for repository — a project folder tracked by git with full change history.',

@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
+  initQuiz('firstquiz', firstSessionQuestions);
   initQuiz('shorter', shorterQuestions);
   initQuiz('larger', largerQuestions);
   initQuiz('plugins', pluginQuestions);
@@ -123,6 +124,122 @@ function initQuiz(prefix, questions) {
     });
   });
 }
+
+// =====================================================
+// FIRST SESSION QUIZ - 10 scenario-based questions
+// =====================================================
+const firstSessionQuestions = [
+  {
+    question: "You just installed Claude Code and want to try it on a real project. What's the best first move?",
+    choices: [
+      "Create a new empty folder and start there",
+      "Navigate to an existing project you know well and run 'claude'",
+      "Open Claude.ai in your browser first to plan your approach",
+      "Write a CLAUDE.md file before starting"
+    ],
+    answer: 1,
+    explanation: "<strong>Navigate to an existing project and run 'claude'.</strong> Starting with a project you already know gives Claude real code to analyze and gives you immediate, concrete results. An empty folder has nothing for Claude to read — and you don't need to write CLAUDE.md first (that's what /init is for, after Claude understands your project)."
+  },
+  {
+    question: "Scenario: You ask Claude 'Give me an overview of this codebase.' Claude reads several files and responds with a detailed summary. What just happened differently than using Claude.ai in a browser?",
+    choices: [
+      "Nothing different — both versions can read your files",
+      "Claude used the internet to look up your project on GitHub",
+      "Claude actually read your local files directly using its built-in tools, without you pasting anything",
+      "Claude guessed based on the folder name"
+    ],
+    answer: 2,
+    explanation: "<strong>Claude read your local files directly.</strong> This is the fundamental difference between CLI Claude Code and browser Claude.ai. The CLI has built-in Read, Edit, and Bash tools that give it direct access to your filesystem. You didn't paste anything — Claude found and read the files on its own."
+  },
+  {
+    question: "You want Claude to make a change to your code but you're nervous about it editing the wrong thing. What's the safest approach?",
+    choices: [
+      "Don't use Claude Code — it's too risky",
+      "Ask Claude for a plan first: 'Before you change anything, describe which files you'll touch and why'",
+      "Delete your project files as a backup before proceeding",
+      "Only use Claude in a new empty folder"
+    ],
+    answer: 1,
+    explanation: "<strong>Ask for a plan before edits.</strong> Claude will describe exactly what it intends to change before touching anything. If the plan looks wrong, you stop it. If it looks right, you proceed. Your files are also in git, so you can always revert. Planning before acting is the single most useful habit with Claude Code."
+  },
+  {
+    question: "You've been working in Claude Code for 45 minutes and the responses seem slower and less focused. What's most likely happening?",
+    choices: [
+      "Claude is getting tired",
+      "Your internet connection is degrading",
+      "The context window is filling up with conversation history, reducing working memory",
+      "Claude Code needs to be restarted weekly"
+    ],
+    answer: 2,
+    explanation: "<strong>Context window filling up.</strong> Every message, file read, and tool result takes up space in Claude's finite context window. After a long session, there's less room for new information and the model has to work harder. Solution: run <code>/compact</code> to compress history, or start a new session with <code>--continue</code> (which resumes cleanly)."
+  },
+  {
+    question: "You close your terminal mid-task and need to continue tomorrow. What command resumes your last session?",
+    choices: [
+      "claude --new",
+      "claude --continue",
+      "claude --restart",
+      "claude --load"
+    ],
+    answer: 1,
+    explanation: "<strong>claude --continue</strong> resumes the most recent session in the current directory. Your conversation history, context, and in-progress work are all restored. <code>claude --resume</code> shows a list of all previous sessions to pick from if you want to go back to an older one."
+  },
+  {
+    question: "You want Claude to always follow your team's coding conventions in every session, without you re-explaining them each time. What's the right tool?",
+    choices: [
+      "Add the conventions to a text file and paste it at the start of each session",
+      "Create a CLAUDE.md file at the project root with the conventions — Claude will load it automatically",
+      "Tell Claude to remember it, and it will persist automatically",
+      "Set up a hook that runs at session start"
+    ],
+    answer: 1,
+    explanation: "<strong>CLAUDE.md at the project root.</strong> Claude loads this file automatically at the start of every session. You write it once (or run /init to generate it), and every session inherits those conventions. You never paste or re-explain. This is CLAUDE.md's core purpose."
+  },
+  {
+    question: "Scenario: You're a UI/UX designer starting to write your first small script. You ask Claude to write it, it does, but then it breaks when you run it. What's the best next step?",
+    choices: [
+      "Start over in a new session",
+      "Copy the error and paste it back to Claude: 'This error appeared when I ran it. Fix it.'",
+      "Delete the script and try a different approach yourself",
+      "Google the error separately and try to understand it before telling Claude"
+    ],
+    answer: 1,
+    explanation: "<strong>Paste the error back to Claude.</strong> This is the loop. Claude writes code, you run it, something fails, you show Claude the error. Claude fixes it, you run it again. You don't need to understand the error yourself — just relay it. This back-and-forth is exactly how the CLI is meant to work, and it's why having Claude in your terminal (where it can see the error output directly) is faster than the browser version."
+  },
+  {
+    question: "What persists between Claude Code sessions on the same project?",
+    choices: [
+      "Nothing — every session starts completely fresh",
+      "CLAUDE.md instructions and any memory files Claude has written for the project",
+      "The last 10 messages from the previous conversation",
+      "Only the files you explicitly told Claude to remember"
+    ],
+    answer: 1,
+    explanation: "<strong>CLAUDE.md and memory files.</strong> Every new session loads the project's CLAUDE.md (your persistent instructions) and any memory files Claude has written. The conversation history itself does NOT persist into new sessions unless you use <code>--continue</code> or <code>--resume</code> to resume a specific session."
+  },
+  {
+    question: "You're an HR professional who has never coded before. You want to use Claude Code to automate a repetitive Excel task. What's the honest assessment?",
+    choices: [
+      "Claude Code isn't for non-developers — use Claude.ai instead",
+      "Claude Code can absolutely help, but you'll need a terminal and to follow Claude's instructions carefully. Start simple.",
+      "You need to learn Python first before Claude Code is useful",
+      "Only use Claude Code if you already know git"
+    ],
+    answer: 1,
+    explanation: "<strong>Claude Code can help, starting simple.</strong> You don't need to understand code to use Claude Code effectively — you describe what you want, Claude writes the code, you run it. The learning curve is the terminal itself, not the code. Start with a simple, well-defined task ('write a script that reads this CSV and outputs a summary'). Follow Claude's instructions step by step. Git is helpful but not required for a first project."
+  },
+  {
+    question: "Which command tells you what slash commands and features are available in your current session?",
+    choices: [
+      "/list",
+      "/commands",
+      "/help",
+      "/options"
+    ],
+    answer: 2,
+    explanation: "<strong>/help</strong> lists all available commands, built-in tools, and current session information. It's the first thing to type when you're not sure what's available. Think of it as the 'what can I do here?' command."
+  }
+];
 
 // =====================================================
 // SHORTER CATECHISM - 40 Questions
