@@ -67,6 +67,21 @@
     <div class="chapter-number">Chapter I</div>
     <h2>Introduction: What Is a CLI and Why Would Anyone Use One?</h2>
 
+    <h3>Wait — Which "Claude" Are We Talking About?</h3>
+
+    <p>Before anything else: if you've ever sat in a meeting while someone threw out "Claude Code" and you nodded along while privately wondering what exactly they meant — you're not alone, and it's not your fault. Anthropic has done a poor job of naming things distinctly.</p>
+
+    <p>There are three different things people call "Claude":</p>
+    <ul>
+      <li><strong>Claude.ai</strong> — The website. You open a browser, you chat. This is what most people mean when they say "I use Claude." It's the consumer product.</li>
+      <li><strong>Claude Desktop</strong> — A Windows (and Mac) application. Looks like the website, runs as an installed program. Can be extended with MCP servers. Still a chat interface.</li>
+      <li><strong>Claude Code</strong> — A command-line program. You install it, open a terminal, type <code>claude</code>, and it runs in your project directory with direct access to your files, tools, and environment. <strong>This is what this entire guide is about.</strong></li>
+    </ul>
+
+    <p>When a developer says "I use Claude Code," they mean the third one. When a manager says "we use Claude," they probably mean the first one. When IT says "we've deployed Claude Desktop with MCP," they mean the second one. They are completely different products with different capabilities, and the industry casually conflates all three.</p>
+
+    <div class="real-talk">It is genuinely embarrassing to be in a technical conversation where everyone assumes you know which "Claude" they mean. You're not slow. The naming is just bad. This guide is specifically, exclusively about the command-line program — Claude Code CLI.</div>
+
     <h3>Who This Is For</h3>
 
     <p><strong>Developers</strong> who use AI every day but feel like they're only using 20% of the tool. You know how to prompt. You get good results. But skills, hooks, agents, MCP servers, memory &mdash; these words float past and nothing sticks. This guide makes them stick.</p>
@@ -1693,5 +1708,168 @@ else if (platform == "codex") { doZ() }</code></pre>
 </main>
 
 <script src="app.js"></script>
+
+<div id="tt-popup"><span class="tt-term"></span><span class="tt-body"></span></div>
+
+<script>
+// === Glossary Tooltip System ===
+// Scans content text nodes and wraps glossary terms with hover tooltips.
+// Skips: code, pre, abbr, th, td, h1-h6, script, style, the glossary section itself.
+
+const glossaryTerms = {
+  // CLI Tools
+  'npm': 'Node Package Manager. Installs JavaScript packages. Used to install Claude Code, Codex, Copilot, Gemini CLIs. Like NuGet for the JavaScript world.',
+  'npx': 'Runs an npm package without permanently installing it. Downloads and runs in one step.',
+  'Node.js': 'JavaScript runtime that runs outside the browser. Required by npm. Most AI CLI tools are Node.js applications.',
+  'Python': 'Programming language. Some MCP servers and tools use Python. pip is Python\'s package manager.',
+  'git': 'Version control system. Tracks changes to your code over time. git commit saves a snapshot.',
+  'bash': 'A command-line shell that interprets your typed commands. Claude Code\'s Bash tool runs commands through this.',
+  'SQLite': 'A lightweight database stored as a single file. Codex and OpenCode store session data in SQLite.',
+  'grep': 'Searches for text patterns in files. Claude Code has a built-in Grep tool.',
+  'WSL': 'Windows Subsystem for Linux. Runs a real Linux environment inside Windows.',
+  'Ollama': 'Runs open-source AI models locally on your machine. No data leaves your network.',
+  // Acronyms
+  'CLI': 'Command Line Interface. A text-based way to interact with a program. You type commands, it responds with text.',
+  'GUI': 'Graphical User Interface. A visual interface with windows, buttons, and mouse interaction.',
+  'IDE': 'Integrated Development Environment. A code editor with built-in tools. Visual Studio, VS Code, JetBrains.',
+  'API': 'Application Programming Interface. A defined way for programs to talk to each other.',
+  'REST': 'Representational State Transfer. A common style for web APIs using HTTP methods on URLs.',
+  'MCP': 'Model Context Protocol. Anthropic\'s protocol for connecting external tools (plugins) to Claude.',
+  'SDK': 'Software Development Kit. A library that makes it easier to use an API or protocol.',
+  'LLM': 'Large Language Model. The AI model that powers Claude, GPT, Gemini, etc.',
+  'JSON': 'JavaScript Object Notation. A data format used everywhere for configuration files and APIs.',
+  'TLS': 'Transport Layer Security. Encryption for network traffic. The "S" in HTTPS.',
+  'UUID': 'Universally Unique Identifier. A random ID like dd8ab84a-a52e-... Practically guaranteed to be unique.',
+  'WSL': 'Windows Subsystem for Linux. Runs Linux inside Windows.',
+  'SOLID': 'Five design principles for maintainable object-oriented code. Useful guidelines, not commandments.',
+  'UAC': 'User Account Control. Windows security feature that prompts before elevated actions.',
+  'regex': 'Regular Expression. A pattern-matching syntax for text searching.',
+  'glob': 'A file-matching pattern. *.js matches all JavaScript files.',
+  // Claude Code Concepts
+  'Session': 'A conversation with Claude Code. Has a unique ID, persists as a .jsonl file, can be resumed later.',
+  'CLAUDE.md': 'A markdown file of instructions that Claude reads at the start of every session.',
+  'Skill': 'A SKILL.md instruction file in .claude/skills/. Loaded into context when relevant. Not a running process — a document.',
+  'Hook': 'A shell command that executes in response to an event (before/after tool use, session start). Unlike skills, hooks actually run code.',
+  'Agent': 'A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back.',
+  'Subagent': 'A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back.',
+  'Worktree': 'An isolated git working copy. Agents can work in a worktree so they don\'t modify your actual files.',
+  'Memory': 'Persistent notes in ~/.claude/projects/*/memory/. Survives across sessions like a project wiki.',
+  'Token': 'A unit of text (~4 characters). Claude processes, counts, and bills by tokens.',
+  'Allowlist': 'A list of pre-approved tools/commands in settings.json. Claude won\'t ask permission for allowlisted actions.',
+  // General Dev
+  'Repository': 'A project tracked by git. Contains your source code, history, and configuration files.',
+  'Commit': 'A saved snapshot of your code at a point in time. Like a save point in a game.',
+  'Branch': 'A parallel version of your code. Feature branches let you work without affecting main.',
+  'Refactor': 'Restructuring code without changing its behavior. Improving organization or performance.',
+  'Sandbox': 'An isolated environment that restricts what a program can do.',
+  'Monorepo': 'A single repository containing multiple projects or teams\' code.',
+  'Boilerplate': 'Repetitive, standard code that\'s needed but not interesting. Templates, imports, config setup.',
+};
+
+// Build a sorted array (longest terms first to avoid partial matches)
+const termList = Object.keys(glossaryTerms).sort((a, b) => b.length - a.length);
+
+// Tags to skip when walking the DOM
+const SKIP_TAGS = new Set(['CODE','PRE','ABBR','SCRIPT','STYLE','TH','TD','H1','H2','H3','H4','H5','H6','BUTTON','A']);
+
+function wrapTermsInNode(textNode) {
+  const text = textNode.nodeValue;
+  if (!text || text.trim().length < 2) return;
+
+  // Build a regex alternation from all terms (escaped, word-boundary matched)
+  const pattern = termList.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const re = new RegExp('\\b(' + pattern + ')\\b', 'g');
+
+  if (!re.test(text)) return;
+  re.lastIndex = 0;
+
+  const frag = document.createDocumentFragment();
+  let last = 0;
+  let match;
+
+  while ((match = re.exec(text)) !== null) {
+    // Text before match
+    if (match.index > last) {
+      frag.appendChild(document.createTextNode(text.slice(last, match.index)));
+    }
+    // Find the actual term key (case-insensitive lookup)
+    const matched = match[1];
+    const key = termList.find(t => t.toLowerCase() === matched.toLowerCase()) || matched;
+    const def = glossaryTerms[key];
+
+    const span = document.createElement('span');
+    span.className = 'tt';
+    span.dataset.term = key;
+    span.dataset.tip = def;
+    span.textContent = matched;
+    frag.appendChild(span);
+
+    last = match.index + matched.length;
+  }
+
+  if (last < text.length) {
+    frag.appendChild(document.createTextNode(text.slice(last)));
+  }
+
+  textNode.parentNode.replaceChild(frag, textNode);
+}
+
+function walkAndWrap(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      let el = node.parentElement;
+      while (el && el !== root) {
+        if (SKIP_TAGS.has(el.tagName)) return NodeFilter.FILTER_REJECT;
+        el = el.parentElement;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  const nodes = [];
+  let n;
+  while ((n = walker.nextNode())) nodes.push(n);
+  nodes.forEach(wrapTermsInNode);
+}
+
+function initTooltips() {
+  const popup = document.getElementById('tt-popup');
+  const termEl = popup.querySelector('.tt-term');
+  const bodyEl = popup.querySelector('.tt-body');
+
+  // Wrap terms in all content areas except the glossary section
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    if (panel.id === 'glossary') return;
+    walkAndWrap(panel);
+  });
+
+  // Show tooltip on hover
+  document.addEventListener('mouseover', e => {
+    const tt = e.target.closest('.tt');
+    if (!tt) return;
+    termEl.textContent = tt.dataset.term;
+    bodyEl.textContent = tt.dataset.tip;
+    popup.style.display = 'block';
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (popup.style.display !== 'block') return;
+    const x = e.clientX + 14;
+    const y = e.clientY + 14;
+    // Keep popup within viewport
+    const pw = popup.offsetWidth;
+    const ph = popup.offsetHeight;
+    popup.style.left = (x + pw > window.innerWidth ? x - pw - 28 : x) + 'px';
+    popup.style.top  = (y + ph > window.innerHeight ? y - ph - 28 : y) + 'px';
+  });
+
+  document.addEventListener('mouseout', e => {
+    if (!e.target.closest('.tt')) return;
+    popup.style.display = 'none';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initTooltips);
+</script>
 </body>
 </html>

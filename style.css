@@ -296,6 +296,39 @@ body {
   margin-bottom: 0.35rem;
 }
 
+/* === Glossary Tooltips === */
+.tt {
+  border-bottom: 1px dashed var(--text-muted);
+  cursor: help;
+  text-decoration: none;
+}
+
+#tt-popup {
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-blue);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  max-width: 320px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  display: none;
+}
+
+#tt-popup .tt-term {
+  font-weight: 700;
+  color: var(--accent-blue);
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 /* Code blocks */
 code {
   font-family: var(--font-mono);
