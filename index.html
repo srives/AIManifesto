@@ -175,7 +175,7 @@
     <div class="analogy-human">Like a project folder on your desktop with all your notes, drafts, and emails for one client. When you open that folder, everything from your last working session is still there — the draft proposal, the notes from the last call, the email thread. You pick up exactly where you left off. A Claude session is that folder. Close it and reopen it next week — everything is still there.</div>
 
     <h3>Where Sessions Live</h3>
-    <p>Session data is stored locally at <code>~/.claude/projects/</code>, organized by project path. The path encoding replaces separators with double-dashes: <code>C:\repos\MyApp</code> becomes <code>C--repos-MyApp</code>. Inside each project directory, session logs are stored as <code>.jsonl</code> (JSON Lines) files &mdash; one JSON object per line, each line representing a conversation turn.</p>
+    <p>Session data is stored locally at <code>C:\Users\YourName\.claude\projects\</code>, organized by project path. The path encoding replaces backslashes with double-dashes: <code>C:\repos\MyApp</code> becomes <code>C--repos-MyApp</code>. Inside each project directory, session logs are stored as <code>.jsonl</code> (JSON Lines) files &mdash; one JSON object per line, each line representing a conversation turn.</p>
 
     <h3>Why Sessions Matter</h3>
     <p>Sessions are your working context. A session carries:</p>
@@ -240,13 +240,13 @@
     <ul>
       <li><strong>Secrets or credentials</strong> &mdash; CLAUDE.md is checked into git. Never put API keys, passwords, or tokens here.</li>
       <li><strong>Detailed workflow procedures</strong> (30+ steps) &mdash; Use skills for these. CLAUDE.md is always loaded and costs tokens every session.</li>
-      <li><strong>Personal preferences</strong> &mdash; These go in <code>~/.claude/CLAUDE.md</code> (user-level, not repo-level).</li>
+      <li><strong>Personal preferences</strong> &mdash; These go in your personal <code>C:\Users\YourName\.claude\CLAUDE.md</code> (user-level, not repo-level).</li>
     </ul>
 
     <h3>Cascading CLAUDE.md Files</h3>
     <p>You can have multiple CLAUDE.md files, and they cascade (merge):</p>
     <ul>
-      <li><code>~/.claude/CLAUDE.md</code> &mdash; User-level, applies to all repos (your personal defaults)</li>
+      <li><code>C:\Users\YourName\.claude\CLAUDE.md</code> &mdash; Personal, applies to all repos everywhere (your global defaults)</li>
       <li><code>CLAUDE.md</code> at repo root &mdash; Project-level, shared with team via git</li>
       <li><code>CLAUDE.md</code> in subdirectories &mdash; Directory-specific overrides</li>
     </ul>
@@ -258,39 +258,71 @@
   <!-- ==================== CHAPTER 3 ==================== -->
   <div class="chapter" id="ch3">
     <div class="chapter-number">Chapter III</div>
-    <h2>The .claude Directory</h2>
+    <h2>The .claude Directory &mdash; Two Very Different Locations</h2>
 
-    <p>The <code>.claude</code> directory is where Claude Code stores its configuration, commands, skills, and settings. It exists in two places with different scopes:</p>
-    <ul>
-      <li><code>~/.claude/</code> &mdash; In your home directory. User-level config. Applies everywhere.</li>
-      <li><code>.claude/</code> in a repo &mdash; Repo-level config. Applies only to that project.</li>
-    </ul>
+    <div class="real-talk"><strong>Stop. Read this first.</strong> The documentation for Claude Code uses Unix path notation everywhere, which causes real confusion on Windows. This chapter decodes it before anything else.</div>
 
-    <div class="analogy">Like <code>%APPDATA%</code> (user-level) vs <code>.vscode/</code> in a repo (project-level). Your global VS Code settings live in AppData and apply everywhere. A <code>.vscode/settings.json</code> in a repo overrides those for that project. Same pattern here: <code>~/.claude/</code> is your global config, <code>.claude/</code> in a repo is project-specific.</div>
+    <h3>What "~" Means (Unix Notation)</h3>
+    <p>In Unix/Mac/Linux, <code>~</code> is shorthand for "your home directory." On Windows, your home directory is <code>C:\Users\YourName\</code>. So when you see <code>~/.claude/</code> in documentation, it means:</p>
+
+    <table class="compare-table">
+      <thead><tr><th>What docs say</th><th>What it means on Windows</th></tr></thead>
+      <tbody>
+        <tr><td><code>~/.claude/</code></td><td><code>C:\Users\YourName\.claude\</code></td></tr>
+        <tr><td><code>~/.claude/settings.json</code></td><td><code>C:\Users\YourName\.claude\settings.json</code></td></tr>
+        <tr><td><code>~/.claude/projects/</code></td><td><code>C:\Users\YourName\.claude\projects\</code></td></tr>
+        <tr><td><code>~/.claude/CLAUDE.md</code></td><td><code>C:\Users\YourName\.claude\CLAUDE.md</code></td></tr>
+      </tbody>
+    </table>
+
+    <p>To find this in Windows Explorer: open File Explorer, type <code>%USERPROFILE%\.claude</code> in the address bar and press Enter. That's the folder.</p>
+
+    <h3>There Are TWO .claude Directories — They Are Completely Different</h3>
+    <p>This is the source of most confusion. There is a <code>.claude</code> folder in your Windows user profile <strong>and</strong> there can be a <code>.claude</code> folder inside each of your project repositories. They are separate and serve different purposes:</p>
+
+    <table class="compare-table">
+      <thead><tr><th></th><th>User-Level</th><th>Repo-Level</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Location</strong></td><td><code>C:\Users\YourName\.claude\</code></td><td><code>C:\repos\MyProject\.claude\</code></td></tr>
+        <tr><td><strong>Unix notation</strong></td><td><code>~/.claude/</code></td><td><code>.claude/</code> (no tilde)</td></tr>
+        <tr><td><strong>Who it applies to</strong></td><td>You, on every project</td><td>Everyone working on this project</td></tr>
+        <tr><td><strong>In git?</strong></td><td>Never (it's outside the repo)</td><td>Can be (you choose what to commit)</td></tr>
+        <tr><td><strong>You can find it in</strong></td><td>File Explorer: <code>%USERPROFILE%\.claude</code></td><td>File Explorer: inside your project folder</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Quick rule:</strong> If you see <code>~/.claude/</code> (with the tilde), it's your personal folder in <code>C:\Users\YourName\</code>. If you see <code>.claude/</code> (no tilde, no path prefix), it's a folder inside the current repo.</p>
 
     <h3>Why the Dot?</h3>
-    <p>On Unix/Linux/macOS, a leading dot makes a file or directory hidden. It's the convention for configuration: <code>.git/</code>, <code>.ssh/</code>, <code>.vscode/</code>, <code>.config/</code>. It keeps config directories out of your way when listing files.</p>
+    <p>On Unix/Linux/macOS, a leading dot makes a directory hidden from normal file listings. Windows doesn't follow this convention automatically, so <code>.claude</code> folders <em>will</em> appear in File Explorer (unlike on Mac/Linux where you need to show hidden files). The dot is just a naming convention borrowed from Unix meaning "this is config/plumbing, not content." You'll also see <code>.git/</code>, <code>.vscode/</code>, <code>.vs/</code> following the same pattern.</p>
 
-    <div class="analogy-alt">Windows equivalent: hidden folders with the Hidden attribute set, or the <code>%APPDATA%</code> directory that doesn't show up in normal Explorer views. The dot-prefix is Unix's way of saying "this is plumbing, not content." Like how <code>.vs/</code> and <code>.git/</code> are hidden in Visual Studio's Solution Explorer by default.</div>
+    <div class="analogy">Like <code>%APPDATA%</code> (user-level, global) vs <code>.vscode/</code> inside a repo (project-level). Your global VS Code settings live in AppData and follow you everywhere. A <code>.vscode/settings.json</code> in a specific repo only applies to that project. Same split here.</div>
 
-    <div class="analogy-human">Like the filing cabinet in the back office that holds the company procedures, templates, and admin documents — not the work product itself, but the infrastructure that supports the work. Clients never see it. New employees need to know it exists. It's not meant to be browsed casually; it's meant to be consulted when needed. The .claude directory is that cabinet.</div>
+    <div class="analogy-human">Like the filing cabinet in the back office that holds company procedures (your personal <code>C:\Users\YourName\.claude\</code>) versus the project binder that sits on the conference room table for a specific client engagement (the <code>.claude\</code> inside your project folder). One is always yours. The other belongs to the project.</div>
 
-    <h3>What Lives in ~/.claude/</h3>
+    <h3>What Lives in Your Personal Folder (<code>C:\Users\YourName\.claude\</code>)</h3>
     <table class="path-table">
-      <tr><td>settings.json</td><td>Your personal preferences (allowed tools, permissions, model preferences)</td></tr>
-      <tr><td>commands/</td><td>Personal slash commands available in all repos</td></tr>
-      <tr><td>skills/</td><td>Personal skill documents available in all repos</td></tr>
-      <tr><td>projects/</td><td>Per-project session data, memory, and settings</td></tr>
-      <tr><td>CLAUDE.md</td><td>User-level instructions (applies to all repos)</td></tr>
+      <tr><td><code>settings.json</code></td><td>Your personal preferences (allowed tools, permissions, model defaults)</td></tr>
+      <tr><td><code>CLAUDE.md</code></td><td>Instructions that apply to ALL your projects everywhere</td></tr>
+      <tr><td><code>commands\</code></td><td>Your personal slash commands, available in every repo</td></tr>
+      <tr><td><code>skills\</code></td><td>Your personal skill documents, available in every repo</td></tr>
+      <tr><td><code>projects\</code></td><td>Session data, memory files, per-project notes (auto-managed by Claude)</td></tr>
     </table>
 
-    <h3>What Lives in .claude/ (in a repo)</h3>
+    <h3>What Lives in a Repo's Folder (<code>C:\repos\MyProject\.claude\</code>)</h3>
     <table class="path-table">
-      <tr><td>commands/</td><td>Project-specific slash commands (can be checked into git)</td></tr>
-      <tr><td>skills/</td><td>Project-specific skills (can be checked into git)</td></tr>
-      <tr><td>settings.json</td><td>Project settings (can be shared with team via git)</td></tr>
-      <tr><td>settings.local.json</td><td>Local overrides (personal, in .gitignore)</td></tr>
+      <tr><td><code>commands\</code></td><td>Project-specific slash commands (can be committed to git, shared with team)</td></tr>
+      <tr><td><code>skills\</code></td><td>Project-specific skills (can be committed to git, shared with team)</td></tr>
+      <tr><td><code>settings.json</code></td><td>Project settings shared with the team via git</td></tr>
+      <tr><td><code>settings.local.json</code></td><td>Your personal overrides for this project — add to .gitignore, never commit</td></tr>
     </table>
+
+    <h3>How to See These Folders on Windows</h3>
+    <ul>
+      <li><strong>Your personal .claude folder:</strong> Open File Explorer, type <code>%USERPROFILE%\.claude</code> in the address bar</li>
+      <li><strong>A repo's .claude folder:</strong> Navigate to your project folder in File Explorer — the <code>.claude</code> subfolder will be visible if it exists</li>
+      <li><strong>Session data for a specific project:</strong> <code>%USERPROFILE%\.claude\projects\</code> — each subfolder is a project, named using the project path with backslashes replaced by double-dashes (e.g., <code>C:\repos\MyApp</code> becomes <code>C--repos-MyApp</code>)</li>
+    </ul>
   </div>
 
   <!-- ==================== CHAPTER 4 ==================== -->
@@ -310,8 +342,8 @@
 
     <h3>Where Skills Live</h3>
     <ul>
-      <li><code>~/.claude/skills/</code> &mdash; Personal skills, available in all your repos</li>
-      <li><code>.claude/skills/</code> in a repo &mdash; Project skills, can be shared with team</li>
+      <li><strong>Personal skills</strong> &mdash; <code>C:\Users\YourName\.claude\skills\</code> (available in all your repos, never in git)</li>
+      <li><strong>Project skills</strong> &mdash; <code>C:\repos\MyProject\.claude\skills\</code> (project-specific, can be committed to git and shared with team)</li>
     </ul>
 
     <h3>How Skills Get Loaded</h3>
@@ -347,8 +379,8 @@
 
     <h3>Where Slash Commands Live</h3>
     <ul>
-      <li><code>~/.claude/commands/</code> &mdash; Personal commands, available in all repos (like PowerShell profile functions)</li>
-      <li><code>.claude/commands/</code> in a repo &mdash; Project commands, shareable via git (like <code>.vscode/tasks.json</code>)</li>
+      <li><strong>Personal commands</strong> &mdash; <code>C:\Users\YourName\.claude\commands\</code> — available in all repos everywhere (like PowerShell profile functions)</li>
+      <li><strong>Project commands</strong> &mdash; <code>C:\repos\MyProject\.claude\commands\</code> — shareable via git (like <code>.vscode\tasks.json</code>)</li>
     </ul>
 
     <h3>What a Slash Command File Looks Like</h3>
@@ -464,7 +496,7 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="chapter-number">Chapter IX</div>
     <h2>Memory</h2>
 
-    <p>Memory files are persistent notes stored in <code>~/.claude/projects/*/memory/</code>. They survive across sessions. When you start a new session in a project that has memory files, Claude loads them automatically. This is how knowledge persists beyond a single session.</p>
+    <p>Memory files are persistent notes stored in your personal Claude folder, inside a per-project subdirectory. On Windows, that's <code>C:\Users\YourName\.claude\projects\C--repos-MyProject\memory\</code> (where the project path <code>C:\repos\MyProject</code> becomes <code>C--repos-MyProject</code> with backslashes replaced by double-dashes). They survive across sessions. When you start a new session in a project that has memory files, Claude loads them automatically. This is how knowledge persists beyond a single session.</p>
 
     <div class="analogy">Like a developer's personal wiki or OneNote notebook for a project. Things you'd write on a sticky note and put on your monitor: "The prod database connection string is in Azure Key Vault, not in the config file." "The client requested we not use the word 'delete' in the UI &mdash; use 'archive' instead." "The payments module was written by a contractor and has no tests &mdash; be careful."</div>
 
@@ -475,7 +507,7 @@ Ask me for the component name and path before starting.</code></pre>
     <h3>Memory vs. CLAUDE.md</h3>
     <ul>
       <li><strong>CLAUDE.md</strong> is shared with the team (checked into git). Contains coding standards, architecture info, project rules.</li>
-      <li><strong>Memory</strong> is personal (in your <code>~/.claude/</code> directory). Contains your notes, discoveries, reminders. Not in git.</li>
+      <li><strong>Memory</strong> is personal (in your <code>C:\Users\YourName\.claude\projects\</code> folder, managed by Claude). Contains your notes, discoveries, reminders. Not in git.</li>
     </ul>
     <p>Rule of thumb: If the whole team needs to know it, put it in CLAUDE.md. If it's your personal institutional knowledge, put it in memory.</p>
 
@@ -518,7 +550,7 @@ Ask me for the component name and path before starting.</code></pre>
     <p>When someone says "install this MCP server," here's what actually happens:</p>
     <ol>
       <li><strong>Get the package.</strong> Most MCP servers are npm packages or Python packages. Example: <code>npm install -g @anthropic/mcp-server-filesystem</code></li>
-      <li><strong>Configure it in settings.</strong> Add an entry to <code>~/.claude/settings.json</code> (user-level) or <code>.claude/settings.local.json</code> (repo-level) under the <code>mcpServers</code> key:</li>
+      <li><strong>Configure it in settings.</strong> Add an entry to your settings file under the <code>mcpServers</code> key. Use <code>C:\Users\YourName\.claude\settings.json</code> for personal tools, or <code>C:\repos\MyProject\.claude\settings.local.json</code> for project-specific tools:</li>
     </ol>
     <pre><code>{
   "mcpServers": {
@@ -551,9 +583,9 @@ Ask me for the component name and path before starting.</code></pre>
 
     <h3>Scope: User vs. Repo MCP Servers</h3>
     <ul>
-      <li><strong><code>~/.claude/settings.json</code></strong> &mdash; User-level. Available in every session on your machine. Good for personal tools (your database, your Jira).</li>
-      <li><strong><code>.claude/settings.local.json</code></strong> &mdash; Repo-level, NOT checked in. Good for project-specific servers with credentials.</li>
-      <li><strong><code>.claude/settings.json</code></strong> &mdash; Repo-level, checked in. Good for team-shared servers that don't need credentials (or use environment variables). Your team clones the repo, and the MCP server is pre-configured.</li>
+      <li><strong>Personal / all projects</strong> &mdash; <code>C:\Users\YourName\.claude\settings.json</code> — available in every session on your machine. Good for personal tools (your database, your Jira).</li>
+      <li><strong>Project-only, private</strong> &mdash; <code>C:\repos\MyProject\.claude\settings.local.json</code> — NOT checked in to git. Good for project-specific servers with credentials.</li>
+      <li><strong>Project-only, shared with team</strong> &mdash; <code>C:\repos\MyProject\.claude\settings.json</code> — committed to git. Your team gets it automatically on clone. Use environment variables for credentials.</li>
     </ul>
 
     <h3>Security: What to Watch For</h3>
@@ -610,30 +642,41 @@ Ask me for the component name and path before starting.</code></pre>
 
     <p>Everything in Claude Code's architecture maps to a file in a predictable location. There is no registry, no database, no opaque binary format. Once you know the directory structure, you can inspect, edit, backup, or debug anything with a text editor.</p>
 
-    <h3>User-Level (~/.claude/)</h3>
-    <table class="path-table">
-      <tr><td>~/.claude/</td><td>Root of user-level config (like %USERPROFILE%\.vscode)</td></tr>
-      <tr><td>~/.claude/settings.json</td><td>Personal preferences (allowed tools, model settings)</td></tr>
-      <tr><td>~/.claude/CLAUDE.md</td><td>User-level instructions (applies to all repos)</td></tr>
-      <tr><td>~/.claude/commands/</td><td>Personal slash commands (available everywhere)</td></tr>
-      <tr><td>~/.claude/skills/</td><td>Personal skills (available everywhere)</td></tr>
-      <tr><td>~/.claude/projects/</td><td>Per-project data (sessions, memory, settings)</td></tr>
-      <tr><td>~/.claude/projects/C--repos-MyApp/</td><td>Data for the project at C:\repos\MyApp</td></tr>
-      <tr><td>~/.claude/projects/C--repos-MyApp/memory/</td><td>Memory files for that project</td></tr>
+    <div class="real-talk">In all paths below: <code>~</code> means your Windows home directory — <code>C:\Users\YourName\</code>. Paths starting with <code>~/.claude/</code> are in your user profile. Paths starting with just <code>.claude/</code> are inside your current project repo. These are two different places.</div>
+
+    <h3>Your Personal Folder &mdash; <code>C:\Users\YourName\.claude\</code></h3>
+    <table class="compare-table">
+      <thead><tr><th>Unix notation</th><th>Windows path</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>~/.claude/</code></td><td><code>C:\Users\YourName\.claude\</code></td><td>Root of your personal config</td></tr>
+        <tr><td><code>~/.claude/settings.json</code></td><td><code>C:\Users\YourName\.claude\settings.json</code></td><td>Your personal preferences (tools, model, permissions)</td></tr>
+        <tr><td><code>~/.claude/CLAUDE.md</code></td><td><code>C:\Users\YourName\.claude\CLAUDE.md</code></td><td>Your instructions, applied to every project</td></tr>
+        <tr><td><code>~/.claude/commands/</code></td><td><code>C:\Users\YourName\.claude\commands\</code></td><td>Your personal slash commands, everywhere</td></tr>
+        <tr><td><code>~/.claude/skills/</code></td><td><code>C:\Users\YourName\.claude\skills\</code></td><td>Your personal skills, everywhere</td></tr>
+        <tr><td><code>~/.claude/projects/</code></td><td><code>C:\Users\YourName\.claude\projects\</code></td><td>Session data for all your projects (auto-managed)</td></tr>
+        <tr><td><code>~/.claude/projects/C--repos-MyApp/</code></td><td><code>C:\Users\YourName\.claude\projects\C--repos-MyApp\</code></td><td>Data for the project at <code>C:\repos\MyApp</code></td></tr>
+        <tr><td><code>~/.claude/projects/C--repos-MyApp/memory/</code></td><td><code>C:\Users\YourName\.claude\projects\C--repos-MyApp\memory\</code></td><td>Memory files for that project</td></tr>
+      </tbody>
     </table>
 
-    <h3>Repo-Level (.claude/ in repo)</h3>
-    <table class="path-table">
-      <tr><td>.claude/</td><td>Repo-level config (like .vscode/ in a repo)</td></tr>
-      <tr><td>.claude/commands/</td><td>Project-specific slash commands</td></tr>
-      <tr><td>.claude/skills/</td><td>Project-specific skills</td></tr>
-      <tr><td>.claude/settings.json</td><td>Project settings (can be checked into git)</td></tr>
-      <tr><td>.claude/settings.local.json</td><td>Local overrides (like .env.local &mdash; in .gitignore)</td></tr>
+    <h3>Inside Your Project Repo &mdash; <code>C:\repos\MyProject\.claude\</code></h3>
+    <table class="compare-table">
+      <thead><tr><th>Unix notation</th><th>Windows path (example)</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>.claude/</code></td><td><code>C:\repos\MyProject\.claude\</code></td><td>Project config folder (like .vscode in a repo)</td></tr>
+        <tr><td><code>.claude/commands/</code></td><td><code>C:\repos\MyProject\.claude\commands\</code></td><td>Project slash commands, shareable via git</td></tr>
+        <tr><td><code>.claude/skills/</code></td><td><code>C:\repos\MyProject\.claude\skills\</code></td><td>Project skills, shareable via git</td></tr>
+        <tr><td><code>.claude/settings.json</code></td><td><code>C:\repos\MyProject\.claude\settings.json</code></td><td>Project settings, can be committed to git</td></tr>
+        <tr><td><code>.claude/settings.local.json</code></td><td><code>C:\repos\MyProject\.claude\settings.local.json</code></td><td>Your personal overrides — add to .gitignore</td></tr>
+      </tbody>
     </table>
 
-    <h3>Repo Root</h3>
-    <table class="path-table">
-      <tr><td>CLAUDE.md</td><td>Project instructions (checked into git, shared with team)</td></tr>
+    <h3>Repo Root (no subfolder)</h3>
+    <table class="compare-table">
+      <thead><tr><th>File</th><th>Windows path (example)</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td><code>C:\repos\MyProject\CLAUDE.md</code></td><td>Project instructions — committed to git, shared with team</td></tr>
+      </tbody>
     </table>
 
     <div class="analogy">The whole layout follows the principle of "proximity to scope." Personal config lives in your home directory. Project config lives in the project. Shared config is checkable into git. Local overrides are gitignored. It's the exact same layering as <code>appsettings.json</code> / <code>appsettings.Development.json</code> / environment variables in ASP.NET &mdash; base, environment-specific, personal.</div>
@@ -649,22 +692,26 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Every piece of Claude Code configuration has a scope (who it affects) and a distribution method (how it spreads). Understanding this prevents "where do I put this?" confusion.</p>
 
     <h3>The Scope Matrix</h3>
-    <table class="path-table">
-      <tr><td>~/.claude/settings.json</td><td><strong>Personal + Global.</strong> Your preferences, everywhere. Never in git.</td></tr>
-      <tr><td>~/.claude/commands/</td><td><strong>Personal + Global.</strong> Your commands, everywhere. Never in git.</td></tr>
-      <tr><td>~/.claude/CLAUDE.md</td><td><strong>Personal + Global.</strong> Your instructions, everywhere. Never in git.</td></tr>
-      <tr><td>~/.claude/projects/*/memory/</td><td><strong>Personal + Per-project.</strong> Your notes for a specific project. Never in git.</td></tr>
-      <tr><td>CLAUDE.md (repo root)</td><td><strong>Shared + Per-project.</strong> Team instructions. Checked into git.</td></tr>
-      <tr><td>.claude/commands/ (repo)</td><td><strong>Shared + Per-project.</strong> Team commands. Can be checked into git.</td></tr>
-      <tr><td>.claude/settings.json (repo)</td><td><strong>Shared + Per-project.</strong> Team settings. Can be checked into git.</td></tr>
-      <tr><td>.claude/settings.local.json</td><td><strong>Personal + Per-project.</strong> Your overrides. In .gitignore.</td></tr>
+    <p>Remember: <code>~</code> = <code>C:\Users\YourName\</code>. Paths with <code>~/.claude/</code> are in your user profile. Paths with just <code>.claude/</code> are inside the repo.</p>
+    <table class="compare-table">
+      <thead><tr><th>File / Folder</th><th>Scope</th><th>In Git?</th></tr></thead>
+      <tbody>
+        <tr><td><code>C:\Users\YourName\.claude\settings.json</code></td><td><strong>Personal + All projects.</strong> Your preferences everywhere.</td><td>Never</td></tr>
+        <tr><td><code>C:\Users\YourName\.claude\commands\</code></td><td><strong>Personal + All projects.</strong> Your commands everywhere.</td><td>Never</td></tr>
+        <tr><td><code>C:\Users\YourName\.claude\CLAUDE.md</code></td><td><strong>Personal + All projects.</strong> Your instructions everywhere.</td><td>Never</td></tr>
+        <tr><td><code>C:\Users\YourName\.claude\projects\*\memory\</code></td><td><strong>Personal + Per-project.</strong> Your notes for one project.</td><td>Never</td></tr>
+        <tr><td><code>C:\repos\MyProject\CLAUDE.md</code></td><td><strong>Shared + Per-project.</strong> Team instructions.</td><td>Yes</td></tr>
+        <tr><td><code>C:\repos\MyProject\.claude\commands\</code></td><td><strong>Shared + Per-project.</strong> Team commands.</td><td>Optional</td></tr>
+        <tr><td><code>C:\repos\MyProject\.claude\settings.json</code></td><td><strong>Shared + Per-project.</strong> Team settings.</td><td>Optional</td></tr>
+        <tr><td><code>C:\repos\MyProject\.claude\settings.local.json</code></td><td><strong>Personal + Per-project.</strong> Your local overrides.</td><td>Never (.gitignore)</td></tr>
+      </tbody>
     </table>
 
     <h3>Decision Framework</h3>
     <p>When you need to configure something, ask two questions:</p>
     <ol>
-      <li><strong>Who needs this?</strong> Just me? Put it in <code>~/.claude/</code>. The whole team? Put it in the repo.</li>
-      <li><strong>What scope?</strong> All projects? <code>~/.claude/</code> root. This project only? Repo's <code>.claude/</code> or <code>CLAUDE.md</code>.</li>
+      <li><strong>Who needs this?</strong> Just me? Put it in <code>C:\Users\YourName\.claude\</code>. The whole team? Put it in the repo.</li>
+      <li><strong>What scope?</strong> All projects? Your personal <code>.claude\</code> folder. This project only? The repo's <code>.claude\</code> folder or <code>CLAUDE.md</code>.</li>
     </ol>
 
     <div class="analogy">It's the exact same decision tree as: "Do I put this in my global .gitconfig, the repo's .gitconfig, or the repo's .gitattributes?" Or: "Do I put this VS setting in user settings, workspace settings, or .editorconfig?" The principle is universal. Claude Code just applies it to AI configuration.</div>
@@ -675,7 +722,7 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Typically, <code>.gitignore</code> excludes:</p>
     <ul>
       <li><code>.claude/settings.local.json</code> &mdash; Personal overrides</li>
-      <li>The entire <code>~/.claude/</code> directory is outside the repo anyway, so it's inherently not in git</li>
+      <li>Your personal <code>C:\Users\YourName\.claude\</code> folder is outside every repo, so it's inherently never in git</li>
     </ul>
     <p>What CAN be checked in: <code>CLAUDE.md</code>, <code>.claude/commands/</code>, <code>.claude/skills/</code>, <code>.claude/settings.json</code></p>
   </div>
@@ -829,9 +876,9 @@ Ask me for the component name and path before starting.</code></pre>
 
     <p><strong>Scope:</strong></p>
     <ul>
-      <li><code>~/.claude/settings.json</code> &mdash; user-level, applies everywhere, never in git</li>
-      <li><code>.claude/settings.json</code> (in repo) &mdash; repo-level, can be checked in for team settings</li>
-      <li><code>.claude/settings.local.json</code> (in repo) &mdash; repo-level overrides, NOT checked in (like <code>.env.local</code>)</li>
+      <li><code>C:\Users\YourName\.claude\settings.json</code> &mdash; personal, applies to all projects, never in git</li>
+      <li><code>C:\repos\MyProject\.claude\settings.json</code> &mdash; project-level, can be committed to git for team settings</li>
+      <li><code>C:\repos\MyProject\.claude\settings.local.json</code> &mdash; personal project overrides, NOT committed (like <code>.env.local</code>)</li>
     </ul>
 
     <div class="analogy">Like the Visual Studio settings hierarchy: Tools > Options (user-level), .editorconfig (repo-level shared), .vs/ directory (repo-level personal). Each layer overrides the one above it.</div>
@@ -849,7 +896,7 @@ Ask me for the component name and path before starting.</code></pre>
       <li><code>claude --continue</code> &mdash; resumes the most recent session in the current directory</li>
     </ul>
 
-    <p>Session IDs are UUIDs (like <code>dd8ab84a-a52e-467b-bcb6-0ad3a44a5db6</code>). You can find them in <code>~/.claude/projects/</code> or by using a session manager.</p>
+    <p>Session IDs are UUIDs (like <code>dd8ab84a-a52e-467b-bcb6-0ad3a44a5db6</code>). You can find them in <code>C:\Users\YourName\.claude\projects\</code> or by using a session manager.</p>
 
     <div class="analogy">Like reopening a saved game. <code>--continue</code> is "load last save." <code>--resume &lt;id&gt;</code> is "load specific save file." The conversation history, context, and any in-progress work are all restored.</div>
 
@@ -891,9 +938,9 @@ Ask me for the component name and path before starting.</code></pre>
     <p>There isn't just one CLAUDE.md. There's a stack, and they all get loaded and composed:</p>
 
     <ol>
-      <li><strong><code>~/.claude/CLAUDE.md</code></strong> &mdash; Global. Applies to every session, every repo, on your machine. Put your universal preferences here (coding style, response format, things you always want).</li>
-      <li><strong><code>CLAUDE.md</code> in repo root</strong> &mdash; Repo-level. Checked into git, shared with your team. Project architecture, conventions, anti-patterns specific to this codebase.</li>
-      <li><strong><code>CLAUDE.md</code> in subdirectories</strong> &mdash; Directory-level. If you <code>cd</code> into <code>src/frontend/</code> and there's a <code>CLAUDE.md</code> there, it gets loaded too. Useful for monorepos where different directories have different conventions.</li>
+      <li><strong>Your personal global CLAUDE.md</strong> &mdash; <code>C:\Users\YourName\.claude\CLAUDE.md</code>. Applies to every session on your machine, across all projects. Your universal preferences.</li>
+      <li><strong>The project CLAUDE.md</strong> &mdash; <code>C:\repos\MyProject\CLAUDE.md</code> (repo root). Checked into git, shared with your team. Project-specific rules and conventions.</li>
+      <li><strong>Subdirectory CLAUDE.md files</strong> &mdash; e.g., <code>C:\repos\MyProject\src\frontend\CLAUDE.md</code>. Loaded when Claude is working in that subdirectory. Useful for monorepos where different directories have different conventions.</li>
     </ol>
 
     <p>They stack &mdash; all matching files are loaded, not just the nearest one. Global + repo root + subdirectory all contribute to the instructions Claude sees.</p>
@@ -1726,11 +1773,15 @@ else if (platform == "codex") { doZ() }</code></pre>
   <table class="compare-table">
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
-      <tr><td>Repository (repo)</td><td>A project tracked by git. Contains your source code, history, and configuration files.</td></tr>
-      <tr><td>Branch</td><td>A parallel version of your code. <code>main</code> is the primary branch. Feature branches let you work without affecting main.</td></tr>
-      <tr><td>Commit</td><td>A saved snapshot of your code at a point in time. Like a save point in a game.</td></tr>
-      <tr><td>Merge</td><td>Combining changes from one branch into another.</td></tr>
-      <tr><td>Pull Request (PR)</td><td>A request to merge your branch into main. Typically reviewed by others before merging.</td></tr>
+      <tr><td>Repository (repo / repos)</td><td>A project folder that is tracked by git. It contains your source code, configuration files, and the full history of every change ever made. "Repos" is just the plural — "I have three repos" means three separate tracked projects. When someone says "clone the repo," they mean download a copy of the project. Think of it like a shared project folder with an infinitely deep undo history built in.</td></tr>
+      <tr><td>git</td><td>The version control system that tracks changes to files over time. It lets you save snapshots (commits), try experiments on separate branches, and go back to any previous state. git itself is a command-line tool. <strong>Products that provide git hosting and collaboration:</strong> GitHub (most popular, owned by Microsoft), GitLab (popular in enterprises, can be self-hosted), Bitbucket (popular with Atlassian/Jira shops), Azure DevOps (Microsoft's enterprise git platform), and Gitea/Forgejo (self-hosted open source options). GitHub is the public face of git for most developers.</td></tr>
+      <tr><td>GitHub</td><td>A website (github.com) where developers store and share git repositories. Think of it as Google Drive for code, with version history and collaboration tools built in. Free for public projects. Owned by Microsoft. When someone says "it's on GitHub," they mean the source code is publicly available there.</td></tr>
+      <tr><td>Branch</td><td>A parallel version of your code where you can try changes without affecting the main version. Like making a copy of a document to draft edits, then deciding whether to keep or discard the changes. <code>main</code> is the primary branch that is considered the "official" version.</td></tr>
+      <tr><td>Commit</td><td>A saved snapshot of your code at a specific point in time. Every commit has a unique ID and a message describing what changed. Like a save point in a game — you can always go back to any previous commit.</td></tr>
+      <tr><td>Merge</td><td>Combining changes from one branch into another. Like accepting tracked changes in a Word document.</td></tr>
+      <tr><td>Pull Request (PR)</td><td>A request to merge your branch into main. Other team members can review the changes before they're accepted. Despite the name, it's actually about pushing your changes for review, not pulling someone else's.</td></tr>
+      <tr><td>Clone</td><td>Downloading a copy of a git repository to your local machine. <code>git clone https://github.com/user/repo</code> creates a local copy you can work with.</td></tr>
+      <tr><td>Push / Pull</td><td>Push = upload your local commits to the remote server (GitHub). Pull = download other people's commits from the server to your machine.</td></tr>
       <tr><td>Lint / Linter</td><td>A tool that checks code for style violations, potential bugs, and anti-patterns. ESLint (JavaScript), PSScriptAnalyzer (PowerShell).</td></tr>
       <tr><td>Static Analysis</td><td>Examining code without running it. Linters, type checkers, and pattern scanners are static analysis tools.</td></tr>
       <tr><td>Dependency</td><td>A package/library your project requires. Managed by npm (JavaScript), pip (Python), NuGet (.NET).</td></tr>
@@ -1797,49 +1848,57 @@ const glossaryTerms = {
   'npm': 'Node Package Manager. Installs JavaScript packages. Used to install Claude Code, Codex, Copilot, Gemini CLIs. Like NuGet for the JavaScript world.',
   'npx': 'Runs an npm package without permanently installing it. Downloads and runs in one step.',
   'Node.js': 'JavaScript runtime that runs outside the browser. Required by npm. Most AI CLI tools are Node.js applications.',
-  'Python': 'Programming language. Some MCP servers and tools use Python. pip is Python\'s package manager.',
-  'git': 'Version control system. Tracks changes to your code over time. git commit saves a snapshot.',
+  'Python': 'Programming language. Some MCP servers and tools use Python. pip is its package manager.',
+  'git': 'Version control system. Tracks every change to your files over time. Products that host git repos: GitHub (most popular), GitLab, Bitbucket, Azure DevOps.',
+  'GitHub': 'Website where developers store and share git repositories. Like Google Drive for code, with version history built in. Free for public projects.',
   'bash': 'A command-line shell that interprets your typed commands. Claude Code\'s Bash tool runs commands through this.',
   'SQLite': 'A lightweight database stored as a single file. Codex and OpenCode store session data in SQLite.',
   'grep': 'Searches for text patterns in files. Claude Code has a built-in Grep tool.',
   'WSL': 'Windows Subsystem for Linux. Runs a real Linux environment inside Windows.',
   'Ollama': 'Runs open-source AI models locally on your machine. No data leaves your network.',
   // Acronyms
-  'CLI': 'Command Line Interface. A text-based way to interact with a program. You type commands, it responds with text.',
-  'GUI': 'Graphical User Interface. A visual interface with windows, buttons, and mouse interaction.',
-  'IDE': 'Integrated Development Environment. A code editor with built-in tools. Visual Studio, VS Code, JetBrains.',
-  'API': 'Application Programming Interface. A defined way for programs to talk to each other.',
-  'REST': 'Representational State Transfer. A common style for web APIs using HTTP methods on URLs.',
-  'MCP': 'Model Context Protocol. Anthropic\'s protocol for connecting external tools (plugins) to Claude.',
-  'SDK': 'Software Development Kit. A library that makes it easier to use an API or protocol.',
-  'LLM': 'Large Language Model. The AI model that powers Claude, GPT, Gemini, etc.',
-  'JSON': 'JavaScript Object Notation. A data format used everywhere for configuration files and APIs.',
-  'TLS': 'Transport Layer Security. Encryption for network traffic. The "S" in HTTPS.',
-  'UUID': 'Universally Unique Identifier. A random ID like dd8ab84a-a52e-... Practically guaranteed to be unique.',
-  'WSL': 'Windows Subsystem for Linux. Runs Linux inside Windows.',
+  'CLI': 'Command Line Interface. A text-based way to interact with a program. You type commands, it responds with text. No buttons or mouse needed.',
+  'GUI': 'Graphical User Interface. A visual interface with windows, buttons, and mouse interaction. What most people think of as "an application."',
+  'IDE': 'Integrated Development Environment. A code editor with built-in tools (debugger, compiler, etc.). Examples: Visual Studio, VS Code, JetBrains Rider.',
+  'API': 'Application Programming Interface. A defined way for programs to talk to each other. Like a waiter who takes your order to the kitchen and brings back food.',
+  'REST': 'Representational State Transfer. A common style for web APIs using HTTP methods (GET, POST, etc.) on URLs.',
+  'MCP': 'Model Context Protocol. The standard that lets external tools (plugins) connect to Claude and give it new capabilities.',
+  'SDK': 'Software Development Kit. A library that makes it easier to use an API or protocol. Like pre-built Lego pieces instead of raw plastic.',
+  'LLM': 'Large Language Model. The AI brain that powers Claude, GPT, Gemini, etc. Trained on massive text datasets.',
+  'JSON': 'JavaScript Object Notation. A data format: {"name": "Steve", "age": 42}. Used everywhere for config files and APIs.',
+  'TLS': 'Transport Layer Security. Encryption for network traffic. The "S" in HTTPS. Keeps data private in transit.',
+  'UUID': 'Universally Unique Identifier. A random ID like dd8ab84a-a52e-4b01-... Practically guaranteed to be unique worldwide.',
   'SOLID': 'Five design principles for maintainable object-oriented code. Useful guidelines, not commandments.',
-  'UAC': 'User Account Control. Windows security feature that prompts before elevated actions.',
-  'regex': 'Regular Expression. A pattern-matching syntax for text searching.',
-  'glob': 'A file-matching pattern. *.js matches all JavaScript files.',
+  'UAC': 'User Account Control. Windows security feature that prompts before elevated actions. The "Do you want to allow this app to make changes?" dialog.',
+  'regex': 'Regular Expression. A pattern-matching syntax for text searching. Looks scary, is actually useful.',
+  'glob': 'A file-matching pattern using wildcards. *.js matches all JavaScript files in a folder.',
   // Claude Code Concepts
-  'Session': 'A conversation with Claude Code. Has a unique ID, persists as a .jsonl file, can be resumed later.',
-  'CLAUDE.md': 'A markdown file of instructions that Claude reads at the start of every session.',
-  'Skill': 'A SKILL.md instruction file in .claude/skills/. Loaded into context when relevant. Not a running process — a document.',
-  'Hook': 'A shell command that executes in response to an event (before/after tool use, session start). Unlike skills, hooks actually run code.',
-  'Agent': 'A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back.',
-  'Subagent': 'A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back.',
-  'Worktree': 'An isolated git working copy. Agents can work in a worktree so they don\'t modify your actual files.',
-  'Memory': 'Persistent notes in ~/.claude/projects/*/memory/. Survives across sessions like a project wiki.',
-  'Token': 'A unit of text (~4 characters). Claude processes, counts, and bills by tokens.',
-  'Allowlist': 'A list of pre-approved tools/commands in settings.json. Claude won\'t ask permission for allowlisted actions.',
+  'Session': 'A single conversation with Claude Code. Persists to disk so you can resume it later. Every session has a unique ID.',
+  'CLAUDE.md': 'An instruction file Claude reads at the start of every session. Written and maintained by Claude when you tell it to. Run /init to create one.',
+  'Skill': 'An instruction document in the .claude/skills/ folder. Claude reads it when relevant — like a reference card. Not a running process.',
+  'Hook': 'A shell command that runs automatically in response to an event (e.g., after every file edit). Unlike skills, hooks actually execute code.',
+  'Agent': 'A separate Claude instance spawned to handle one specific subtask. Works independently, reports back results.',
+  'Subagent': 'Same as Agent — a separate Claude instance that handles a subtask independently and reports back.',
+  'Worktree': 'An isolated copy of your repo where an agent can work safely. If the experiment fails, your real files are untouched.',
+  'Memory': 'Persistent notes stored in your personal Claude folder. Survives across sessions. Claude loads them automatically for the relevant project.',
+  'Token': 'The unit Claude uses to measure and bill text. Roughly 4 characters or 3/4 of a word. Everything loaded — prompts, files, history — costs tokens.',
+  'Allowlist': 'A pre-approved list of tools or commands in settings.json. Claude won\'t ask permission before running allowlisted actions.',
+  'Remote Control': 'A Claude Code feature that lets you control a running CLI session from your phone or another device via QR code.',
+  'Context Window': 'The total amount of text Claude can "see" at once. Everything loaded (files, history, instructions) takes up space in this finite window.',
   // General Dev
-  'Repository': 'A project tracked by git. Contains your source code, history, and configuration files.',
-  'Commit': 'A saved snapshot of your code at a point in time. Like a save point in a game.',
-  'Branch': 'A parallel version of your code. Feature branches let you work without affecting main.',
-  'Refactor': 'Restructuring code without changing its behavior. Improving organization or performance.',
-  'Sandbox': 'An isolated environment that restricts what a program can do.',
-  'Monorepo': 'A single repository containing multiple projects or teams\' code.',
-  'Boilerplate': 'Repetitive, standard code that\'s needed but not interesting. Templates, imports, config setup.',
+  'Repository': 'A project folder tracked by git. Contains your code, config files, and full change history. Often called "repo" for short.',
+  'repo': 'Short for repository — a project folder tracked by git with full change history.',
+  'repos': 'Plural of repo (repository). "I have three repos" means three separate tracked projects.',
+  'Commit': 'A saved snapshot of your code at a point in time. Every commit has a unique ID. Like a save point you can always return to.',
+  'Branch': 'A parallel version of your code for trying changes without affecting the main version. Like a draft copy of a document.',
+  'Merge': 'Combining changes from one branch into another. Like accepting tracked changes in a Word document.',
+  'Refactor': 'Restructuring code without changing what it does. Improving organization, naming, or structure.',
+  'Sandbox': 'An isolated environment that limits what a program can access or do. Used for security.',
+  'Monorepo': 'A single git repository that contains multiple projects or teams\' code together.',
+  'Boilerplate': 'Repetitive standard code that every project needs but isn\'t interesting. Templates, configuration files, import statements.',
+  'Pull Request': 'A request to merge your branch into main. Others review your changes before they\'re accepted.',
+  'Clone': 'Downloading a copy of a git repository to your local machine to work with.',
+  'Dependency': 'A package or library your project relies on. Managed by npm (JavaScript), pip (Python), or NuGet (.NET).',
 };
 
 // Build a sorted array (longest terms first to avoid partial matches)
