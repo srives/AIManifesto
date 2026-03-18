@@ -172,6 +172,8 @@
 
     <div class="analogy-alt">Or think of it like an open document in Visual Studio with undo history. Every action is recorded. You can close the document and reopen it &mdash; the undo history (conversation history) is still there. The session IS the document.</div>
 
+    <div class="analogy-human">Like a project folder on your desktop with all your notes, drafts, and emails for one client. When you open that folder, everything from your last working session is still there — the draft proposal, the notes from the last call, the email thread. You pick up exactly where you left off. A Claude session is that folder. Close it and reopen it next week — everything is still there.</div>
+
     <h3>Where Sessions Live</h3>
     <p>Session data is stored locally at <code>~/.claude/projects/</code>, organized by project path. The path encoding replaces separators with double-dashes: <code>C:\repos\MyApp</code> becomes <code>C--repos-MyApp</code>. Inside each project directory, session logs are stored as <code>.jsonl</code> (JSON Lines) files &mdash; one JSON object per line, each line representing a conversation turn.</p>
 
@@ -193,13 +195,37 @@
     <div class="chapter-number">Chapter II</div>
     <h2>CLAUDE.md &mdash; The Constitution</h2>
 
+    <div class="real-talk"><strong>You do not write or edit this file yourself.</strong> Claude writes it. You just tell Claude what to put in it. This is one of the most important things to understand about Claude Code &mdash; you are the manager, Claude is the one doing the typing.</div>
+
+    <h3>Step One: Run /init</h3>
+    <p>When you start a new project, type <code>/init</code> in Claude Code. That's it. Claude will analyze your codebase &mdash; the languages, frameworks, directory structure, and patterns it finds &mdash; and create an initial CLAUDE.md automatically. You don't write it from scratch. You review what Claude produced and say "looks good" or "also add X."</p>
+
+    <h3>What Is CLAUDE.md?</h3>
     <p>CLAUDE.md is a markdown file that contains instructions for Claude. When you start a session in a repository that has a CLAUDE.md at its root, that file is automatically loaded into Claude's context. Every message Claude generates in that session is influenced by those instructions.</p>
 
-    <p>It is not executed. It is not parsed by a compiler. It is <em>read</em> &mdash; loaded into the context window where Claude can see it, the way environment variables are present in a process's memory without being "run."</p>
+    <p>It is not executed. It is not parsed by a compiler. It is <em>read</em> &mdash; loaded into the context window where Claude can see it, the way a brief handed to a consultant is read before a meeting starts, not run like a program.</p>
 
     <div class="analogy">Like <code>.editorconfig</code> or <code>.eslintrc</code>. You don't run these files. Your editor reads them and adjusts its behavior: tab size, line endings, indentation style. CLAUDE.md does the same thing for Claude: "Use camelCase. Never modify files in /config/production/. Always write tests. Our API uses JWT authentication." Claude reads it and adjusts its behavior accordingly.</div>
 
     <div class="analogy-alt">Or think of it like the XML comments at the top of a .csproj file that configure MSBuild behavior. The comments don't execute &mdash; MSBuild reads them to decide how to build. CLAUDE.md is read by Claude to decide how to code.</div>
+
+    <div class="analogy-human">Like the onboarding document you give a new employee or contractor. "Here's how we do things: we use this email format, we cc the PM on all client communications, we never promise a delivery date without checking with engineering first." You write it once. Every new person reads it on day one. CLAUDE.md is that onboarding document — for AI. And just like with a new employee, Claude wrote the first draft based on what it observed about your project. You reviewed it and approved it.</div>
+
+    <h3>When to Tell Claude to Update It</h3>
+    <p>Claude does <strong>not</strong> update CLAUDE.md automatically. It reads it every session but only writes to it when you ask. If you don't ask, hard-won knowledge from a session is lost next time.</p>
+
+    <p>Tell Claude to update CLAUDE.md:</p>
+    <ul>
+      <li><strong>After a painful debugging session:</strong> "We just spent two hours figuring out that the payment service returns null on weekends. Add that to CLAUDE.md so you never forget it."</li>
+      <li><strong>When you establish a new rule:</strong> "From now on, all API responses must be wrapped in our Result type. Add that to CLAUDE.md."</li>
+      <li><strong>When you discover a forbidden pattern:</strong> "We found out the legacy/ directory has circular dependencies. Add a rule to never import from there."</li>
+      <li><strong>At the end of a major feature:</strong> "We just finished the auth refactor. Update CLAUDE.md with the new session token format and how the refresh flow works."</li>
+      <li><strong>When something surprised you:</strong> "I didn't expect that. Add a note to CLAUDE.md about this so it doesn't surprise you next session either."</li>
+    </ul>
+
+    <p>The simplest habit: at the end of any session where you learned something important, say: <strong>"Update CLAUDE.md with anything we learned today that future sessions should know."</strong> Claude will handle the rest.</p>
+
+    <div class="real-talk">CLAUDE.md does NOT auto-update. If you end a session without telling Claude to record what was learned, that knowledge is gone next session. Claude will start fresh and may make the same mistakes again. This is the most common frustration with Claude Code, and the fix is one sentence at the end of your session.</div>
 
     <h3>What Belongs in CLAUDE.md</h3>
     <ul>
@@ -247,6 +273,8 @@
 
     <div class="analogy-alt">Windows equivalent: hidden folders with the Hidden attribute set, or the <code>%APPDATA%</code> directory that doesn't show up in normal Explorer views. The dot-prefix is Unix's way of saying "this is plumbing, not content." Like how <code>.vs/</code> and <code>.git/</code> are hidden in Visual Studio's Solution Explorer by default.</div>
 
+    <div class="analogy-human">Like the filing cabinet in the back office that holds the company procedures, templates, and admin documents — not the work product itself, but the infrastructure that supports the work. Clients never see it. New employees need to know it exists. It's not meant to be browsed casually; it's meant to be consulted when needed. The .claude directory is that cabinet.</div>
+
     <h3>What Lives in ~/.claude/</h3>
     <table class="path-table">
       <tr><td>settings.json</td><td>Your personal preferences (allowed tools, permissions, model preferences)</td></tr>
@@ -277,6 +305,8 @@
     <div class="analogy">Like a runbook or SOP (Standard Operating Procedure) that you give to a new hire. "When deploying to production, follow these 12 steps. When writing a database migration, check these 5 things first." The new hire reads the document, understands the procedure, and follows it. The document didn't "execute" &mdash; the person read it and acted accordingly. Skills work the same way.</div>
 
     <div class="analogy-alt">Like Visual Studio .snippet files or code templates. They're not running code &mdash; they're patterns that the tool knows about and applies when relevant. Or like the IntelliSense XML documentation: it informs behavior (the IDE shows you parameter info) without executing anything.</div>
+
+    <div class="analogy-human">Like a job aid or quick reference card pinned above a desk. A call center agent has a laminated card that says "if the customer says X, respond with Y." It doesn't do anything on its own — the agent reads it and adjusts their response. A UX designer has a style guide they consult when making design decisions. A skill is that reference card — Claude reads it before acting, not instead of acting.</div>
 
     <h3>Where Skills Live</h3>
     <ul>
@@ -313,6 +343,8 @@
 
     <div class="analogy-alt">Like Visual Studio External Tools (Tools > External Tools). You define a name, a command, and arguments. Invoking it by name runs the command. Slash commands are external tools for Claude &mdash; named, reusable prompt templates.</div>
 
+    <div class="analogy-human">Like a canned email response saved in your email client. You've typed "Here are the next steps after our kickoff meeting..." twenty times, so you saved it as a template called "Post-kickoff." Now you just click the template name and it fills in. Slash commands are those saved templates — for instructions to AI instead of emails to clients. A project manager might create /sprint-review that automatically loads the right prompts for running a sprint retrospective.</div>
+
     <h3>Where Slash Commands Live</h3>
     <ul>
       <li><code>~/.claude/commands/</code> &mdash; Personal commands, available in all repos (like PowerShell profile functions)</li>
@@ -347,6 +379,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy-alt">Like MSBuild pre-build and post-build events in Visual Studio. You specify a command in project properties, and Visual Studio runs it before or after the build. Or like Windows Task Scheduler triggers: "When event X happens, run command Y." Hooks are event-driven automation within Claude Code.</div>
 
+    <div class="analogy-human">Like an out-of-office rule in Outlook. You don't manually reply to every email that arrives while you're on vacation — you set up a rule once: "When an email arrives, send this reply automatically." Hooks are the same idea: "When Claude finishes editing a file, run the linter automatically." You set it up once; it fires every time without you having to remember. HR professionals know this as a workflow trigger in an HRIS system — when an employee status changes, automatically send the onboarding checklist.</div>
+
     <h3>Hook Events</h3>
     <ul>
       <li><strong>Before tool use:</strong> Runs before Claude uses a tool (e.g., before editing a file). Can block the action.</li>
@@ -371,6 +405,8 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy">Like spawning a child process. The parent process (your conversation) creates a child process (the subagent) with its own address space (context window). The child does work, returns a result via its exit code or stdout, and terminates. The parent never sees the child's internal state &mdash; just the result. The child doesn't persist after the parent exits.</div>
 
     <div class="analogy-alt">Like delegating to a contractor. You write a scope of work: "Search the codebase for all uses of the deprecated UserManager class and list them with file paths and line numbers." The contractor goes away, does the work independently, and comes back with a deliverable. You don't see their intermediate notes or false starts &mdash; just the final report. The contractor doesn't stick around after delivering.</div>
+
+    <div class="analogy-human">Like sending a research request to an intern. You say: "Go through last quarter's customer feedback forms and pull out every complaint that mentions the checkout process. Give me a summary." The intern goes away, does the work, and returns with a document. They didn't interrupt you every five minutes. They didn't need you to read every form with them. They came back with the answer. A subagent works exactly this way — you brief it, it works independently, it reports back.</div>
 
     <h3>What Subagents CAN'T Do</h3>
     <ul>
@@ -400,6 +436,8 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy">Like writing an Architecture Decision Record (ADR) or a design document before writing code. You don't start a database migration by typing <code>ALTER TABLE</code> &mdash; you write a migration plan: what tables change, what data moves, what the rollback strategy is. Plans are the same discipline applied to AI-assisted coding: think first, then act.</div>
 
     <div class="analogy-alt">Like the difference between writing code directly and drawing a UML class diagram first. Or like using the Visual Studio Class Designer to lay out relationships before generating code. The plan is the blueprint; the implementation follows.</div>
+
+    <div class="analogy-human">Like a project manager writing a project charter before work starts. You don't assign tasks on day one — you define scope, identify risks, list dependencies, and get sign-off. Only then do you open Jira and create tickets. For a UX designer: you don't open Figma and start drawing — you sketch wireframes on paper and get feedback first. Plan mode is that discovery and alignment phase, applied to AI-assisted work.</div>
 
     <h3>How to Use Plan Mode</h3>
     <p>Press <strong>Shift+Tab</strong> to toggle plan mode. In plan mode, Claude will:</p>
@@ -432,6 +470,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy-alt">Like the "Notes" section in a Visual Studio solution's properties. Or like the sticky notes on your physical monitor that say "DON'T TOUCH THE BILLING TABLE" or "Ask Bob before modifying the auth flow." Memory files are those sticky notes, but for Claude.</div>
 
+    <div class="analogy-human">Like the "tribal knowledge" document a good team member writes before going on leave. "Here's everything I know about this client that isn't in the CRM: they hate being called before 10am, the real decision-maker is the CFO not the VP, and they had a bad experience with our competitor's product two years ago." Memory files are that knowledge transfer document — the context that doesn't fit in a formal system but is critical to working effectively.</div>
+
     <h3>Memory vs. CLAUDE.md</h3>
     <ul>
       <li><strong>CLAUDE.md</strong> is shared with the team (checked into git). Contains coding standards, architecture info, project rules.</li>
@@ -453,6 +493,8 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy">Like COM objects or plugin DLLs. Your application has built-in functionality, but you can extend it by loading COM objects that expose new interfaces. The COM server runs as a separate process, exposes methods via a well-defined protocol, and your application calls those methods. MCP servers are the same: separate processes that expose tools via the Model Context Protocol.</div>
 
     <div class="analogy-alt">Like adding a NuGet package that provides new functions. Or like VS Code extensions: they run in a separate process (the extension host), expose new commands and capabilities via an API, and the editor calls them when needed. An MCP server is an extension for Claude Code.</div>
+
+    <div class="analogy-human">Like giving a new hire a key card that gets them into the building, a login to Salesforce, and access to the shared drive. Without those credentials, they can answer questions and write documents but they can't actually do anything in your systems. An MCP server is the key card — it gives Claude access to your actual systems so it can act, not just advise.</div>
 
     <h3>How MCP Works</h3>
     <p>The MCP server runs as a separate process and communicates with Claude Code via JSON-RPC (typically over stdin/stdout for local servers, or HTTP for remote ones). It's similar to the Language Server Protocol (LSP) that powers IntelliSense in VS Code: a standardized protocol for tool communication.</p>
@@ -536,6 +578,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy-alt">Or like a physical workbench. You can have blueprints, tools, materials, and notes on the bench &mdash; but the bench has a fixed surface area. If you add a new large blueprint, you have to stack or fold something else. A 10-page CLAUDE.md takes up bench space that's unavailable for actual work. Keep your bench clear of unnecessary items.</div>
 
+    <div class="analogy-human">Like the working memory of a meeting. A facilitator can hold about 7 agenda items in their head at once. If you pile on twelve topics, they start forgetting earlier ones by the time you get to the end. The context window is that mental working space — finite, shared by everything you're discussing. A 30-page requirements document read into the conversation is like handing the facilitator a novel and asking them to keep track of everything.</div>
+
     <h3>What Consumes Tokens</h3>
     <ul>
       <li><strong>CLAUDE.md</strong> &mdash; Always loaded, always consuming. Keep it concise.</li>
@@ -593,6 +637,8 @@ Ask me for the component name and path before starting.</code></pre>
     </table>
 
     <div class="analogy">The whole layout follows the principle of "proximity to scope." Personal config lives in your home directory. Project config lives in the project. Shared config is checkable into git. Local overrides are gitignored. It's the exact same layering as <code>appsettings.json</code> / <code>appsettings.Development.json</code> / environment variables in ASP.NET &mdash; base, environment-specific, personal.</div>
+
+    <div class="analogy-human">Like the difference between your personal email signature (always yours, on every email you send), the company email template (shared with everyone on your team), and the project-specific footer you add when emailing clients for a specific account. Three layers: personal, shared, project-specific. They layer on top of each other. That's exactly how Claude Code's config files are organized.</div>
   </div>
 
   <!-- ==================== CHAPTER 13 ==================== -->
@@ -623,6 +669,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy">It's the exact same decision tree as: "Do I put this in my global .gitconfig, the repo's .gitconfig, or the repo's .gitattributes?" Or: "Do I put this VS setting in user settings, workspace settings, or .editorconfig?" The principle is universal. Claude Code just applies it to AI configuration.</div>
 
+    <div class="analogy-human">Ask yourself: "Who should follow this rule?" If it's just you on every project — put it in your global settings. If it's your whole team on this project — put it in the project CLAUDE.md and check it in. If it's sensitive (passwords, API keys) — put it in your local override file that never gets shared. Same three questions a good HR manager asks before writing a policy: is this personal, team-wide, or project-specific?</div>
+
     <h3>.gitignore Conventions</h3>
     <p>Typically, <code>.gitignore</code> excludes:</p>
     <ul>
@@ -642,6 +690,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Because prompting is like knowing SQL syntax without understanding indexes, joins, normalization, or query plans. You can write queries &mdash; they'll return correct results. But they'll be slow, unmaintainable, and won't scale. The person who understands the architecture writes queries that are fast, maintainable, and scalable, even if the SQL syntax is identical.</p>
 
     <div class="analogy">You know how to type C# code. But there's a world of difference between someone who types C# and someone who understands SOLID principles, dependency injection, the CLR, garbage collection, and async/await internals. Both write C# code. One writes C# code that works in production. The architecture knowledge is the difference between a junior developer who can code and a senior developer who can engineer.</div>
+
+    <div class="analogy-human">Everyone knows how to send an email. But there's a difference between someone who sends emails and someone who builds a communication strategy — cadence, segmentation, tone by audience, escalation paths, follow-up rules. Both use email. One uses it as a tool; the other uses it as a system. AI architecture knowledge is the difference between using Claude as a fancy search engine and deploying it as a repeatable, configurable, team-wide workflow.</div>
 
     <h3>What Architecture Gives You</h3>
     <ul>
@@ -680,6 +730,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy">Like branching in real life. Instead of renovating a room while you're living in it, the contractor builds the renovation in a separate identical room. When it's done, you inspect it. If it's good, you swap. If it's bad, you tear down the copy &mdash; your original room was never touched.</div>
 
+    <div class="analogy-human">Like making a copy of a presentation before trying a radical redesign. You duplicate the file, make all the changes in the copy, show it to the client. If they hate it, you still have the original. If they love it, you replace the original. Worktrees are that "duplicate before experimenting" discipline — automated and guaranteed.</div>
+
     <p>How to use it: when calling the Agent tool, set <code>isolation: "worktree"</code>. The agent runs in a temporary git worktree. If it makes no changes, the worktree is cleaned up automatically. If changes are made, you get the worktree path and branch name to review.</p>
 
     <p><strong>When to use it:</strong> risky refactors, experimental changes, anything where you want a safety net. The agent can go wild without affecting your working files.</p>
@@ -694,6 +746,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Claude can also create tasks on its own when working through complex multi-step work. It uses them to track progress, and you see the task status in the conversation.</p>
 
     <div class="analogy">Like a shared Trello board between you and your AI, but it lives inside the conversation. No separate app, no context switching. You say "build X" and Claude breaks it into tasks, works through them one by one, and marks each done.</div>
+
+    <div class="analogy-human">Like a checklist in a project management tool that both you and your assistant can see and update. You assign "write the agenda," "book the room," "send invites" — your assistant works through them and checks them off. You can glance at any time and see exactly what's done and what's left. No "where are we on this?" emails needed.</div>
 
     <p><strong>When to use it:</strong> any multi-step task. Instead of hoping Claude remembers all 7 things you asked for, tasks make the list explicit and trackable.</p>
   </div>
@@ -715,6 +769,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy">Like shifting gears. You don't drive in first gear on the highway, and you don't use sixth gear in a parking lot. Use Opus for the hard thinking, Sonnet for general work, Haiku for the quick stuff.</div>
 
+    <div class="analogy-human">Like choosing which consultant to call. For a major strategic decision, you call the senior partner (expensive, slow, thorough). For a quick question, you call the junior associate (fast, cheap, good enough). You wouldn't pay partner rates to answer "what's the meeting time?" — and you wouldn't send the intern to negotiate a merger. Match the resource to the complexity of the task.</div>
+
     <p><strong>Pro tip:</strong> Start a session with Opus for planning and architecture decisions, then switch to Sonnet for implementation, and Haiku for cleanup and formatting.</p>
   </div>
 
@@ -727,6 +783,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p><strong>Why you'd want this:</strong> if you've done a lot of exploratory reading (file reads, searches) that generated verbose output you no longer need, <code>/compact</code> frees that space while you're still in control of what's important. If you wait for auto-compression, it happens at an unpredictable moment and may compress something you still need.</p>
 
     <div class="analogy">Like manually defragmenting a hard drive (remember that?). The system will do it eventually, but doing it yourself at the right time gives you better results. Or like clearing your browser tabs before your laptop runs out of RAM &mdash; better to choose which tabs to close than to let the OS kill them randomly.</div>
+
+    <div class="analogy-human">Like cleaning out your inbox before starting a new project phase. You archive the old threads, keep the active ones, and start fresh with clarity. If you don't do it intentionally, the system will eventually do it for you — but it won't know which emails you still needed. /compact is that intentional cleanup, done on your schedule.</div>
 
     <p>You can also pass a summary hint: <code>/compact focus on the authentication refactor</code> tells the compressor what to prioritize keeping.</p>
   </div>
@@ -748,6 +806,8 @@ Ask me for the component name and path before starting.</code></pre>
     </table>
 
     <div class="analogy">Like Windows UAC (User Account Control). By default, every elevated action triggers a prompt. You can configure trusted applications to skip the prompt. The allowlist in settings.json is like marking an app as "always run as administrator."</div>
+
+    <div class="analogy-human">Like the approval levels in an expense policy. Anything under $50 you can approve yourself. Between $50-500 needs your manager. Over $500 needs the VP. You configure the rules once; the system enforces them automatically. Claude's permission tiers work the same way — you decide in advance what requires your sign-off and what can proceed automatically.</div>
 
     <p>The <code>settings.json</code> allowlist lets you pre-approve specific tools and bash command patterns so Claude doesn't interrupt your flow for routine operations.</p>
   </div>
@@ -792,6 +852,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Session IDs are UUIDs (like <code>dd8ab84a-a52e-467b-bcb6-0ad3a44a5db6</code>). You can find them in <code>~/.claude/projects/</code> or by using a session manager.</p>
 
     <div class="analogy">Like reopening a saved game. <code>--continue</code> is "load last save." <code>--resume &lt;id&gt;</code> is "load specific save file." The conversation history, context, and any in-progress work are all restored.</div>
+
+    <div class="analogy-human">Like reopening a shared document you were working on with a colleague last week. Everything is still there — your comments, their edits, the tracked changes, the notes in the margin. You don't start over. You continue from where you left off. The session ID is just the document's file name.</div>
   </div>
 
   <!-- 15.8 Cost Tracking -->
@@ -818,6 +880,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p><strong>Cache reads are 10x cheaper than fresh input.</strong> This is why CLAUDE.md and skills are cost-efficient &mdash; they get cached after the first message, so subsequent messages read them from cache at $0.30/1M instead of $3.00/1M.</p>
 
     <div class="analogy">Like a metered API. Every call costs something. Input is cheap, output is expensive (5x more). Caching is like a CDN &mdash; first request is full price, subsequent requests are pennies.</div>
+
+    <div class="analogy-human">Like a phone plan with per-minute charges. Receiving a call costs less than making one. And if you call a number you've called before, the rate drops because it's cached in your contacts. You pay attention to your bill. Token costs work the same way — you can see where the money goes and optimize accordingly.</div>
   </div>
 
   <!-- 15.9 CLAUDE.md Inheritance -->
@@ -835,6 +899,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p>They stack &mdash; all matching files are loaded, not just the nearest one. Global + repo root + subdirectory all contribute to the instructions Claude sees.</p>
 
     <div class="analogy">Like CSS specificity. Global styles (user stylesheet) apply everywhere. Page styles (repo CLAUDE.md) override for this project. Inline styles (subdirectory CLAUDE.md) override for this specific area. They cascade &mdash; more specific rules win when they conflict, but all layers are present.</div>
+
+    <div class="analogy-human">Like corporate policy vs team policy vs project guidelines. Company-wide: "All client communications must be approved before sending." Team-level: "Our team uses a specific email template for proposals." Project-level: "On this particular account, always copy the account director." All three are active at once. The most specific one wins when they conflict.</div>
 
     <div class="real-talk">Don't go overboard. Every CLAUDE.md consumes context window tokens. A 500-line global CLAUDE.md plus a 300-line repo CLAUDE.md plus subdirectory files can eat 5-10% of your context before you've typed a single prompt. Keep each file focused and concise.</div>
   </div>
@@ -860,6 +926,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Thinking tokens are output tokens &mdash; the most expensive kind. A 30-second thinking pause might generate thousands of internal tokens you never see but still pay for. This is why Opus with extended thinking costs significantly more than Haiku for simple tasks.</p>
 
     <div class="analogy">Like a chess computer thinking ahead. You see the final move, not the millions of positions it evaluated. The evaluation takes time and compute (money), but the result is a much better move than an instant reaction would produce.</div>
+
+    <div class="analogy-human">Like a consultant who goes quiet for a day before sending their recommendation. You asked for their analysis on Monday, and they didn't respond until Tuesday. That pause wasn't procrastination — they were working through the problem carefully. The extended thinking pause in Claude is the same. The response will be better because it wasn't rushed.</div>
 
     <p><strong>Practical tip:</strong> If you're doing simple tasks (rename a variable, add a comment), use Haiku &mdash; it doesn't need to think deeply. Save Opus + extended thinking for the problems that actually require deep reasoning.</p>
   </div>
@@ -972,6 +1040,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy">Like a factory production line with quality checkpoints. Raw materials (your prompt) enter at one end. Each station (code, test, review, fix) adds value and catches defects. Nothing ships until it passes every station. The loop isn't bureaucracy &mdash; it's what lets you keep the factory running at speed without producing junk.</div>
 
+    <div class="analogy-human">Like a content approval workflow. A writer drafts, an editor reviews, legal clears it, the brand team checks it, then it publishes. Each gate catches something the previous one missed. You wouldn't skip legal review just because the editor already approved it. The AI code loop is that approval workflow — each step is a different kind of check, and skipping steps is how things go wrong at scale.</div>
+
     <div class="real-world">Create a <strong>slash command</strong> called <code>/start-feature</code> in <code>.claude/commands/start-feature.md</code>. The file contains your full loop as a prompt template: "We are starting a new feature. Follow this sequence: (1) write failing tests first, (2) implement the code, (3) run tests, (4) write to PR.md for review, (5) update CLAUDE.md with any hard-won facts. Never skip a step." Every feature session starts with <code>/start-feature</code> and the loop is loaded automatically — no re-typing, no forgetting.</div>
   </div>
 
@@ -1022,6 +1092,8 @@ Ask me for the component name and path before starting.</code></pre>
     </ul>
 
     <div class="analogy">Like keeping a clean workshop. If you let tools pile up wherever they're last used, you'll buy duplicates because you can't find the one you already have. Organized tools mean you grab the right one every time. AI is the apprentice who buys a new wrench for every job instead of checking the toolbox.</div>
+
+    <div class="analogy-human">Like a shared drive that no one organizes. After six months you have seventeen versions of the proposal template because everyone made their own copy instead of finding the existing one. AI has exactly this problem — it will create a new "summarize meeting notes" function every time you ask, rather than reusing the one it wrote last week. Your job is to be the person who says "we already have a template for that."</div>
 
     <div class="real-world">You can use a Claude Code <strong>hook</strong> to catch duplication automatically. Create a <code>PostToolUse</code> hook that runs after every file edit, triggering a lightweight duplicate-detection script on the changed file. For example, a hook that runs <code>grep -rn</code> looking for function signatures similar to what was just written, and warns you if a near-duplicate already exists elsewhere in the codebase. This turns "fight it constantly" into "get alerted automatically." Put the rule in CLAUDE.md (<em>"never write a new helper without checking for existing ones"</em>), and back it up with a hook that actually enforces it. Belt and suspenders.</div>
 
@@ -1123,6 +1195,8 @@ else if (platform == "codex") { doZ() }</code></pre>
     <p>Every painful debugging session should end with an update to CLAUDE.md. If you spent 2 hours figuring out that a particular API silently returns null on Sundays, write it down. AI will encounter the same trap in a future session. CLAUDE.md prevents your AI from repeating your mistakes.</p>
 
     <div class="analogy">Like a pilot's checklist built from crash investigations. Every rule in the checklist exists because someone got hurt. CLAUDE.md is your project's crash investigation record. It doesn't just tell AI what to do &mdash; it tells AI what NOT to do, and why.</div>
+
+    <div class="analogy-human">Like a "lessons learned" document at the end of a project. Every PM knows these should be written but nobody reads them. CLAUDE.md is the version that actually gets read — because AI reads it before every session. If your last project burned three days because of a miscommunication about scope, write that rule down. The next AI session won't repeat the mistake.</div>
 
     <h3>Let AI Document Your Work</h3>
     <p>After completing a feature, tell AI to update the changelog and product analysis. Reading AI's description of what you just built is surprisingly useful &mdash; it gives you an outsider's perspective on your own creation. Inconsistencies and gaps become visible when someone else describes your work back to you.</p>
@@ -1226,6 +1300,8 @@ else if (platform == "codex") { doZ() }</code></pre>
   <p>Shipped February 25, 2026. Start a task on your laptop, put it in your bag, and keep full control from your phone. The session runs locally on your machine &mdash; your filesystem, MCP servers, tools, and project config all stay available. You just control it remotely.</p>
 
   <div class="analogy">Like Remote Desktop, but for a single CLI session. Your machine does all the work. Your phone is just a window into it.</div>
+
+  <div class="analogy-human">Like a shared Google Doc that you started on your laptop and can continue editing from your phone in the back of a cab. The document lives in the cloud (or in this case, on your machine). Your phone is just a second screen. Everything stays in sync automatically.</div>
 
   <h3>Requirements</h3>
   <ul>
