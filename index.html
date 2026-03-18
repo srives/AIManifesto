@@ -84,14 +84,15 @@
     <p>If that sounds primitive, consider this: every major AI company has built a CLI version of their AI tool. Anthropic built Claude Code. OpenAI built Codex CLI. Google built Gemini CLI. GitHub built Copilot CLI. They didn't do this for nostalgia. They did it because the CLI can do things a browser window cannot.</p>
 
     <h3>The Browser/GUI AI Experience</h3>
-    <p>ChatGPT, Claude.ai, Copilot Chat in VS Code &mdash; these are GUI-based AI tools. You type in a chat box, get a response, and copy-paste the result into wherever you need it. It works for simple tasks. But there's a hard ceiling:</p>
+    <p>ChatGPT, Claude.ai, Copilot Chat in VS Code, Claude Desktop &mdash; these are GUI-based AI tools. You type in a chat box and get a response. Out of the box, the experience is conversational. Some desktop apps (like Claude Desktop) can be extended with MCP servers to access your filesystem and external tools, but this requires manual configuration. Without that setup:</p>
     <ul>
-      <li>The AI <strong>can't see your files</strong> unless you paste them in</li>
-      <li>The AI <strong>can't edit your files</strong> &mdash; you copy its output and paste it yourself</li>
-      <li>The AI <strong>can't run your code</strong>, your tests, or your build tools</li>
-      <li>The AI <strong>can't fix its own mistakes</strong> in a loop &mdash; you have to relay error messages back and forth</li>
-      <li>You are the <strong>middleman</strong>, copy-pasting between two disconnected worlds</li>
+      <li>The AI <strong>can't see your files</strong> unless you paste them in (or configure an MCP server)</li>
+      <li>The AI <strong>can't edit your files</strong> &mdash; you copy its output and paste it yourself (unless extended with MCP)</li>
+      <li>The AI <strong>can't run your code</strong>, your tests, or your build tools (without MCP)</li>
+      <li>The AI <strong>can't fix its own mistakes</strong> in a loop &mdash; you relay error messages back and forth</li>
+      <li>You are the <strong>middleman</strong> unless you invest in MCP configuration</li>
     </ul>
+    <p>Desktop apps like Claude Desktop and VS Code with Copilot <em>can</em> bridge some of these gaps via MCP servers and extensions. But the CLI tools come with all of this built in, out of the box, with no configuration required.</p>
 
     <h3>The CLI AI Experience</h3>
     <p>Claude Code, Codex CLI, Copilot CLI, Gemini CLI &mdash; these run <em>inside</em> your project directory. They have direct access to your files, your tools, and your environment:</p>
@@ -113,16 +114,17 @@
     <p>If the browser version works for you, why bother with the CLI? Here's the honest case:</p>
 
     <table class="compare-table">
-      <thead><tr><th>Capability</th><th>Browser AI (claude.ai, ChatGPT)</th><th>CLI AI (Claude Code, Codex CLI)</th></tr></thead>
+      <thead><tr><th>Capability</th><th>Browser / Desktop AI</th><th>CLI AI (Claude Code, Codex CLI)</th></tr></thead>
       <tbody>
         <tr><td>Ask questions, get answers</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
         <tr><td>Generate code snippets</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
-        <tr><td>Read your actual project files</td><td><span class="cross">No</span> (paste manually)</td><td><span class="check">Yes</span> (automatic)</td></tr>
-        <tr><td>Edit your files directly</td><td><span class="cross">No</span> (copy-paste)</td><td><span class="check">Yes</span></td></tr>
-        <tr><td>Run build/test commands</td><td><span class="cross">No</span></td><td><span class="check">Yes</span></td></tr>
-        <tr><td>Fix errors in a loop</td><td><span class="cross">No</span> (you relay errors)</td><td><span class="check">Yes</span> (automatic)</td></tr>
+        <tr><td>Read your actual project files</td><td><span class="partial">With MCP setup</span></td><td><span class="check">Yes</span> (built in)</td></tr>
+        <tr><td>Edit your files directly</td><td><span class="partial">With MCP setup</span></td><td><span class="check">Yes</span> (built in)</td></tr>
+        <tr><td>Run build/test commands</td><td><span class="partial">With MCP setup</span></td><td><span class="check">Yes</span> (built in)</td></tr>
+        <tr><td>Fix errors in a loop</td><td><span class="partial">Partial</span> (manual relay)</td><td><span class="check">Yes</span> (automatic)</td></tr>
         <tr><td>Persistent project instructions</td><td><span class="cross">No</span></td><td><span class="check">Yes</span> (CLAUDE.md)</td></tr>
-        <tr><td>Plugins / external tools</td><td><span class="cross">No</span></td><td><span class="check">Yes</span> (MCP servers)</td></tr>
+        <tr><td>Plugins / external tools</td><td><span class="check">Yes</span> (MCP servers)</td><td><span class="check">Yes</span> (MCP servers)</td></tr>
+        <tr><td>Skills, slash commands</td><td><span class="cross">No</span></td><td><span class="check">Yes</span></td></tr>
         <tr><td>Automation hooks</td><td><span class="cross">No</span></td><td><span class="check">Yes</span> (hooks)</td></tr>
         <tr><td>Cross-session memory</td><td><span class="partial">Limited</span></td><td><span class="check">Yes</span> (memory files)</td></tr>
         <tr><td>Resume previous conversations</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
@@ -130,7 +132,7 @@
       </tbody>
     </table>
 
-    <p>If you only need to ask questions and get code snippets, the browser is fine. If you want AI to actually <em>do work</em> in your project &mdash; edit files, run tests, fix bugs, maintain context across sessions &mdash; the CLI is where that happens.</p>
+    <p>The browser and desktop versions are capable tools, especially with MCP servers configured. The CLI's advantage is that file access, command execution, project awareness, skills, hooks, memory, and CLAUDE.md all work out of the box with zero configuration. The CLI is built for coding from the ground up; the desktop apps are chat interfaces that can be extended toward coding.</p>
 
     <h3>Why Not Both?</h3>
     <p>You can use both. Many people use Claude.ai or ChatGPT for quick questions, brainstorming, and research, and switch to Claude Code CLI when they need hands-on work done in their project. The browser is a notepad. The CLI is a power tool. This guide is about the power tool.</p>
