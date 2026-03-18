@@ -1178,17 +1178,93 @@ Ask me for the component name and path before starting.</code></pre>
   Call Anthropic sales and ask directly. Some vendors will take your money. You'd be looking at 70 × $60 = $4,200+/month for features a 3-person team doesn't need (SSO, SCIM, audit logs are organizational plumbing). The honest answer: don't. Max 20× ($200/month) gets you more coding throughput per dollar than any Enterprise arrangement would for a solo or small team.</p>
 
   <div class="compare-section-title blue">What Does Enterprise Actually Get You?</div>
-  <p>For an individual, nothing useful. For an organization, it's about control and compliance:</p>
-  <ul>
-    <li><strong>Audit logging</strong> — every prompt and response logged for compliance review</li>
-    <li><strong>SSO / SAML</strong> — employees log in with corporate identity (no separate Anthropic accounts)</li>
-    <li><strong>SCIM</strong> — automatic user provisioning/deprovisioning via your HR system</li>
-    <li><strong>Fine-grained RBAC</strong> — control which employees can use which models, which tools, which features</li>
-    <li><strong>Custom data retention</strong> — control how long conversation data is stored</li>
-    <li><strong>Priority support</strong> — actual humans to call when something breaks</li>
-    <li><strong>"Larger context window — access to extended context models"</strong> <em>(Anthropic's words)</em> — Translation: Claude can see more of your project at once. In our terms: more <strong>Awareness</strong>. The standard plan gives Claude 200K tokens of Awareness (~267 pages). Max, Team, and Enterprise automatically unlock 1M tokens (~1,333 pages) — five times more. "Extended context model" sounds like a different AI; it isn't. It is the same Opus 4.6 or Sonnet 4.6 you already have, but with a larger reading window turned on. Pro users can get it too by typing <code>/extra-usage</code>, but it doesn't happen automatically. In money terms: this is the difference between Pro ($20/month) and Max ($100/month). In mileage terms: Claude goes from seeing 267 pages of your codebase to 1,333 pages in a single session — without forgetting the beginning by the time it reaches the end.</li>
-  </ul>
-  <p>None of that helps you write code faster. It helps your legal, security, and IT teams sleep at night.</p>
+
+  <p>Two categories — one genuinely useful to anyone working on large projects, one only useful to organizations managing many people. Don't conflate them.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Benefit</th>
+        <th>What it actually means</th>
+        <th>Useful to individuals?</th>
+        <th>Useful to organizations?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>More Awareness</strong><br><em>("larger context window")</em></td>
+        <td>1M token window (~1,333 pages) instead of 200K (~267 pages). Claude can hold 5× more of your codebase in mind at once. Same model, bigger reading window. <strong>This is the real coding benefit.</strong></td>
+        <td><span class="check">Yes — for large codebases</span></td>
+        <td><span class="check">Yes — for large codebases</span></td>
+      </tr>
+      <tr>
+        <td><strong>Audit logging</strong></td>
+        <td>Every prompt and response is logged for compliance review</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes — legal/compliance</span></td>
+      </tr>
+      <tr>
+        <td><strong>SSO / SAML</strong></td>
+        <td>Employees log in with their corporate identity — no separate Anthropic accounts</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes — IT management</span></td>
+      </tr>
+      <tr>
+        <td><strong>SCIM</strong></td>
+        <td>Auto-add/remove users when employees join or leave via HR system</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes — HR/IT automation</span></td>
+      </tr>
+      <tr>
+        <td><strong>RBAC</strong></td>
+        <td>Control which employees can use which models and features</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes — access control</span></td>
+      </tr>
+      <tr>
+        <td><strong>Custom data retention</strong></td>
+        <td>Control how long conversation data is stored and where</td>
+        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes — compliance/legal</span></td>
+      </tr>
+      <tr>
+        <td><strong>Priority support</strong></td>
+        <td>Actual humans to call when something breaks</td>
+        <td><span class="partial">Maybe</span></td>
+        <td><span class="check">Yes — uptime-critical deployments</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="real-talk"><strong>The Awareness benefit is real — but you do NOT need Enterprise to get it.</strong> This is validated by Anthropic's own March 2026 announcement and confirmed by developer communities. Max ($100–$200/month) and Enterprise have <em>identical published</em> 1M context windows as of March 2026. There is one caveat: Enterprise customers who negotiate custom contracts may be able to arrange context windows beyond 1M through Anthropic's sales team — but this is not a published, standard feature. If you saw something online claiming Enterprise gets more Awareness, it may have been written before March 2026 when Enterprise had 500K and Max only had 200K. That gap no longer exists at the published tier level. It gives you the same Awareness plus governance overhead (SSO, SCIM, audit logs) plus a minimum seat commitment plus a sales negotiation. If you are an individual developer working on a large codebase, <strong>Max 20× ($200/month) is your answer</strong> — same context as Enterprise, no sales call, no minimum seats, no contract. Enterprise is for organizations that need compliance controls. Max is for developers who need maximum Awareness.</div>
+
+  <div class="compare-section-title purple">"Larger context window — access to extended context models" — Decoded</div>
+  <p><em>(Anthropic's words, translated into something honest)</em></p>
+  <table class="compare-table">
+    <thead><tr><th>Plan</th><th>Awareness (pages)</th><th>Awareness (tokens)</th><th>Cost/month</th><th>How</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Pro</strong></td><td class="cross">~267 pages</td><td>200K</td><td>$20</td><td>Default</td></tr>
+      <tr><td><strong>Pro (unlocked)</strong></td><td class="partial">~1,333 pages</td><td>1M</td><td>$20</td><td>Type <code>/extra-usage</code> — not automatic</td></tr>
+      <tr><td><strong>Max 5×</strong></td><td class="check">~1,333 pages</td><td>1M</td><td>$100</td><td>Automatic</td></tr>
+      <tr><td><strong>Max 20×</strong></td><td class="check">~1,333 pages</td><td>1M</td><td>$200</td><td>Automatic + 20× message budget</td></tr>
+      <tr><td><strong>Team / Enterprise</strong></td><td class="check">~1,333 pages</td><td>1M</td><td>$150+/user</td><td>Automatic + org governance</td></tr>
+    </tbody>
+  </table>
+  <p><strong>"Extended context model" is not a different AI.</strong> It is the same Opus 4.6 or Sonnet 4.6, with the reading window expanded from 267 pages to 1,333 pages. Same IQ. Five times more Awareness. The difference between seeing a chapter and seeing the whole book.</p>
+
+  <table class="compare-table">
+    <thead><tr><th>Real-world reference</th><th>Pages</th><th>Fits in Pro (267 pages)?</th><th>Fits in Max (1,333 pages)?</th></tr></thead>
+    <tbody>
+      <tr><td>A short novel (The Great Gatsby)</td><td>~180 pages</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
+      <tr><td>A typical technical book (Clean Code)</td><td>~460 pages</td><td><span class="cross">No — too big</span></td><td><span class="check">Yes</span></td></tr>
+      <tr><td>A small codebase (10 files × 200 lines)</td><td>~40 pages</td><td><span class="check">Yes, easily</span></td><td><span class="check">Yes</span></td></tr>
+      <tr><td>A medium codebase (100 files × 200 lines)</td><td>~400 pages</td><td><span class="cross">No — too big</span></td><td><span class="check">Yes</span></td></tr>
+      <tr><td>A large codebase (500 files × 200 lines)</td><td>~2,000 pages</td><td><span class="cross">No</span></td><td><span class="cross">No — Claude sees roughly the first third</span></td></tr>
+      <tr><td>War and Peace</td><td>~1,225 pages</td><td><span class="cross">No</span></td><td><span class="check">Yes — barely</span></td></tr>
+      <tr><td>The entire Lord of the Rings trilogy</td><td>~1,500 pages</td><td><span class="cross">No</span></td><td><span class="cross">No — 167 pages short</span></td></tr>
+    </tbody>
+  </table>
+  <p>A medium project — say 100 source files — is already beyond what Pro can hold at once. Max fits it comfortably. For very large codebases, neither plan holds everything; you manage context deliberately with <code>/compact</code> and targeted file reads rather than loading the whole project.</p>
 
   <!-- Step 3: Tokens -->
   <div class="compare-section-title orange">Tokens: Your Fuel (and What "Usage" Actually Means)</div>
@@ -2393,13 +2469,13 @@ else if (platform == "codex") { doZ() }</code></pre>
   <table class="compare-table">
     <thead><tr><th>Acronym</th><th>Full Name</th><th>What It Means</th></tr></thead>
     <tbody>
-      <tr><td>CLI</td><td>Command Line Interface</td><td>A text-based way to interact with a program. You type commands, it responds with text.</td></tr>
-      <tr><td>GUI</td><td>Graphical User Interface</td><td>A visual interface with windows, buttons, and mouse interaction. What most people think of as "an application."</td></tr>
-      <tr><td>IDE</td><td>Integrated Development Environment</td><td>A code editor with built-in tools (debugger, compiler, etc.). Visual Studio, VS Code, JetBrains products.</td></tr>
-      <tr><td>API</td><td>Application Programming Interface</td><td>A defined way for programs to talk to each other. Think of it as a drive-through window: you send a request in a standard format, the system processes it, and sends back a response. Claude's API lets software applications send prompts to Claude and receive responses — programmatically, without a human typing.</td></tr>
+      <tr><td>CLI</td><td>Command Line Interface</td><td>A text-based way to interact with a program. You type commands, it responds with text.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">→ Introduction</a></td></tr>
+      <tr><td>GUI</td><td>Graphical User Interface</td><td>A visual interface with windows, buttons, and mouse interaction. What most people think of as "an application."<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">→ Introduction</a></td></tr>
+      <tr><td>IDE</td><td>Integrated Development Environment</td><td>A code editor with built-in tools (debugger, compiler, etc.). Visual Studio, VS Code, JetBrains products.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">→ Introduction</a></td></tr>
+      <tr><td>API</td><td>Application Programming Interface</td><td>A defined way for programs to talk to each other. Think of it as a drive-through window: you send a request in a standard format, the system processes it, and sends back a response. Claude's API lets software applications send prompts to Claude and receive responses — programmatically, without a human typing.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>API Usage</td><td>API Usage</td><td>The same thing as token consumption — just described from the billing side. "API usage" means: how many tokens your application consumed through the API. When Anthropic says "API usage billed separately," they mean: every prompt sent and response received burns tokens, and those tokens cost money at per-token rates. It is not a separate concept from tokens — it IS tokens, counted and charged.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>REST</td><td>Representational State Transfer</td><td>A common style for web APIs. Uses HTTP methods (GET, POST, PUT, DELETE) on URLs. Most web services expose REST APIs.</td></tr>
-      <tr><td>MCP</td><td>Model Context Protocol</td><td>Anthropic's protocol for connecting external tools (plugins) to Claude. JSON-RPC over stdin/stdout.</td></tr>
+      <tr><td>MCP</td><td>Model Context Protocol</td><td>Anthropic's protocol for connecting external tools (plugins) to Claude. JSON-RPC over stdin/stdout.<a class="gloss-link" data-tab="confession" data-anchor="ch10" href="#">→ Chapter XI</a></td></tr>
       <tr><td>SDK</td><td>Software Development Kit</td><td>A library/package that makes it easier to use an API or protocol. Anthropic provides MCP SDKs for TypeScript and Python.</td></tr>
       <tr><td>LLM</td><td>Large Language Model</td><td>The AI model that powers Claude, GPT, Gemini, etc. Trained on massive text datasets to understand and generate language and code.</td></tr>
       <tr><td>JSON</td><td>JavaScript Object Notation</td><td>A data format: <code>{"name": "Steve", "age": 42}</code>. Used everywhere for configuration files and API communication.</td></tr>
@@ -2415,9 +2491,9 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>URI / URL</td><td>Uniform Resource Identifier / Locator</td><td>A web address. <code>https://github.com/srives/AIManifesto</code> is a URL.</td></tr>
       <tr><td>LSP</td><td>Language Server Protocol</td><td>A protocol for code intelligence (autocomplete, go-to-definition). Powers VS Code's IntelliSense. MCP is modeled after LSP.</td></tr>
       <tr><td>OSS</td><td>Open Source Software</td><td>Software whose source code is publicly available. OpenCode is OSS. Claude Code is not.</td></tr>
-      <tr><td>SOLID</td><td>Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion</td><td>Five design principles for maintainable object-oriented code. Useful guidelines, not commandments.</td></tr>
+      <tr><td>SOLID</td><td>Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion</td><td>Five design principles for maintainable object-oriented code. Useful guidelines, not commandments.<a class="gloss-link" data-tab="practitioner" data-anchor="practitioner" href="#">→ Practitioner's Guide</a></td></tr>
       <tr><td>DI</td><td>Dependency Injection</td><td>A design pattern where objects receive their dependencies rather than creating them. Part of SOLID. Overkill in scripts.</td></tr>
-      <tr><td>UAC</td><td>User Account Control</td><td>Windows security feature that prompts before elevated actions. Claude Code's permission model works similarly.</td></tr>
+      <tr><td>UAC</td><td>User Account Control</td><td>Windows security feature that prompts before elevated actions. Claude Code's permission model works similarly.<a class="gloss-link" data-tab="confession" data-anchor="ch15-5" href="#">→ Chapter 15.5</a></td></tr>
       <tr><td>CDN</td><td>Content Delivery Network</td><td>Servers that cache content close to users for speed. Analogous to how Claude's token cache reduces repeated input costs.</td></tr>
       <tr><td>QR Code</td><td>Quick Response Code</td><td>A 2D barcode scannable by phone cameras. Used by Remote Control to quickly connect your phone to a session.</td></tr>
       <tr><td>WSL</td><td>Windows Subsystem for Linux</td><td>Runs Linux inside Windows. Many CLI tools are designed for Linux first; WSL bridges the gap.</td></tr>
@@ -2455,27 +2531,27 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Slash Command</td><td>A custom command defined as a file in <code>.claude/commands/</code>. Typing <code>/foo</code> loads the prompt from that file.<a class="gloss-link" data-tab="confession" data-anchor="ch5" href="#">→ Chapter VI</a></td></tr>
       <tr><td>Hook</td><td>A shell command that executes in response to an event (before/after tool use, session start). Unlike skills, hooks actually run code.<a class="gloss-link" data-tab="confession" data-anchor="ch6" href="#">→ Chapter VII</a></td></tr>
       <tr><td>Agent / Subagent</td><td>A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back. Like a child process.</td></tr>
-      <tr><td>MCP Server (Plugin)</td><td>An external process that gives Claude new tools (database queries, API calls). The closest thing to a plugin system.</td></tr>
+      <tr><td>MCP Server (Plugin)</td><td>An external process that gives Claude new tools (database queries, API calls). The closest thing to a plugin system.<a class="gloss-link" data-tab="confession" data-anchor="ch10" href="#">→ Chapter XI</a></td></tr>
       <tr><td>Plan / Plan Mode</td><td>A structured design-before-coding approach. Claude outlines the implementation strategy before writing code.</td></tr>
       <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.<a class="gloss-link" data-tab="confession" data-anchor="ch9" href="#">→ Chapter X</a></td></tr>
       <tr><td>Context Window</td><td>The total token capacity Claude can "see" at once (~200K tokens). Everything loaded consumes space in this window.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter XII</a></td></tr>
       <tr><td>Token</td><td>A unit of text (roughly 4 characters or 3/4 of a word). Claude processes, counts, and bills by tokens.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
-      <tr><td>Governance (features)</td><td>Controls that let an organization manage, monitor, and restrict how employees use a tool. In Claude Enterprise: audit logs (who sent what), SSO (employees log in with company accounts), RBAC (which employees can use which features), SCIM (auto-add/remove users when they join or leave). None of it makes Claude smarter — it makes IT and legal teams happy.</td></tr>
-      <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible "thinking" tokens. Costs more but produces better answers for complex problems.</td></tr>
+      <tr><td>Governance (features)</td><td>Controls that let an organization manage, monitor, and restrict how employees use a tool. In Claude Enterprise: audit logs (who sent what), SSO (employees log in with company accounts), RBAC (which employees can use which features), SCIM (auto-add/remove users when they join or leave). None of it makes Claude smarter — it makes IT and legal teams happy.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible "thinking" tokens. Costs more but produces better answers for complex problems.<a class="gloss-link" data-tab="confession" data-anchor="ch15-10" href="#">→ Chapter 15.10</a></td></tr>
       <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.<a class="gloss-link" data-tab="confession" data-anchor="ch15-1" href="#">→ Chapter 15.1</a></td></tr>
       <tr><td>Remote Control</td><td>Feature that lets you control a local Claude Code session from your phone or another device via QR code or URL.<a class="gloss-link" data-tab="remote" data-anchor="remote" href="#">→ Remote Control tab</a></td></tr>
-      <tr><td>Task Tool</td><td>Built-in todo/task tracker within a Claude Code conversation. Creates, tracks, and completes tasks.</td></tr>
+      <tr><td>Task Tool</td><td>Built-in todo/task tracker within a Claude Code conversation. Creates, tracks, and completes tasks.<a class="gloss-link" data-tab="confession" data-anchor="ch15-2" href="#">→ Chapter 15.2</a></td></tr>
       <tr><td><code>/compact</code></td><td>Manually compresses conversation history to free context window space. Lets you control when and what gets compressed.</td></tr>
       <tr><td><code>/model</code></td><td>Switches between AI models (Opus, Sonnet, Haiku) mid-session without losing conversation history.</td></tr>
       <tr><td><code>/cost</code></td><td>Shows token usage and estimated dollar cost for the current session.</td></tr>
       <tr><td><code>/rc</code></td><td>Short for <code>/remote-control</code>. Enables phone/remote access to the current session.</td></tr>
       <tr><td><code>--resume</code></td><td>CLI flag to resume a previous session. <code>claude --resume</code> shows a list; <code>claude --resume &lt;id&gt;</code> resumes a specific one.</td></tr>
       <tr><td><code>--continue</code></td><td>CLI flag to resume the most recent session in the current directory.</td></tr>
-      <tr><td>settings.json</td><td>Claude Code's configuration file. Controls permissions, MCP servers, environment variables, model preferences.</td></tr>
-      <tr><td>settings.local.json</td><td>Repo-level settings override that is NOT checked into git. For personal credentials and local-only config.</td></tr>
-      <tr><td>Red-Green Testing</td><td>Write a test that fails (red), then write code that makes it pass (green). Proves the test actually catches the bug.</td></tr>
+      <tr><td>settings.json</td><td>Claude Code's configuration file. Controls permissions, MCP servers, environment variables, model preferences.<a class="gloss-link" data-tab="confession" data-anchor="ch15-6" href="#">→ Chapter 15.6</a></td></tr>
+      <tr><td>settings.local.json</td><td>Repo-level settings override that is NOT checked into git. For personal credentials and local-only config.<a class="gloss-link" data-tab="confession" data-anchor="ch15-6" href="#">→ Chapter 15.6</a></td></tr>
+      <tr><td>Red-Green Testing</td><td>Write a test that fails (red), then write code that makes it pass (green). Proves the test actually catches the bug.<a class="gloss-link" data-tab="practitioner" data-anchor="practitioner" href="#">→ Practitioner's Guide</a></td></tr>
       <tr><td>Cache (Token Cache)</td><td>Claude caches repeated content (CLAUDE.md, skills) after first use. Subsequent reads cost 10x less.</td></tr>
-      <tr><td>Allowlist</td><td>A list of pre-approved tools/commands in settings.json. Claude won't ask permission for allowlisted actions.</td></tr>
+      <tr><td>Allowlist</td><td>A list of pre-approved tools/commands in settings.json. Claude won't ask permission for allowlisted actions.<a class="gloss-link" data-tab="confession" data-anchor="ch15-5" href="#">→ Chapter 15.5</a></td></tr>
     </tbody>
   </table>
 
@@ -2484,8 +2560,8 @@ else if (platform == "codex") { doZ() }</code></pre>
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
       <tr><td>Repository (repo / repos)</td><td><strong>It is a directory. That's it.</strong> A repository is just a folder — on your machine, or on a server like GitHub — that has version history tracking turned on. Your local copy is a directory on your hard drive (e.g., <code>C:\repos\MyProject</code>). The GitHub copy is the same directory stored on GitHub's server. When someone says "the repo," they mean one of those two directories. When they say "clone the repo," they mean: download a copy of that server directory to your machine. When they say "push to the repo," they mean: upload your local changes to the server's copy. There is no mysticism here. Repository = versioned directory. Repo = short for repository. Repos = more than one. The word "repository" sounds like it belongs in a library or a pharmaceutical warehouse, which is why it confuses people. It doesn't. It's a folder with a history log.</td></tr>
-      <tr><td>git</td><td>The version control system that tracks changes to files over time. It lets you save snapshots (commits), try experiments on separate branches, and go back to any previous state. git itself is a command-line tool. <strong>Products that provide git hosting and collaboration:</strong> GitHub (most popular, owned by Microsoft), GitLab (popular in enterprises, can be self-hosted), Bitbucket (popular with Atlassian/Jira shops), Azure DevOps (Microsoft's enterprise git platform), and Gitea/Forgejo (self-hosted open source options). GitHub is the public face of git for most developers.</td></tr>
-      <tr><td>GitHub</td><td>A website (github.com) where developers store and share git repositories. Think of it as Google Drive for code, with version history and collaboration tools built in. Free for public projects. Owned by Microsoft. When someone says "it's on GitHub," they mean the source code is publicly available there.</td></tr>
+      <tr><td>git</td><td>The version control system that tracks changes to files over time. It lets you save snapshots (commits), try experiments on separate branches, and go back to any previous state. git itself is a command-line tool. <strong>Products that provide git hosting and collaboration:</strong> GitHub (most popular, owned by Microsoft), GitLab (popular in enterprises, can be self-hosted), Bitbucket (popular with Atlassian/Jira shops), Azure DevOps (Microsoft's enterprise git platform), and Gitea/Forgejo (self-hosted open source options). GitHub is the public face of git for most developers.<a class="gloss-link" data-tab="glossary" data-anchor="glossary" href="#">→ Glossary</a></td></tr>
+      <tr><td>GitHub</td><td>A website (github.com) where developers store and share git repositories. Think of it as Google Drive for code, with version history and collaboration tools built in. Free for public projects. Owned by Microsoft. When someone says "it's on GitHub," they mean the source code is publicly available there.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
       <tr><td>Branch</td><td>A parallel version of your code where you can try changes without affecting the main version. Like making a copy of a document to draft edits, then deciding whether to keep or discard the changes. <code>main</code> is the primary branch that is considered the "official" version.</td></tr>
       <tr><td>Commit</td><td>A saved snapshot of your code at a specific point in time. Every commit has a unique ID and a message describing what changed. Like a save point in a game — you can always go back to any previous commit.</td></tr>
       <tr><td>Merge</td><td>Combining changes from one branch into another. Like accepting tracked changes in a Word document.</td></tr>
@@ -2501,26 +2577,26 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Boilerplate</td><td>Repetitive, standard code that's needed but not interesting. Templates, imports, config setup. Good candidate for Haiku.</td></tr>
       <tr><td>Refactor</td><td>Restructuring code without changing its behavior. Improving organization, readability, or performance.</td></tr>
       <tr><td>Registry (in code)</td><td>A data structure that maps keys to behaviors. Avoids if-else chains. Add a new entry to support a new variant.</td></tr>
-      <tr><td>WinGet</td><td>Windows Package Manager, built into Windows 10/11. Install software with <code>winget install PackageName</code>. Like apt (Linux) or Homebrew (Mac), but for Windows. Use <code>winget install Anthropic.Claude</code> to install Claude Code.</td></tr>
+      <tr><td>WinGet</td><td>Windows Package Manager, built into Windows 10/11. Install software with <code>winget install PackageName</code>. Like apt (Linux) or Homebrew (Mac), but for Windows. Use <code>winget install Anthropic.Claude</code> to install Claude Code.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">→ Introduction</a></td></tr>
       <tr><td>Plan Mode</td><td>A Claude Code mode activated with Shift+Tab. Claude describes its intended approach before making any changes. You review and approve the plan first.<a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">→ Chapter IX</a></td></tr>
       <tr><td>/init</td><td>A Claude Code command. Analyzes your project and generates an initial CLAUDE.md automatically. Run it when starting a new project, or to improve an existing CLAUDE.md.<a class="gloss-link" data-tab="confession" data-anchor="ch2" href="#">→ Chapter III</a></td></tr>
       <tr><td>/compact</td><td>A Claude Code command. Manually compresses conversation history to free context window space. Useful in long sessions.<a class="gloss-link" data-tab="confession" data-anchor="ch15-4" href="#">→ Chapter 15.4</a></td></tr>
       <tr><td>/cost</td><td>A Claude Code command. Shows token usage and estimated dollar cost for the current session.<a class="gloss-link" data-tab="confession" data-anchor="ch15-8" href="#">→ Chapter 15.8</a></td></tr>
-      <tr><td>/help</td><td>A Claude Code command. Lists all available commands, built-in tools, and current session information.</td></tr>
-      <tr><td>Auto memory</td><td>A Claude Code feature where Claude automatically writes memory notes about things it discovers, without being asked. These notes persist across sessions.</td></tr>
-      <tr><td>Corporate proxy</td><td>A network intermediary in enterprise environments that routes and inspects outbound internet traffic. Can require special configuration for CLI tools that make HTTPS requests.</td></tr>
+      <tr><td>/help</td><td>A Claude Code command. Lists all available commands, built-in tools, and current session information.<a class="gloss-link" data-tab="confession" data-anchor="ch15" href="#">→ Chapter XV</a></td></tr>
+      <tr><td>Auto memory</td><td>A Claude Code feature where Claude automatically writes memory notes about things it discovers, without being asked. These notes persist across sessions.<a class="gloss-link" data-tab="confession" data-anchor="ch9" href="#">→ Chapter X</a></td></tr>
+      <tr><td>Corporate proxy</td><td>A network intermediary in enterprise environments that routes and inspects outbound internet traffic. Can require special configuration for CLI tools that make HTTPS requests.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
 
       <!-- Model names -->
-      <tr><td>Opus (Claude Opus)</td><td>Claude's most capable AI model. Best for complex reasoning, architecture decisions, and hard bugs. Slowest and most expensive. Use it when the problem actually needs deep thinking.</td></tr>
-      <tr><td>Sonnet (Claude Sonnet)</td><td>Claude's balanced AI model. Good speed, good capability. The recommended default for daily coding work. Better value than Opus for most tasks.</td></tr>
-      <tr><td>Haiku (Claude Haiku)</td><td>Claude's fastest and cheapest model. Fine for simple edits, quick lookups, and boilerplate. Not recommended for complex coding — it will struggle and produce lower-quality results.</td></tr>
+      <tr><td>Opus (Claude Opus)</td><td>Claude's most capable AI model. Best for complex reasoning, architecture decisions, and hard bugs. Slowest and most expensive. Use it when the problem actually needs deep thinking.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">→ IQ/Awareness chart</a></td></tr>
+      <tr><td>Sonnet (Claude Sonnet)</td><td>Claude's balanced AI model. Good speed, good capability. The recommended default for daily coding work. Better value than Opus for most tasks.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">→ IQ/Awareness chart</a></td></tr>
+      <tr><td>Haiku (Claude Haiku)</td><td>Claude's fastest and cheapest model. Fine for simple edits, quick lookups, and boilerplate. Not recommended for complex coding — it will struggle and produce lower-quality results.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">→ IQ/Awareness chart</a></td></tr>
 
       <!-- Tools and editors -->
-      <tr><td>Visual Studio</td><td>Microsoft's full-featured IDE (Integrated Development Environment) for Windows. Used primarily for C#, C++, and .NET development. Not the same as VS Code — Visual Studio is the big one, VS Code is the lightweight one.</td></tr>
-      <tr><td>VS Code</td><td>Visual Studio Code. A free, lightweight code editor by Microsoft. Works on Windows, Mac, Linux. Popular for almost every language. Not the same as Visual Studio — it's smaller and more general-purpose.</td></tr>
-      <tr><td>JetBrains</td><td>A software company that makes professional IDEs: IntelliJ IDEA (Java), Rider (.NET/C#), PyCharm (Python), WebStorm (JavaScript), and others. Known for smart code completion and refactoring tools.</td></tr>
-      <tr><td>Cursor</td><td>An AI-integrated code editor built as a fork of VS Code. Has AI coding assistance built directly into the editor rather than as a CLI tool. Competes with Claude Code for the same "AI-assisted coding" workflow.</td></tr>
-      <tr><td>Aider</td><td>An open-source, Python-based AI coding assistant that runs in the terminal. Works with multiple AI models. Predates Claude Code and has a loyal following among developers who prefer open-source tools.</td></tr>
+      <tr><td>Visual Studio</td><td>Microsoft's full-featured IDE (Integrated Development Environment) for Windows. Used primarily for C#, C++, and .NET development. Not the same as VS Code — Visual Studio is the big one, VS Code is the lightweight one.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
+      <tr><td>VS Code</td><td>Visual Studio Code. A free, lightweight code editor by Microsoft. Works on Windows, Mac, Linux. Popular for almost every language. Not the same as Visual Studio — it's smaller and more general-purpose.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
+      <tr><td>JetBrains</td><td>A software company that makes professional IDEs: IntelliJ IDEA (Java), Rider (.NET/C#), PyCharm (Python), WebStorm (JavaScript), and others. Known for smart code completion and refactoring tools.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
+      <tr><td>Cursor</td><td>An AI-integrated code editor built as a fork of VS Code. Has AI coding assistance built directly into the editor rather than as a CLI tool. Competes with Claude Code for the same "AI-assisted coding" workflow.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
+      <tr><td>Aider</td><td>An open-source, Python-based AI coding assistant that runs in the terminal. Works with multiple AI models. Predates Claude Code and has a loyal following among developers who prefer open-source tools.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
       <tr><td>PowerShell</td><td>Microsoft's command-line shell and scripting language for Windows. More powerful than the old Command Prompt. The recommended terminal for Windows developers. Like bash, but for Windows.</td></tr>
 
       <!-- File types -->
@@ -2530,23 +2606,23 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Markdown (.md)</td><td>A lightweight text formatting language. You write plain text with simple symbols (* for bold, # for headings) and it renders as formatted text. CLAUDE.md, README.md, and SKILL.md files are all Markdown. GitHub displays .md files as formatted pages.</td></tr>
 
       <!-- Enterprise / IT terms -->
-      <tr><td>SSO (Single Sign-On)</td><td>A system where employees log into one central identity provider (like Microsoft Active Directory or Okta) and that login grants access to all approved applications. No separate username/password for each app. Enterprise feature.</td></tr>
-      <tr><td>SAML</td><td>Security Assertion Markup Language. The technical standard that SSO systems use to pass login credentials between the identity provider and applications. You'll see it mentioned alongside SSO — they go together.</td></tr>
-      <tr><td>SCIM</td><td>System for Cross-domain Identity Management. Automatically adds users to applications when they join an organization and removes them when they leave — based on your HR system. Eliminates manual account management. Enterprise feature.</td></tr>
-      <tr><td>RBAC (Role-Based Access Control)</td><td>A security model where what you can do is determined by your role (admin, developer, viewer, etc.) rather than by individual permissions. "Developers can use Claude Code; viewers can only use the chat." Enterprise feature.</td></tr>
-      <tr><td>HIPAA</td><td>Health Insurance Portability and Accountability Act. US federal law regulating how health data must be protected. If your organization handles patient data, you need HIPAA-compliant tools — meaning the vendor must sign a Business Associate Agreement and meet specific security requirements.</td></tr>
-      <tr><td>Group Policy</td><td>A Windows feature in corporate environments that lets IT centrally control what employees can install and run on their computers. If Group Policy is restricting your machine, you may need IT to whitelist Claude Code before you can install it.</td></tr>
-      <tr><td>Audit log</td><td>A record of who did what and when. In enterprise Claude, every prompt and response is logged. Legal and compliance teams use audit logs to investigate incidents or demonstrate regulatory compliance.</td></tr>
-      <tr><td>DLP (Data Loss Prevention)</td><td>Software that monitors and blocks sensitive data from leaving a corporate network. Can interfere with CLI tools that make outbound HTTPS requests, even legitimate ones like Claude Code.</td></tr>
+      <tr><td>SSO (Single Sign-On)</td><td>A system where employees log into one central identity provider (like Microsoft Active Directory or Okta) and that login grants access to all approved applications. No separate username/password for each app. Enterprise feature.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>SAML</td><td>Security Assertion Markup Language. The technical standard that SSO systems use to pass login credentials between the identity provider and applications. You'll see it mentioned alongside SSO — they go together.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>SCIM</td><td>System for Cross-domain Identity Management. Automatically adds users to applications when they join an organization and removes them when they leave — based on your HR system. Eliminates manual account management. Enterprise feature.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>RBAC (Role-Based Access Control)</td><td>A security model where what you can do is determined by your role (admin, developer, viewer, etc.) rather than by individual permissions. "Developers can use Claude Code; viewers can only use the chat." Enterprise feature.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>HIPAA</td><td>Health Insurance Portability and Accountability Act. US federal law regulating how health data must be protected. If your organization handles patient data, you need HIPAA-compliant tools — meaning the vendor must sign a Business Associate Agreement and meet specific security requirements.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>Group Policy</td><td>A Windows feature in corporate environments that lets IT centrally control what employees can install and run on their computers. If Group Policy is restricting your machine, you may need IT to whitelist Claude Code before you can install it.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>Audit log</td><td>A record of who did what and when. In enterprise Claude, every prompt and response is logged. Legal and compliance teams use audit logs to investigate incidents or demonstrate regulatory compliance.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>DLP (Data Loss Prevention)</td><td>Software that monitors and blocks sensitive data from leaving a corporate network. Can interfere with CLI tools that make outbound HTTPS requests, even legitimate ones like Claude Code.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>Certificate Authority (CA)</td><td>An organization that issues digital certificates proving a server is who it claims to be. Corporate networks sometimes use their own internal CA, which can cause CLI tools to reject HTTPS connections until the custom certificate is installed.</td></tr>
 
       <!-- Other concepts -->
-      <tr><td>CI/CD</td><td>Continuous Integration / Continuous Deployment. An automated pipeline that builds, tests, and deploys code every time someone pushes a change. "CI/CD pipeline" = the assembly line that takes your code from commit to production automatically.</td></tr>
-      <tr><td>Headless</td><td>Running software without any visual interface — no windows, no mouse, no screen. Servers run headless. Claude Code can run headless in automated pipelines, executing tasks without a human watching.</td></tr>
-      <tr><td>Runbook</td><td>A step-by-step procedure document for completing a specific task. "When the server goes down, follow the runbook." Skills in Claude Code are essentially runbooks — instructions Claude reads and follows when doing that type of task.</td></tr>
-      <tr><td>SOP (Standard Operating Procedure)</td><td>A documented set of instructions for performing a routine task consistently. Similar to a runbook. When you write a Skill for Claude, you're writing an SOP for it to follow.</td></tr>
-      <tr><td>Red-green testing</td><td>A development practice: write a test that FAILS first (red), then write code that makes it PASS (green). Proves the test actually detects the problem. A core practice in the Practitioner's Guide.</td></tr>
-      <tr><td>Codebase</td><td>All the source code files that make up a project or application. "The codebase" = the entire collection of code, not just one file. When Claude Code "reads your codebase," it's scanning your project's files.</td></tr>
+      <tr><td>CI/CD</td><td>Continuous Integration / Continuous Deployment. An automated pipeline that builds, tests, and deploys code every time someone pushes a change. "CI/CD pipeline" = the assembly line that takes your code from commit to production automatically.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
+      <tr><td>Headless</td><td>Running software without any visual interface — no windows, no mouse, no screen. Servers run headless. Claude Code can run headless in automated pipelines, executing tasks without a human watching.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
+      <tr><td>Runbook</td><td>A step-by-step procedure document for completing a specific task. "When the server goes down, follow the runbook." Skills in Claude Code are essentially runbooks — instructions Claude reads and follows when doing that type of task.<a class="gloss-link" data-tab="confession" data-anchor="ch4" href="#">→ Chapter V</a></td></tr>
+      <tr><td>SOP (Standard Operating Procedure)</td><td>A documented set of instructions for performing a routine task consistently. Similar to a runbook. When you write a Skill for Claude, you're writing an SOP for it to follow.<a class="gloss-link" data-tab="confession" data-anchor="ch4" href="#">→ Chapter V</a></td></tr>
+      <tr><td>Red-green testing</td><td>A development practice: write a test that FAILS first (red), then write code that makes it PASS (green). Proves the test actually detects the problem. A core practice in the Practitioner's Guide.<a class="gloss-link" data-tab="practitioner" data-anchor="practitioner" href="#">→ Practitioner's Guide</a></td></tr>
+      <tr><td>Codebase</td><td>All the source code files that make up a project or application. "The codebase" = the entire collection of code, not just one file. When Claude Code "reads your codebase," it's scanning your project's files.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">→ Introduction</a></td></tr>
       <tr><td>Awareness (AI)</td><td>How much information an AI can hold in mind at once. Measured in pages (1 page ≈ 500 words ≈ 750 tokens). A 200K token model has ~267 pages of Awareness. A 1M token model has ~1,333 pages. Distinct from IQ — a smart model with low Awareness misses things it simply cannot see.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">→ IQ/Awareness chart</a></td></tr>
       <tr><td>IQ (AI)</td><td>The AI model's reasoning capability — how well it thinks, writes code, solves hard problems. Opus has higher IQ than Haiku. Distinct from Awareness (context window size). Both matter; they measure different things.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">→ IQ/Awareness chart</a></td></tr>
     </tbody>

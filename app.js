@@ -44,12 +44,21 @@ function initTabs() {
     });
   });
 
-  // Glossary back-links
+  // Glossary back-links — make entire row clickable, not just the arrow
   document.querySelectorAll('.gloss-link').forEach(a => {
     a.addEventListener('click', e => {
       e.preventDefault();
       goToAnchor(a.dataset.tab, a.dataset.anchor);
     });
+    // Also wire up the whole row
+    const row = a.closest('tr');
+    if (row) {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', e => {
+        if (e.target.tagName === 'A' || e.target.tagName === 'CODE') return;
+        goToAnchor(a.dataset.tab, a.dataset.anchor);
+      });
+    }
   });
 
   if (hamburger && drawer) {
