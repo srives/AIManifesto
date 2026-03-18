@@ -15,7 +15,7 @@
   <div class="header-content">
     <div class="site-title">The Claude Code <span>AI</span> Manifesto</div>
     <div class="site-subtitle">A systematic guide to the Claude Code Command Line Interface (CLI) &mdash; for new developers and competent power users who want to code with AI</div>
-    <div class="site-version">Current as of Claude Code v2.1 (Claude 4.x models) &mdash; <strong>Expires September 2026</strong> when Claude Code v3 is expected</div>
+    <div class="site-version">Current as of Claude Code v2.1 (Claude 4.x models) &mdash; <strong>Expires September 2026</strong> when Claude Code v3 with Claude 5.x models is expected &mdash; Full reading + all quizzes: ~3 hours</div>
     <nav class="tab-bar">
       <button class="tab-btn active" data-tab="confession">The Manifesto</button>
       <button class="tab-btn" data-tab="shorter">Quick Quiz</button>
@@ -106,9 +106,9 @@
     </ul>
     <p>The AI isn't looking at a snapshot you pasted. It's <em>in</em> your project, with full access to your files and tools. The difference is not incremental. It is a fundamentally different way of working.</p>
 
-    <div class="analogy"><strong>For developers:</strong> GUI AI is like debugging by reading logs someone emailed you. CLI AI is like having the debugger attached to the live process with full access to breakpoints, watches, and the call stack.</div>
+    <div class="analogy"><strong>For developers:</strong> A well-configured Claude Desktop with MCP servers is like a debugger where you had to manually wire up every watch variable, breakpoint type, and output window yourself before you could start. The capability is there once you've done the setup. The CLI is like Visual Studio's debugger — you attach it, and everything works immediately: breakpoints, watches, call stack, live variable inspection, step-through. Same underlying power, but one requires significant configuration before first use and the other works out of the box.</div>
 
-    <div class="analogy-alt"><strong>For everyone:</strong> GUI AI is like calling a mechanic on the phone and describing the engine noise. CLI AI is the mechanic standing in your garage with the hood open, tools in hand. Same expertise, radically different effectiveness.</div>
+    <div class="analogy-alt"><strong>For everyone:</strong> A desktop AI with MCP servers configured is like a mechanic who brought a full toolbox to your garage — but you had to call ahead, give them a list of exactly which tools to bring, and meet them at the door to let them in. The CLI mechanic has a master key, knows the layout of your garage, and brought every tool automatically. If you've already done the MCP setup work, great — you have a capable mechanic. But most people haven't, and the CLI assumes you haven't.</div>
 
     <h3>The Case for CLI: Why It's Worth the Learning Curve</h3>
     <p>If the browser version works for you, why bother with the CLI? Here's the honest case:</p>
@@ -129,10 +129,13 @@
         <tr><td>Cross-session memory</td><td><span class="partial">Limited</span></td><td><span class="check">Yes</span> (memory files)</td></tr>
         <tr><td>Resume previous conversations</td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
         <tr><td>Works from your phone</td><td><span class="check">Yes</span> (native)</td><td><span class="check">Yes</span> (Remote Control)</td></tr>
+        <tr><td>Corporate IT friction to get started</td><td><span class="partial">High</span> (MCP servers may need IT approval, admin rights, security review)</td><td><span class="check">Low</span> (one npm install, runs as your user account)</td></tr>
       </tbody>
     </table>
 
     <p>The browser and desktop versions are capable tools, especially with MCP servers configured. The CLI's advantage is that file access, command execution, project awareness, skills, hooks, memory, and CLAUDE.md all work out of the box with zero configuration. The CLI is built for coding from the ground up; the desktop apps are chat interfaces that can be extended toward coding.</p>
+
+    <div class="real-talk"><strong>In corporate IT environments, MCP servers may not be self-service.</strong> Installing an MCP server can require: admin rights to install npm or Python packages, IT approval to run background processes, security review of what data the server can access, firewall rule changes for network-connected MCP servers, and Group Policy exceptions on managed Windows machines. This is real friction — potentially an IT ticket, a security review cycle, and weeks of waiting. The CLI's built-in file access runs under your own user account with no extra processes, no extra approvals, and no IT involvement. That's not a small difference in a managed enterprise environment. It's the difference between starting today and starting in Q2.</div>
 
     <h3>Why Not Both?</h3>
     <p>You can use both. Many people use Claude.ai or ChatGPT for quick questions, brainstorming, and research, and switch to Claude Code CLI when they need hands-on work done in their project. The browser is a notepad. The CLI is a power tool. This guide is about the power tool.</p>
@@ -928,7 +931,7 @@ Ask me for the component name and path before starting.</code></pre>
 <!-- ============================================ -->
 <section id="practitioner" class="tab-panel">
 
-  <div class="time-estimate">Estimated reading time: 20-25 minutes</div>
+  <div class="time-estimate">Estimated reading time: 25-30 minutes</div>
 
   <h2>An AI Practitioner's Guide</h2>
   <p>This is practical advice for building real software with AI coding tools. Not theory. Not hype. This is what works when you're 30,000 lines deep and still adding features.</p>
@@ -953,6 +956,8 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Then you start the loop again for the next feature.</p>
 
     <div class="analogy">Like a factory production line with quality checkpoints. Raw materials (your prompt) enter at one end. Each station (code, test, review, fix) adds value and catches defects. Nothing ships until it passes every station. The loop isn't bureaucracy &mdash; it's what lets you keep the factory running at speed without producing junk.</div>
+
+    <div class="real-world">Create a <strong>slash command</strong> called <code>/start-feature</code> in <code>.claude/commands/start-feature.md</code>. The file contains your full loop as a prompt template: "We are starting a new feature. Follow this sequence: (1) write failing tests first, (2) implement the code, (3) run tests, (4) write to PR.md for review, (5) update CLAUDE.md with any hard-won facts. Never skip a step." Every feature session starts with <code>/start-feature</code> and the loop is loaded automatically — no re-typing, no forgetting.</div>
   </div>
 
   <!-- === Section 2: Red-Green === -->
@@ -972,6 +977,8 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="real-talk"><strong>AI will try to fix the test instead of the code.</strong> This is the single most common failure mode. When a test fails, AI's instinct is to make the test pass by changing the test's expectations. You must tell it: "The test is correct. The production code has the bug. Fix the production code." Put this rule in your CLAUDE.md. You will need it.</div>
 
+    <div class="real-world">Create a <strong>PostToolUse hook</strong> that watches for edits to test files. When a test file changes but the corresponding production file does not change in the same operation, the hook prints a warning: "Test file modified without production code change — did AI fix the test instead of the code?" This fires automatically on every edit and catches the failure mode before you even look at the output.</div>
+
     <h3>Write Broad Tests, Not Narrow Ones</h3>
     <p>When you find a bug, don't write a test that checks one specific line. Write a test that scans the <strong>entire codebase</strong> for the pattern that caused the bug. If a missing null check crashed one function, scan every function for the same missing check. AI makes the same mistake in many places at once &mdash; your test should catch all of them.</p>
   </div>
@@ -986,6 +993,8 @@ Ask me for the component name and path before starting.</code></pre>
     <h3>Separation of Concerns</h3>
     <p>Put related code in related directories. Menus go in <code>ui/</code>. Database access goes in <code>data/</code>. Session management goes in <code>session/</code>. This isn't perfectionism &mdash; it's how you find things six months from now, and how AI finds things when its context window fills up.</p>
 
+    <div class="real-world">Create a <strong>PostToolUse hook</strong> that checks namespace placement after every file write. A simple script reads the file path and the first function definition — if a function named <code>Show-*</code> or <code>Render-*</code> was written outside <code>ui/</code>, or a function named <code>Get-All*Sessions</code> was written outside <code>session/</code>, the hook warns immediately. Enforcing directory conventions via hook means AI can't quietly put code in the wrong place without you finding out.</div>
+
     <h3>Code Reuse (The Central Battle)</h3>
     <p>AI will write a new variation of a function every time you ask for something similar. You'll end up with three functions that format dates, four that parse JSON, and five that build file paths. <strong>This is the #1 maintenance problem with AI-generated code.</strong></p>
 
@@ -998,6 +1007,8 @@ Ask me for the component name and path before starting.</code></pre>
     </ul>
 
     <div class="analogy">Like keeping a clean workshop. If you let tools pile up wherever they're last used, you'll buy duplicates because you can't find the one you already have. Organized tools mean you grab the right one every time. AI is the apprentice who buys a new wrench for every job instead of checking the toolbox.</div>
+
+    <div class="real-world">You can use a Claude Code <strong>hook</strong> to catch duplication automatically. Create a <code>PostToolUse</code> hook that runs after every file edit, triggering a lightweight duplicate-detection script on the changed file. For example, a hook that runs <code>grep -rn</code> looking for function signatures similar to what was just written, and warns you if a near-duplicate already exists elsewhere in the codebase. This turns "fight it constantly" into "get alerted automatically." Put the rule in CLAUDE.md (<em>"never write a new helper without checking for existing ones"</em>), and back it up with a hook that actually enforces it. Belt and suspenders.</div>
 
     <h3>Registry-Driven Design (Avoid If-Else Chains)</h3>
     <p>When your code needs to handle multiple similar things differently (platforms, providers, formats), don't write:</p>
@@ -1014,6 +1025,8 @@ else if (platform == "codex") { doZ() }</code></pre>
 // Then: registry[platform].handler()</code></pre>
 
     <p>Adding a new platform means adding one registry entry &mdash; not hunting through every if-else chain in the codebase. This pattern is worth learning. AI will default to if-else chains every time unless you tell it not to.</p>
+
+    <div class="real-world">Create a <strong>slash command</strong> called <code>/check-patterns</code> that instructs Claude to scan the codebase for if-else chains keyed on known variant strings (e.g., platform names, file type strings, provider names). The command prompt can be as simple as: "Search the entire codebase for if/elseif blocks that branch on string comparisons for known variants. List every occurrence and suggest the registry pattern as a replacement." Run it periodically — especially after a heavy coding session — to catch drift before it compounds.</div>
 
     <h3>On SOLID and Design Principles</h3>
     <p>SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion) are useful guidelines, not commandments. Apply them where they reduce complexity:</p>
@@ -1046,6 +1059,8 @@ else if (platform == "codex") { doZ() }</code></pre>
     <p>Two reviewers are better than one. Different AI models catch different things &mdash; GPT models notice different patterns than Claude models.</p>
 
     <div class="real-talk">This sounds like a lot of ceremony. It isn't. The review step takes 2-3 minutes. It catches bugs that would take hours to debug later. The cost-benefit ratio is absurdly good.</div>
+
+    <div class="real-world">Create a <strong>slash command</strong> called <code>/peer-review</code>. The command instructs Claude to: (1) summarize all changes made in this session, (2) write a structured review request to <code>PR.md</code> including changed files, what changed, and what to look for, (3) remind you to open <code>PR.md</code> in a separate AI session for review. When you return with the reviewer's findings, run <code>/fix-pr</code> which reads <code>PR.md</code> and instructs Claude to address each finding using red-green methodology. The whole handoff is encoded in two slash commands.</div>
   </div>
 
   <!-- === Section 5: Testing at Scale === -->
@@ -1070,6 +1085,8 @@ else if (platform == "codex") { doZ() }</code></pre>
 
     <h3>Lint and Static Analysis</h3>
     <p>Use external lint tools for your language (ESLint, PSScriptAnalyzer, pylint, etc.). Run them on every change. They catch categories of bugs that neither you nor AI will notice during review.</p>
+
+    <div class="real-world">Create a <strong>PostToolUse hook</strong> that runs your linter automatically after every file edit. For JavaScript: <code>npx eslint $FILE --max-warnings 0</code>. For PowerShell: <code>Invoke-ScriptAnalyzer $FILE</code>. The output appears in the terminal immediately after each edit. Claude sees the lint output and can fix violations in the next turn — without you having to manually invoke the linter or paste results back. The loop tightens from minutes to seconds.</div>
   </div>
 
   <!-- === Section 6: Documentation === -->
@@ -1094,6 +1111,8 @@ else if (platform == "codex") { doZ() }</code></pre>
 
     <h3>Let AI Document Your Work</h3>
     <p>After completing a feature, tell AI to update the changelog and product analysis. Reading AI's description of what you just built is surprisingly useful &mdash; it gives you an outsider's perspective on your own creation. Inconsistencies and gaps become visible when someone else describes your work back to you.</p>
+
+    <div class="real-world">Create a <strong>Stop hook</strong> that fires when Claude finishes a response. The hook prints: "Session ending — did we learn anything hard-won that should be added to CLAUDE.md or memory?" It's a 2-second reminder that costs nothing and prevents the most common knowledge loss: the debugging insight that gets forgotten because you moved on to the next problem. Pair it with a <strong>slash command</strong> called <code>/update-docs</code> that instructs Claude to update CHANGELOG.md, README.md, and CLAUDE.md with a summary of what changed in this session.</div>
   </div>
 
   <!-- === Section 7: Source Control === -->
@@ -1111,6 +1130,8 @@ else if (platform == "codex") { doZ() }</code></pre>
     </ul>
 
     <div class="real-talk">If you're not using source control, start today. Git is free. GitHub is free. The learning curve is real but short. The alternative is losing code to a bad AI edit that you can't undo.</div>
+
+    <div class="real-world">Use <strong>worktrees</strong> (<code>isolation: "worktree"</code> on the Agent tool) when asking Claude to attempt a risky refactor or experiment. The agent gets its own isolated copy of the repo, does all its work there, and reports back. If it succeeded, you get the branch name to review and merge. If it failed, the worktree is discarded — your working tree was never touched. This is the programmatic equivalent of "try the experiment on a branch." You get full reversal with zero manual branching.</div>
   </div>
 
   <!-- === Section 8: Managing AI Behavior === -->
@@ -1131,6 +1152,8 @@ else if (platform == "codex") { doZ() }</code></pre>
 
     <h3>AI Forgets Across Sessions</h3>
     <p>Every new session starts fresh. AI doesn't remember your architecture decisions, naming conventions, or past mistakes unless you write them down. CLAUDE.md, memory files, and code comments are how knowledge persists. Without them, you'll re-explain the same things session after session.</p>
+
+    <div class="real-world">Use <strong>memory files</strong> (<code>~/.claude/projects/*/memory/</code>) for knowledge that doesn't belong in CLAUDE.md but needs to persist. CLAUDE.md is for rules and constraints. Memory files are for richer context: "The authentication module was rewritten in v8.2 because the old session token format didn't comply with the new security policy. The old format is still present in legacy data — do not assume all tokens are the new format." Create a <strong>slash command</strong> called <code>/remember</code> that instructs Claude to write a new memory file capturing what was just learned. Over time, these files become a project knowledge base that survives indefinitely across sessions.</div>
 
     <h3>AI Makes Consistent Mistakes</h3>
     <p>When AI makes a mistake in one place, it has probably made the same mistake everywhere. Don't just fix the instance &mdash; search the entire codebase for the pattern. Write a test that catches the pattern globally. This is the single most effective quality practice for AI-generated code.</p>
@@ -1448,6 +1471,50 @@ else if (platform == "codex") { doZ() }</code></pre>
       </tr>
     </tbody>
   </table>
+
+  <h3>About Each CLI</h3>
+
+  <p><strong>Claude Code</strong> (Anthropic) is the subject of this entire guide. It has the deepest architecture of any CLI coding tool — skills, hooks, slash commands, agents, memory, plan mode, and Remote Control. If you invest time in learning one CLI deeply, this is the one.</p>
+
+  <p><strong>Codex CLI</strong> (OpenAI) is OpenAI's answer to Claude Code. It uses the GPT-5 Codex model variants, stores sessions in SQLite, and supports forking. It runs in a sandbox mode with tiered approval for commands. Its main advantage is the GPT-5 Codex model family, which has strengths in certain code generation tasks. Weaker extension architecture than Claude Code.</p>
+
+  <p><strong>Copilot CLI</strong> (GitHub / Microsoft) is backed by Microsoft's investment in GitHub and OpenAI. It offers multiple model choices (Claude Haiku, GPT-4.1, GPT-5 Mini), which is unusual — most CLIs are locked to their vendor's model. It has session persistence and file editing but no forking, no skills, no hooks. Strong choice if your organization is already deep in the GitHub ecosystem.</p>
+
+  <p><strong>OpenCode</strong> is open-source and model-agnostic — you can point it at Claude, GPT, or any other supported provider. This makes it attractive for organizations that want control over which AI model processes their code, or that need to run everything on-premises. The trade-off is a thinner feature set: no skills, no hooks, no memory. A good choice for teams with strict data residency requirements.</p>
+
+  <p><strong>Gemini CLI</strong> (Google) brings Google's Gemini models to the command line. Gemini 2.5 Pro has an exceptionally large context window, which helps with large codebases. It supports MCP servers and has session persistence. Weaker extension architecture than Claude Code, but the model itself handles large-scale codebase analysis well. Natural choice if your organization is on Google Cloud.</p>
+
+  <h3>A Different Category: Local / Self-Hosted AI (Ollama and Peers)</h3>
+
+  <p>All five CLIs above send your code to a cloud API. <strong>Ollama</strong>, <strong>LM Studio</strong>, <strong>Jan</strong>, and similar tools take a different approach: they run AI models <em>locally</em> on your machine, with no data leaving your network. This is a fundamentally different architecture.</p>
+
+  <p><strong>Ollama</strong> is the most popular. It downloads open-source models (Llama, Mistral, CodeLlama, DeepSeek, and others) and runs them locally via a REST API on <code>localhost:11434</code>. Other tools (including OpenCode) can point at an Ollama endpoint instead of a cloud API, giving you local inference with a familiar CLI experience.</p>
+
+  <p>The trade-offs are real:</p>
+  <ul>
+    <li><strong>Privacy:</strong> Your code never leaves your machine. For proprietary or classified code, this is critical.</li>
+    <li><strong>No subscription cost:</strong> After hardware, inference is free.</li>
+    <li><strong>Hardware requirements:</strong> Running a capable coding model requires a modern GPU with significant VRAM (16GB+). Weak hardware means slow, low-quality results.</li>
+    <li><strong>Model quality gap:</strong> Local open-source models are improving fast but are still behind GPT-5 and Claude Opus for complex reasoning and code generation as of 2026.</li>
+    <li><strong>No built-in tools:</strong> Ollama is an inference server, not a coding assistant. You need a separate CLI layer (like OpenCode pointed at Ollama) to get file editing, tool use, and session management.</li>
+  </ul>
+
+  <p>If your organization has strict data policies that prohibit sending code to any external service, the Ollama + OpenCode combination is worth investigating. For most developers without those constraints, cloud-based CLIs currently offer better model quality and richer tooling.</p>
+
+  <h3>Other CLIs Not Covered Here</h3>
+
+  <p>The AI coding tool space is moving fast. This guide covers the five most widely used cloud-based CLIs as of early 2026, but the following tools also exist and may be relevant depending on your stack:</p>
+
+  <ul>
+    <li><strong>Aider</strong> — An open-source Python-based coding assistant with strong git integration. Predates Claude Code and has a loyal following. Works with multiple models.</li>
+    <li><strong>Continue</strong> — Primarily a VS Code/JetBrains extension but has CLI capabilities. Model-agnostic.</li>
+    <li><strong>Cline</strong> — VS Code extension with CLI roots. MCP support, model-agnostic.</li>
+    <li><strong>Cursor</strong> — An IDE (fork of VS Code) with deeply integrated AI. Not technically a CLI but competes for the same workflow.</li>
+    <li><strong>Amazon Q Developer CLI</strong> — AWS's coding assistant. Strong if you live in the AWS ecosystem.</li>
+    <li><strong>Mistral Le Chat</strong> — European-based, GDPR-native AI. CLI tooling is early-stage but growing.</li>
+  </ul>
+
+  <p>This is not an exhaustive list. New tools appear monthly. The architectural concepts in this guide (sessions, hooks, MCP, memory, skills) are Claude Code-specific, but the underlying ideas — persistent context, tool use, cross-session memory — are becoming table stakes across the industry.</p>
 
   <h3>Key Takeaway</h3>
   <p>Claude Code has the richest extension architecture by far &mdash; skills, hooks, slash commands, MCP servers, agents, memory, and plan mode are all unique to it. The other CLIs are primarily prompt-and-respond tools with session persistence. If you're investing time learning AI coding tool architecture, Claude Code is where that investment pays off the most.</p>

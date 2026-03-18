@@ -276,6 +276,26 @@ body {
   margin-bottom: 0.35rem;
 }
 
+.real-world {
+  background: rgba(57, 210, 192, 0.08);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 0.85rem 1.1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.92rem;
+}
+
+.real-world::before {
+  content: 'Real-World Application';
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
 /* Code blocks */
 code {
   font-family: var(--font-mono);

@@ -10,12 +10,17 @@ This guide teaches that architecture to working developers. No fluff. No hype. R
 
 | Tab | What It Is | Time |
 |-----|-----------|------|
-| **The Manifesto** | 14 chapters covering every concept in Claude Code's architecture | 35-45 min |
+| **The Manifesto** | 16 chapters covering every concept in Claude Code's architecture | 45-60 min |
 | **Quick Quiz** | 40 multiple-choice questions — do you actually know this? | 15-20 min |
 | **Deep Quiz** | 55 scenario-based questions with detailed explanations | 30-40 min |
 | **Plugin Quiz** | 20 questions on MCP servers — the plugin system nobody explained | 10-15 min |
-| **Practitioner's Guide** | How to actually build software with AI and not collapse at version 5 | 20-25 min |
-| **Other AI CLIs** | Feature comparison: Claude Code vs Codex vs Copilot vs OpenCode vs Gemini | 5 min |
+| **Bonus Features Quiz** | 20 questions on power features — worktrees, model switching, /compact, and more | 10-15 min |
+| **Practitioner's Guide** | How to actually build software with AI and not collapse at version 5 | 25-30 min |
+| **Remote Control** | How to control Claude Code from your phone | 5 min |
+| **Other AI CLIs** | Codex, Copilot, OpenCode, Gemini, Ollama, and what we didn't cover | 10-15 min |
+| **Glossary** | Every tool, acronym, and term used in this guide | Reference |
+
+**Total if you read and quiz everything: ~3 hours**
 
 ## Live Site
 
