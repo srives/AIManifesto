@@ -333,15 +333,14 @@ body {
   gap: 0.3rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--accent-blue);
-  border-radius: 6px;
+  border-radius: 6px 0 6px 6px;
   padding: 0.25rem 0.5rem;
   position: absolute;
   top: 100%;
-  left: 0;
+  right: 0;
   z-index: 300;
   white-space: nowrap;
   box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-  margin-top: 0.25rem;
 }
 .search-box.open { display: flex; }
 
@@ -399,8 +398,9 @@ body {
 
 .header-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
+  justify-content: space-between;
 }
 
 
