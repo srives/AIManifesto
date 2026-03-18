@@ -417,7 +417,7 @@
     </ul>
 
     <h3>How Skills Get Loaded — You Are Always the Trigger</h3>
-    <p>Skills do <strong>not</strong> load automatically. Claude does not scan your skills directory before every response and decide which ones apply. There is no background skill-matching. Skills are passive — they sit in the folder doing nothing until you cause them to load.</p>
+    <p>Skills do <strong>not</strong> load automatically. Claude does not scan your skills directory before every response and decide which ones apply. There is no background skill-matching. Skills are dormant — they sit in the folder doing nothing until you cause them to load.</p>
     <p>There are two ways to load a skill, and both require you:</p>
     <ol>
       <li><strong>Slash command:</strong> You type <code>/my-skill-name</code> and Claude reads that skill's .md file into context. This is the cleanest mechanism — explicit, deliberate, one keystroke.</li>
@@ -433,7 +433,7 @@
     </ul>
     <p>This matters for context window management. A 500-line CLAUDE.md costs tokens on every message. A 500-line skill only costs tokens when it's actually needed.</p>
 
-    <div class="real-talk">The word "skill" is misleading for Windows developers. In the Windows world, a "skill" sounds like an Alexa skill or a microservice &mdash; something that runs. In Claude Code, a skill is a document. It's passive. Rename it mentally to "instruction document" or "playbook" if that helps.</div>
+    <div class="real-talk">The word "skill" is misleading for Windows developers. In the Windows world, a "skill" sounds like an Alexa skill or a microservice &mdash; something that runs. In Claude Code, a skill is a document. It does nothing on its own — it waits to be invoked. Rename it mentally to "instruction document" or "playbook" if that helps.</div>
   </div>
 
   <!-- ==================== CHAPTER 5 ==================== -->
@@ -467,7 +467,7 @@ Ask me for the component name and path before starting.</code></pre>
     <p>Then you type <code>/new-component</code> and this entire prompt is sent to Claude.</p>
 
     <h3>Slash Commands vs. Skills — A Note on Direction</h3>
-    <p>Conceptually: slash commands are <em>prompts you invoke</em>. Skills are <em>instructions Claude reads passively</em>. A slash command initiates work ("Do this thing now"). A skill provides standing context for how to do work ("When doing this kind of thing, here's how").</p>
+    <p>Conceptually: slash commands are <em>prompts you invoke</em>. Skills are <em>instruction documents that sit dormant until you invoke them</em>. A slash command fires a prompt ("Do this thing now"). A skill, once invoked, loads its content into the context window — it becomes part of the conversation, like any other text. It stays there, informing Claude's behavior, until the context window compacts it away, you start a new session, or you explicitly run <code>/compact</code>. It does not re-load itself. It does not persist into the next session. Invoke it again next session if you need it again.</p>
 
     <div class="real-talk"><strong>Current state as of early 2026:</strong> Custom commands (<code>.claude/commands/*.md</code>) still work exactly as described here. Skills are the broader umbrella concept that commands now live under. If you see documentation using "skills" to cover both, that's accurate — they share the same underlying mechanism. The distinction between "a command you invoke" and "a skill that loads contextually" is still useful for understanding behavior, but treat it as conceptual rather than a hard product boundary. Check current Anthropic docs if the exact file locations ever change.</div>
   </div>
@@ -479,7 +479,7 @@ Ask me for the component name and path before starting.</code></pre>
 
     <p>Hooks are the one thing in this architecture that actually <em>executes code</em>. A hook is a shell command (bash, PowerShell, whatever) that runs in response to a specific event. When the event fires, the command runs on your machine, with your permissions, in your environment.</p>
 
-    <p>Every other concept in this document &mdash; CLAUDE.md, skills, memory, slash commands &mdash; is a passive document that gets loaded. Hooks are the exception: they are active executors.</p>
+    <p>Every other concept in this document &mdash; CLAUDE.md, skills, memory, slash commands &mdash; is a document that gets loaded and read. None of them execute code on their own. Hooks are the exception: they are active executors.</p>
 
     <div class="analogy">Like git hooks (<code>pre-commit</code>, <code>post-merge</code>, <code>pre-push</code>). You drop a script into <code>.git/hooks/pre-commit</code>, and git runs it before every commit. If it exits non-zero, the commit is aborted. Claude Code hooks work the same way: you configure a command to run on an event, and the system runs it. Real shell command, real execution, real consequences.</div>
 
@@ -978,6 +978,27 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy-human">Like cleaning out your inbox before starting a new project phase. You archive the old threads, keep the active ones, and start fresh with clarity. If you don't do it intentionally, the system will eventually do it for you — but it won't know which emails you still needed. /compact is that intentional cleanup, done on your schedule.</div>
 
     <p>You can also pass a summary hint: <code>/compact focus on the authentication refactor</code> tells the compressor what to prioritize keeping.</p>
+
+    <h3>Skills and Compaction — A Known Problem</h3>
+    <div class="real-talk"><strong>Compaction can silently drop skills you loaded earlier in the session.</strong> This is a documented real-world issue. After compaction, Claude may completely forget that a skill was active — and will not automatically re-read it. It will stop following the skill's instructions without telling you. You will just notice that Claude is no longer behaving as instructed.</div>
+
+    <p>What actually happens:</p>
+    <ul>
+      <li>You invoke a skill early in a session</li>
+      <li>The session runs long and compaction occurs (manually or automatically)</li>
+      <li>The skill's content gets summarized or dropped in the compression</li>
+      <li>Claude continues the session without the skill's instructions — silently</li>
+    </ul>
+
+    <p><strong>Does Claude re-load the skill automatically after compaction? No.</strong> Confirmed by GitHub issue reports. Claude does not proactively re-read skill files after compaction, even if you have instructions in CLAUDE.md telling it to do so.</p>
+
+    <p><strong>What to do about it:</strong></p>
+    <ul>
+      <li><strong>Re-invoke the skill after compaction.</strong> If you ran <code>/my-skill</code> at the start of the session and then compacted, type <code>/my-skill</code> again.</li>
+      <li><strong>Use your compaction hint to preserve it.</strong> <code>/compact keep the react-component skill rules</code> tells the compressor to include the skill's key points in the summary.</li>
+      <li><strong>Move critical rules to CLAUDE.md.</strong> CLAUDE.md reloads automatically every session and survives compaction (it's re-loaded from the file, not from conversation history). If a rule is important enough that losing it mid-session would hurt, it belongs in CLAUDE.md, not a skill.</li>
+      <li><strong>Run /compact at logical breakpoints</strong> rather than letting auto-compaction trigger mid-task — you control what gets preserved.</li>
+    </ul>
 
     <p><em>See also: <a class="tab-btn-inline" data-tab="confession">Chapter XI — The Context Window</a> for how Awareness is consumed, and <a class="tab-btn-inline" data-tab="compare">IQ vs. Awareness on the Other AI CLIs page</a> for how your plan determines your maximum Awareness.</em></p>
   </div>

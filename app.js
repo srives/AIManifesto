@@ -345,7 +345,7 @@ const shorterQuestions = [
       "Configuration files"
     ],
     answer: 1,
-    explanation: "<strong>Git hooks / build events.</strong> Hooks are shell commands that actually execute in response to events (before a tool runs, after a tool runs, on session start). Unlike skills (which are passive documents), hooks are active &mdash; they run real commands. Just like <code>pre-commit</code> runs your linter before every git commit, a Claude hook can run tests after every file edit."
+    explanation: "<strong>Git hooks / build events.</strong> Hooks are shell commands that actually execute in response to events (before a tool runs, after a tool runs, on session start). Unlike skills (which are dormant documents, not code), hooks are active &mdash; they run real commands. Just like <code>pre-commit</code> runs your linter before every git commit, a Claude hook can run tests after every file edit."
   },
   {
     question: "Where is user-level Claude configuration stored?",
@@ -444,7 +444,7 @@ const shorterQuestions = [
       "Memory files"
     ],
     answer: 2,
-    explanation: "<strong>Hooks.</strong> This is a critical distinction. CLAUDE.md, skills, and memory files are all passive documents that get loaded into context &mdash; they inform behavior but don't execute anything. Hooks are the only mechanism that runs actual shell commands. They fire on events (tool use, session start) and execute real code on your machine."
+    explanation: "<strong>Hooks.</strong> This is a critical distinction. CLAUDE.md, skills, and memory files are all documents that get loaded and read — none execute code that get loaded into context &mdash; they inform behavior but don't execute anything. Hooks are the only mechanism that runs actual shell commands. They fire on events (tool use, session start) and execute real code on your machine."
   },
   {
     question: "A session in Claude Code persists data at:",
@@ -499,7 +499,7 @@ const shorterQuestions = [
       "There is no practical difference"
     ],
     answer: 1,
-    explanation: "<strong>Loading behavior differs.</strong> CLAUDE.md is always loaded automatically at the start of every session — always-on, always consuming tokens. Skills are passive documents that load only when you explicitly invoke them via slash command or direct mention. There is no automatic skill-matching. You are always the trigger. This matters for context window management: CLAUDE.md always costs tokens, skills cost nothing until invoked."
+    explanation: "<strong>Loading behavior differs.</strong> CLAUDE.md is always loaded automatically at the start of every session — always-on, always consuming tokens. Skills are dormant documents that load only when you explicitly invoke them via slash command or direct mention. There is no automatic skill-matching. You are always the trigger. This matters for context window management: CLAUDE.md always costs tokens, skills cost nothing until invoked."
   },
   {
     question: "A subagent can see your full conversation history. True or false?",
@@ -642,7 +642,7 @@ const shorterQuestions = [
       "It depends on the file extension"
     ],
     answer: 1,
-    explanation: "<strong>False &mdash; it's read, not run.</strong> CLAUDE.md is a passive document. It gets loaded into the context window where Claude can read it, like environment variables are present in a process's memory. Nothing in it 'executes.' It shapes behavior by informing Claude's responses, the same way <code>.editorconfig</code> informs your editor's behavior without running code."
+    explanation: "<strong>False &mdash; it's read, not run.</strong> CLAUDE.md is a document, not code. It gets loaded into the context window where Claude can read it, like environment variables are present in a process's memory. Nothing in it 'executes.' It shapes behavior by informing Claude's responses, the same way <code>.editorconfig</code> informs your editor's behavior without running code."
   },
   {
     question: "If you add a 5,000-token skill to a session that has 190,000 tokens of conversation in a 200K context window, what happens?",
@@ -956,7 +956,7 @@ const largerQuestions = [
       "Hooks run in the cloud, skills run locally"
     ],
     answer: 1,
-    explanation: "<strong>Execution vs. information.</strong> This is the most important distinction in the Claude Code architecture. Hooks are active: they execute real shell commands on your machine when events occur. Skills are passive: they're documents that get loaded into Claude's context window to inform its behavior. A hook runs <code>npm test</code>. A skill says 'When writing tests, use Jest with React Testing Library and follow the AAA pattern.' One does, the other teaches."
+    explanation: "<strong>Execution vs. information.</strong> This is the most important distinction in the Claude Code architecture. Hooks are active: they execute real shell commands on your machine when events occur. Skills are documents that get loaded into Claude's context window to inform its behavior. A hook runs <code>npm test</code>. A skill says 'When writing tests, use Jest with React Testing Library and follow the AAA pattern.' One does, the other teaches."
   },
   {
     question: "Scenario: You have a slash command /deploy that's 500 lines of detailed instructions. What's the impact on your context window?",
