@@ -193,7 +193,7 @@
       <thead><tr><th>Method</th><th>Command</th><th>When to use it</th></tr></thead>
       <tbody>
         <tr><td><strong>Native installer (recommended)</strong></td><td>Download from <a href="https://claude.ai/download" style="color:var(--accent-blue)">claude.ai/download</a></td><td>Cleanest install. No Node.js required. Preferred for most users.</td></tr>
-        <tr><td><strong>WinGet</strong></td><td><code>winget install Anthropic.Claude</code></td><td>Good for managed Windows environments or scripted provisioning.</td></tr>
+        <tr><td><strong>WinGet</strong></td><td><code>winget install Anthropic.ClaudeCode</code></td><td>Good for managed Windows environments or scripted provisioning.</td></tr>
         <tr><td><strong>npm (compatibility path)</strong></td><td><code>npm install -g @anthropic-ai/claude-code</code></td><td>Use if Node.js is already your primary toolchain, or if your environment requires npm-managed installs.</td></tr>
       </tbody>
     </table>
@@ -1105,13 +1105,13 @@ Ask me for the component name and path before starting.</code></pre>
   <h2>Pricing &amp; Purchasing</h2>
   <div class="real-talk"><strong>Prices change. Always verify at <a href="https://claude.ai/upgrade" style="color:var(--accent-blue)">claude.ai/upgrade</a> before buying.</strong> The numbers here are accurate as of March 2026 but Anthropic adjusts pricing periodically.</div>
 
-  <div class="real-talk" style="border-color:var(--accent-orange);background:rgba(210,153,34,0.08)"><strong>Honest warning: Anthropic's pricing page is genuinely difficult to understand.</strong> It is not your fault. The same concept — how many tokens you consume — gets called "usage," "API usage," "tokens," and "context" depending on which section you are reading. Plans are described in ways that obscure direct comparison. The Enterprise page is intentionally vague. This is a common tactic in enterprise software sales: make pricing opaque so customers can't compare without a sales call. We have decoded it below as plainly as we can. If something still doesn't make sense, that's the page's problem, not yours. See the <strong>Decoder Ring</strong> in the Glossary tab for a term-by-term translation.</div>
+  <div class="real-talk" style="border-color:var(--accent-orange);background:rgba(210,153,34,0.08)"><strong>Honest warning: Anthropic's pricing page is genuinely difficult to understand.</strong> It is not your fault. The same concept — how many tokens you consume — gets called "usage," "API usage," "tokens," and "context" depending on which section you are reading. Enterprise pricing is not published. We have decoded it below as plainly as we can. If something still doesn't make sense, that's the page's problem, not yours. See the <strong>Decoder Ring</strong> in the Glossary tab for a term-by-term translation.</div>
 
   <!-- Step 1: Getting Set Up -->
   <div class="compare-section-title blue">Step 1: How to Get Set Up</div>
   <ol>
     <li>Go to <a href="https://claude.ai" style="color:var(--accent-blue)">claude.ai</a> and create a free account with your email.</li>
-    <li>Install Claude Code: <code>winget install Anthropic.Claude</code> or download from <a href="https://claude.ai/download" style="color:var(--accent-blue)">claude.ai/download</a></li>
+    <li>Install Claude Code: <code>winget install Anthropic.ClaudeCode</code> or download from <a href="https://claude.ai/download" style="color:var(--accent-blue)">claude.ai/download</a></li>
     <li>Run <code>claude</code> in a terminal. It will prompt you to log in — use your claude.ai account.</li>
     <li>You're on the free tier. Try it. If you hit limits, upgrade.</li>
   </ol>
@@ -1119,6 +1119,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- Step 2: Plans -->
   <div class="compare-section-title green">The Plans</div>
+  <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem;">Snapshot as of March 2026. Verify at <a href="https://claude.ai/upgrade" style="color:var(--accent-blue)">claude.ai/upgrade</a> before relying on fine details.</p>
   <table class="compare-table">
     <thead><tr><th>Plan</th><th>Monthly Cost</th><th>Usage Limit</th><th>Best For</th></tr></thead>
     <tbody>
@@ -1348,6 +1349,7 @@ Ask me for the component name and path before starting.</code></pre>
   <div class="compare-section-title blue">IQ vs. Awareness: What You're Actually Buying</div>
   <p>Think of it like fidelity in images. A single photograph can be ultra-high-resolution — every pixel tiny, every detail captured. That's high IQ. A movie has thousands of frames, covering far more ground — but each individual frame may be lower resolution than a still photo. That's high Awareness.</p>
   <p>You want both — but they are separate dials. When you pay more for AI, you might be buying a sharper photograph (better reasoning per frame), more frames (larger context window), or both. A high-IQ model on a small plan sees 267 pages with brilliant resolution. The same model on a Max plan sees 1,333 pages — five times the movie, same sharpness per frame.</p>
+  <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;"><strong>Editorial teaching model — not benchmark scores.</strong> IQ numbers are estimated shorthand for relative reasoning quality (Opus 4.6 = 100 baseline), not official measurements. Awareness numbers are calculated from published token limits and are factual. &nbsp;<span style="color:var(--accent-blue)">&#9632;</span> IQ = editorial estimate &nbsp;<span style="color:var(--accent-green)">&#9632;</span> Awareness = official fact</p>
   <div id="iq-awareness-chart-pricing"></div>
   <script>
   (function() {
@@ -1956,7 +1958,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   <h3>Requirements</h3>
   <ul>
     <li><strong>Claude Code v2.1.52+</strong> &mdash; update with <code>npm update -g @anthropic-ai/claude-code</code></li>
-    <li><strong>Pro or Max plan</strong> &mdash; not available on Team or Enterprise yet</li>
+    <li><strong>Any paid Claude plan</strong> &mdash; Remote Control is available on all plans. Team and Enterprise admins may need to enable Claude Code in admin settings first.</li>
     <li><strong>Authenticated CLI</strong> &mdash; run <code>/login</code> if you haven't already</li>
     <li><strong>The Claude mobile app</strong> (iOS/Android) or any browser pointed at <a href="https://claude.ai/code" style="color: var(--accent-blue);">claude.ai/code</a></li>
   </ul>
@@ -2029,7 +2031,7 @@ else if (platform == "codex") { doZ() }</code></pre>
     <li><strong>Terminal must stay open.</strong> If you close the terminal or stop the process, the session ends. Minimize it, don't close it.</li>
     <li><strong>Laptop sleep is okay.</strong> The session reconnects automatically when your machine wakes up.</li>
     <li><strong>10-minute network timeout.</strong> If your machine loses network for more than ~10 minutes while awake, the session times out and the process exits.</li>
-    <li><strong>Pro/Max only.</strong> Not available on Team or Enterprise plans as of March 2026.</li>
+    <li><strong>All paid plans.</strong> Remote Control is available on all Claude plans. Team and Enterprise admins may need to enable Claude Code in admin settings.</li>
     <li><strong>Phone typing is painful.</strong> Remote Control is best for monitoring progress, approving tool uses, and giving short follow-up prompts &mdash; not for writing detailed instructions. Start the big prompt on your laptop, then monitor from your phone.</li>
   </ul>
 
@@ -2333,6 +2335,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   <p>The same separation applies to other CLIs: Copilot CLI lets you choose between Claude Haiku, GPT-4.1, and GPT-5 Mini. OpenCode can point at any model via Ollama or an API. The CLI is the tool; the model is the engine. You can swap engines.</p>
 
   <div class="compare-section-title blue">AI Has Two Dimensions: IQ and Awareness</div>
+  <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;"><strong>Editorial teaching model — not benchmark scores.</strong> IQ numbers are estimated shorthand for relative reasoning quality (Opus 4.6 = 100 baseline), not official measurements. Awareness numbers are calculated from published token limits and are factual. &nbsp;<span style="color:var(--accent-blue)">&#9632;</span> IQ = editorial estimate &nbsp;<span style="color:var(--accent-green)">&#9632;</span> Awareness = official fact</p>
   <div id="iq-awareness-chart"></div>
   <script>
   // IQ/Awareness master chart — rendered as CSS bar chart
@@ -2379,7 +2382,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   </ul>
 
   <p>Think of it like image fidelity. A single photograph can be ultra-high-resolution — every pixel tiny. That's high IQ. A movie covers far more ground with thousands of frames, but each individual frame may be lower resolution than a still. That's high Awareness. A brilliant photograph of one page of your codebase is less useful than a full movie of the entire project, even if each movie frame is slightly softer.</p>
-  <p>We measure Awareness in <strong>pages</strong> — one standard 8.5×11 page of dense text ≈ 500 words ≈ 750 tokens. This gives you an intuitive sense of how much the AI can "see" at once.</p>
+  <p>We measure Awareness in <strong>pages</strong> — one standard 8.5×11 page of dense text ≈ 500 words ≈ 750 tokens. This gives you an intuitive sense of how much the AI can "see" at once. More Awareness is most valuable on large codebases, long sessions, and cross-file reasoning. For small, narrow tasks — renaming a variable, explaining a single function — extra Awareness may matter less than reasoning quality (IQ).</p>
 
   <table class="compare-table">
     <thead>
@@ -2583,7 +2586,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Boilerplate</td><td>Repetitive, standard code that's needed but not interesting. Templates, imports, config setup. Good candidate for Haiku.</td></tr>
       <tr><td>Refactor</td><td>Restructuring code without changing its behavior. Improving organization, readability, or performance.</td></tr>
       <tr><td>Registry (in code)</td><td>A data structure that maps keys to behaviors. Avoids if-else chains. Add a new entry to support a new variant.</td></tr>
-      <tr><td>WinGet</td><td>Windows Package Manager, built into Windows 10/11. Install software with <code>winget install PackageName</code>. Like apt (Linux) or Homebrew (Mac), but for Windows. Use <code>winget install Anthropic.Claude</code> to install Claude Code.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">→ Introduction</a></td></tr>
+      <tr><td>WinGet</td><td>Windows Package Manager, built into Windows 10/11. Install software with <code>winget install PackageName</code>. Like apt (Linux) or Homebrew (Mac), but for Windows. Use <code>winget install Anthropic.ClaudeCode</code> to install Claude Code.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">→ Introduction</a></td></tr>
       <tr><td>Plan Mode</td><td>A Claude Code mode activated with Shift+Tab. Claude describes its intended approach before making any changes. You review and approve the plan first.<a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">→ Chapter IX</a></td></tr>
       <tr><td>/init</td><td>A Claude Code command. Analyzes your project and generates an initial CLAUDE.md automatically. Run it when starting a new project, or to improve an existing CLAUDE.md.<a class="gloss-link" data-tab="confession" data-anchor="ch2" href="#">→ Chapter III</a></td></tr>
       <tr><td>/compact</td><td>A Claude Code command. Manually compresses conversation history to free context window space. Useful in long sessions.<a class="gloss-link" data-tab="confession" data-anchor="ch15-4" href="#">→ Chapter 15.4</a></td></tr>
@@ -2727,7 +2730,7 @@ const glossaryTerms = {
   'Allowlist': 'A pre-approved list of tools or commands in settings.json. Claude won\'t ask permission before running allowlisted actions.',
   'Remote Control': 'A Claude Code feature that lets you control a running CLI session from your phone or another device via QR code.',
   'Context Window': 'The total amount of text Claude can "see" at once. Everything loaded (files, history, instructions) takes up space in this finite window.',
-  'WinGet': 'Windows Package Manager. Built into Windows 10/11. Install software from the command line: winget install Anthropic.Claude. Like apt or brew, but for Windows.',
+  'WinGet': 'Windows Package Manager. Built into Windows 10/11. Install software from the command line: winget install Anthropic.ClaudeCode. Like apt or brew, but for Windows.',
   'Opus': 'Claude\'s most capable model. Best for complex reasoning and hard problems. Slowest and most expensive. Use it when the problem needs deep thinking.',
   'Sonnet': 'Claude\'s balanced model. Good speed and capability. The recommended default for daily coding work.',
   'Haiku': 'Claude\'s fastest and cheapest model. Fine for simple tasks. Not recommended for complex coding — quality drops significantly.',
