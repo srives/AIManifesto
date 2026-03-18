@@ -66,30 +66,30 @@
   <div class="toc">
     <h3>Chapters</h3>
     <ol>
-      <li><a href="#ch0">Introduction: What Is a CLI and Why Would Anyone Use One?</a></li>
-      <li><a href="#ch1">The Session</a></li>
-      <li><a href="#ch2">CLAUDE.md &mdash; The Constitution</a></li>
-      <li><a href="#ch3">The .claude Directory</a></li>
-      <li><a href="#ch4">Skills (SKILL.md Files)</a></li>
-      <li><a href="#ch5">Slash Commands</a></li>
-      <li><a href="#ch6">Hooks</a></li>
-      <li><a href="#ch7">Agents (Subagents)</a></li>
-      <li><a href="#ch7b">Running Multiple Background Prompts</a></li>
-      <li><a href="#ch8">Plans</a></li>
-      <li><a href="#ch9">Memory</a></li>
-      <li><a href="#ch9b">Documentation as Dormant Memory</a></li>
-      <li><a href="#ch10">Plugins (Model Context Protocol / MCP Servers)</a></li>
-      <li><a href="#ch11">The Context Window</a></li>
-      <li><a href="#ch12">The File System Layout</a></li>
-      <li><a href="#ch13">Scope and Distribution</a></li>
-      <li><a href="#ch14">The Prompt Engineering Trap</a></li>
-      <li><a href="#ch15">Bonus Features</a></li>
+      <li><a href="#ch0">1. Introduction: What Is a CLI and Why Would Anyone Use One?</a></li>
+      <li><a href="#ch1">2. The Session</a></li>
+      <li><a href="#ch2">3. CLAUDE.md &mdash; The Constitution</a></li>
+      <li><a href="#ch3">4. The .claude Directory</a></li>
+      <li><a href="#ch4">5. Skills (SKILL.md Files)</a></li>
+      <li><a href="#ch5">6. Slash Commands</a></li>
+      <li><a href="#ch6">7. Hooks</a></li>
+      <li><a href="#ch7">8. Agents (Subagents)</a></li>
+      <li><a href="#ch7b">9. Running Multiple Background Prompts</a></li>
+      <li><a href="#ch8">10. Plans</a></li>
+      <li><a href="#ch9">11. Memory (mini-CLAUDE.md files)</a></li>
+      <li><a href="#ch9b">12. Documentation as Dormant Memory</a></li>
+      <li><a href="#ch10">13. Plugins (Model Context Protocol / MCP Servers)</a></li>
+      <li><a href="#ch11">14. The Context Window</a></li>
+      <li><a href="#ch12">15. The File System Layout</a></li>
+      <li><a href="#ch13">16. Scope and Distribution</a></li>
+      <li><a href="#ch14">17. The Prompt Engineering Trap</a></li>
+      <li><a href="#ch15">18. Bonus Features</a></li>
     </ol>
   </div>
 
   <!-- ==================== CHAPTER 0: INTRODUCTION ==================== -->
   <div class="chapter" id="ch0">
-    <div class="chapter-number">Chapter I</div>
+    <div class="chapter-number">Chapter 1</div>
     <h2>Introduction: What Is a CLI and Why Would Anyone Use One?</h2>
 
     <h3>Wait — Which "Claude" Are We Talking About?</h3>
@@ -218,7 +218,7 @@
 
   <!-- ==================== CHAPTER 2 ==================== -->
   <div class="chapter" id="ch1">
-    <div class="chapter-number">Chapter II</div>
+    <div class="chapter-number">Chapter 2</div>
     <h2>The Session</h2>
 
     <p>A session in Claude Code is a single, continuous conversation between you and Claude. It has a beginning (when you start it) and it persists on disk (so you can resume it later). Every message you send, every file Claude reads, every command it runs &mdash; all of it belongs to a session and is recorded in that session's log.</p>
@@ -277,7 +277,7 @@
 
   <!-- ==================== CHAPTER 2 ==================== -->
   <div class="chapter" id="ch2">
-    <div class="chapter-number">Chapter II</div>
+    <div class="chapter-number">Chapter 3</div>
     <h2>CLAUDE.md &mdash; The Constitution</h2>
 
     <div class="real-talk"><strong>You do not write or edit this file yourself.</strong> Claude writes it. You just tell Claude what to put in it. This is one of the most important things to understand about Claude Code &mdash; you are the manager, Claude is the one doing the typing.</div>
@@ -363,7 +363,7 @@
 
   <!-- ==================== CHAPTER 3 ==================== -->
   <div class="chapter" id="ch3">
-    <div class="chapter-number">Chapter III</div>
+    <div class="chapter-number">Chapter 4</div>
     <h2>The .claude Directory &mdash; Two Very Different Locations</h2>
 
     <div class="real-talk"><strong>Stop. Read this first.</strong> The documentation for Claude Code uses Unix path notation everywhere, which causes real confusion on Windows. This chapter decodes it before anything else.</div>
@@ -433,7 +433,7 @@
 
   <!-- ==================== CHAPTER 4 ==================== -->
   <div class="chapter" id="ch4">
-    <div class="chapter-number">Chapter IV</div>
+    <div class="chapter-number">Chapter 5</div>
     <h2>Skills (SKILL.md Files)</h2>
 
     <p>A skill is a markdown document that reminds Claude how to do something — which it will remember until the next <code>/compact</code> (or the session ends). It does not execute. It does not run as a process. It is loaded into Claude's context window &mdash; added to the conversation as instructions &mdash; and Claude follows those instructions for as long as the content remains in context.</p>
@@ -474,7 +474,7 @@
 
   <!-- ==================== CHAPTER 5 ==================== -->
   <div class="chapter" id="ch5">
-    <div class="chapter-number">Chapter V</div>
+    <div class="chapter-number">Chapter 6</div>
     <h2>Slash Commands</h2>
 
     <p><strong>Slash commands are pre-canned prompts.</strong> You write a prompt once, save it as a file, give it a name. When you type <code>/foo</code>, Claude reads the file <code>foo.md</code> and sends its contents exactly as if you had typed that entire prompt yourself. That's it. No magic, no runtime, no API call &mdash; just a saved prompt with a short name.</p>
@@ -510,7 +510,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 6 ==================== -->
   <div class="chapter" id="ch6">
-    <div class="chapter-number">Chapter VI</div>
+    <div class="chapter-number">Chapter 7</div>
     <h2>Hooks</h2>
 
     <p>Hooks are the one thing in this architecture that actually <em>executes code</em>. A hook is a shell command (bash, PowerShell, whatever) that runs in response to a specific event. When the event fires, the command runs on your machine, with your permissions, in your environment.</p>
@@ -539,7 +539,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 7 ==================== -->
   <div class="chapter" id="ch7">
-    <div class="chapter-number">Chapter VII</div>
+    <div class="chapter-number">Chapter 8</div>
     <h2>Agents (Subagents)</h2>
 
     <p>When Claude needs to do a subtask that requires focused work &mdash; like searching a large codebase, analyzing a complex file, or doing research &mdash; it can spawn a <em>subagent</em>. A subagent is a separate Claude instance with its own context window. It receives a task description, does the work, and returns a result. Then it terminates.</p>
@@ -573,7 +573,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 8 (Background Prompts) ==================== -->
   <div class="chapter" id="ch7b">
-    <div class="chapter-number">Chapter VII-B</div>
+    <div class="chapter-number">Chapter 9</div>
     <h2>Running Multiple Background Prompts</h2>
 
     <p>Claude Code can run tasks in the background while you keep typing. You don't have to wait for one task to finish before starting another. This is one of the most productive features in Claude Code and most people don't know it exists.</p>
@@ -607,7 +607,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 8 (Plans) ==================== -->
   <div class="chapter" id="ch8">
-    <div class="chapter-number">Chapter VIII</div>
+    <div class="chapter-number">Chapter 10</div>
     <h2>Plans</h2>
 
     <p>Plan mode is a way to have Claude design an approach <em>before</em> it starts coding. Instead of immediately editing files and running commands, Claude describes what it will do: which files it will change, in what order, what the risks are, and what the expected outcome is. You review, adjust, and then approve the plan for execution.</p>
@@ -656,8 +656,8 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 9 ==================== -->
   <div class="chapter" id="ch9">
-    <div class="chapter-number">Chapter IX</div>
-    <h2>Memory</h2>
+    <div class="chapter-number">Chapter 11</div>
+    <h2>Memory (mini-CLAUDE.md files)</h2>
 
     <p>Memory files are persistent notes stored in your personal Claude folder, inside a per-project subdirectory. Think of them as <strong>tiny auto-written CLAUDE.md entries</strong> — they load automatically every session, affect every prompt, and cost input tokens every message, just like CLAUDE.md. The difference is that Claude writes them itself (rather than you writing them), and they store discovered facts rather than rules.</p>
 
@@ -685,10 +685,11 @@ Ask me for the component name and path before starting.</code></pre>
         <tr><td><strong>Auto memory</strong></td><td>Claude (automatically)</td><td><span class="cross">Every message, this project</span></td><td>You, on this project</td><td>Never</td><td>Things Claude decides are worth remembering without you asking</td></tr>
         <tr><td><strong>Skills</strong></td><td>You</td><td><span class="check">Only when invoked</span></td><td>You or team, this project</td><td>Optional</td><td>Detailed procedures, reference docs, specialised workflows</td></tr>
         <tr><td><strong>Scoped rules (.claude/rules/)</strong></td><td>You or Claude</td><td><span class="cross">Every message (in scope)</span></td><td>Project or subdirectory</td><td>Optional</td><td>Finer-grained rules per directory; emerging feature, check current docs</td></tr>
+        <tr><td><strong>Documentation files</strong></td><td>You (or Claude when you ask)</td><td><span class="check">Zero — until you read the file</span></td><td>Anyone — any AI, any developer, any platform</td><td>Yes — checked into git</td><td>Architectural facts, decisions, hard-won knowledge that any tool needs. Platform-agnostic. <a class="gloss-link" data-tab="confession" data-anchor="ch9b" href="#">See "Documentation as Dormant Memory" below</a></td></tr>
       </tbody>
     </table>
 
-    <p>Rule of thumb: <strong>Team knowledge → CLAUDE.md (checked in). Personal discoveries → memory files. Global habits → your personal CLAUDE.md.</strong></p>
+    <p>Rule of thumb: <strong>Team knowledge → CLAUDE.md (checked in). Personal Claude-specific discoveries → memory files. Permanent project facts any AI needs → documentation files. Detailed procedures → skills.</strong></p>
 
     <h3>How Memory Gets Created</h3>
     <p>Three ways:</p>
@@ -701,7 +702,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 9B: DOCUMENTATION ==================== -->
   <div class="chapter" id="ch9b">
-    <div class="chapter-number">Chapter IX-B</div>
+    <div class="chapter-number">Chapter 12</div>
     <h2>Documentation as Dormant Memory</h2>
 
     <p>Memory files and CLAUDE.md are always wired in — they load every session, cost tokens every message, and are specific to Claude. There is another kind of persistent knowledge that costs nothing at rest, survives any AI platform, and can be shared with your whole team: <strong>documentation</strong>.</p>
@@ -753,7 +754,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 10 ==================== -->
   <div class="chapter" id="ch10">
-    <div class="chapter-number">Chapter X</div>
+    <div class="chapter-number">Chapter 13</div>
     <h2>Plugins (Model Context Protocol / MCP Servers)</h2>
 
     <p>MCP (Model Context Protocol) servers are external processes that give Claude new capabilities. By default, Claude can read files, edit files, run shell commands, and search code. If you need Claude to query a database, call a REST API, interact with Jira, or access any external system, you need an MCP server.</p>
@@ -837,7 +838,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 11 ==================== -->
   <div class="chapter" id="ch11">
-    <div class="chapter-number">Chapter XI</div>
+    <div class="chapter-number">Chapter 14</div>
     <h2>The Context Window</h2>
 
     <p>The context window is the total amount of text (measured in tokens) that Claude can "see" at once during a conversation. Everything &mdash; every message, every file read, every CLAUDE.md instruction, every skill, every tool result &mdash; occupies tokens in this finite window.</p>
@@ -892,7 +893,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 12 ==================== -->
   <div class="chapter" id="ch12">
-    <div class="chapter-number">Chapter XII</div>
+    <div class="chapter-number">Chapter 15</div>
     <h2>The File System Layout</h2>
 
     <p>Everything in Claude Code's architecture maps to a file in a predictable location. There is no registry, no database, no opaque binary format. Once you know the directory structure, you can inspect, edit, backup, or debug anything with a text editor.</p>
@@ -941,7 +942,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 13 ==================== -->
   <div class="chapter" id="ch13">
-    <div class="chapter-number">Chapter XIII</div>
+    <div class="chapter-number">Chapter 16</div>
     <h2>Scope and Distribution</h2>
 
     <p>Every piece of Claude Code configuration has a scope (who it affects) and a distribution method (how it spreads). Understanding this prevents "where do I put this?" confusion.</p>
@@ -984,7 +985,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 14 ==================== -->
   <div class="chapter" id="ch14">
-    <div class="chapter-number">Chapter XIV</div>
+    <div class="chapter-number">Chapter 17</div>
     <h2>The Prompt Engineering Trap</h2>
 
     <p>You know how to prompt. You've been prompting AI tools for months or years. You can write a prompt that gets Claude to produce good code. So why does any of this architecture matter?</p>
@@ -1019,7 +1020,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 15 ==================== -->
   <div class="chapter" id="ch15">
-    <div class="chapter-number">Chapter XV</div>
+    <div class="chapter-number">Chapter 18</div>
     <h2>Bonus Features</h2>
     <p>These are real Claude Code features that don't fit neatly into the earlier chapters but are essential for power users.</p>
   </div>
