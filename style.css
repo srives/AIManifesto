@@ -670,6 +670,26 @@ body {
   margin-bottom: 0.35rem;
 }
 
+.gotcha {
+  background: rgba(210, 100, 30, 0.08);
+  border-left: 3px solid #d4601e;
+  padding: 0.85rem 1.1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.92rem;
+}
+
+.gotcha::before {
+  content: 'Gotcha';
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #d4601e;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
 .real-world {
   background: rgba(57, 210, 192, 0.08);
   border-left: 3px solid var(--accent-cyan);

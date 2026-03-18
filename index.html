@@ -336,7 +336,11 @@
     </ul>
     <p>All applicable files are loaded and merged. It's like CSS cascading: general rules at the top, more specific rules override as you go deeper.</p>
 
+    <div class="gotcha"><strong>All CLAUDE.md files in the hierarchy are loaded together — and you pay token costs for all of them combined.</strong> Your global CLAUDE.md (<code>C:\Users\YourName\.claude\CLAUDE.md</code>) loads on every session across every project. Your repo CLAUDE.md loads whenever you're in that repo. They stack. If your global file is 300 lines and your repo file is 400 lines, you are paying for 700 lines of tokens on every single message. Subdirectory CLAUDE.md files load on demand (only when you work in that subdirectory), so they don't pile on upfront — but the global and repo root files always do. A bloated global CLAUDE.md is the most expensive kind: it costs tokens in every project, not just one.</div>
+
     <div class="real-talk">The hardest thing for GUI developers to accept: CLAUDE.md is always "on." There's no checkbox to enable it, no menu to activate it. If the file exists at the repo root, it's loaded. Every session. Automatically. This passivity is its power &mdash; you can't forget to apply your standards because you never had to apply them manually in the first place.</div>
+
+    <div class="gotcha"><strong>CLAUDE.md grows over time — and you pay input token costs on every prompt for every line in it.</strong> Each time you ask Claude to add a new rule, hard-won fact, or anti-pattern to CLAUDE.md, the file gets longer. That file is loaded into context at the start of every session and charged as input tokens on every single message you send — forever, until you trim it. A 500-line CLAUDE.md might cost 3,000–5,000 tokens per message. On Sonnet at $3/million input tokens, that's fractions of a cent each — but it adds up across thousands of messages and permanently eats into your Awareness window. Treat CLAUDE.md like code: refactor it periodically, remove rules that are no longer relevant, and move detailed procedures to skills where they only cost tokens when invoked.</div>
 
     <h3>CLAUDE.md Size Directly Affects Your Token Budget — Every Session</h3>
     <p>This is important and often missed: <strong>every token in CLAUDE.md is consumed from your Awareness budget on every single message, for the entire session.</strong> It never leaves context. A 500-line CLAUDE.md might cost 3,000–5,000 tokens — permanently occupying that slice of your 267-page (Pro) or 1,333-page (Max) window, every time you start typing.</p>
@@ -631,6 +635,22 @@ Ask me for the component name and path before starting.</code></pre>
       <li>Anything where the blast radius is large enough that you want to review before changes happen</li>
       <li>When you want to understand Claude's approach before it starts</li>
     </ul>
+
+    <h3>Honest Answer: Do You Even Need Plan Mode?</h3>
+    <div class="real-talk">For most people, there isn't much practical difference between using Plan Mode (Shift+Tab) and just telling Claude in a plain prompt: "Research this, create a plan, and wait for my approval before touching any files." Both get you the same outcome. Claude is good at following that instruction.</div>
+
+    <p>The actual difference is thin:</p>
+    <ul>
+      <li><strong>Plan Mode (Shift+Tab)</strong> — sets a system-level flag that mechanically prevents Claude from using file-editing tools during planning. It cannot edit files even if it gets excited and wants to start. Hard enforcement.</li>
+      <li><strong>Plain prompt ("plan first, wait for approval")</strong> — works 95% of the time. Can occasionally drift if the conversation runs long and your original instruction fades from context.</li>
+    </ul>
+
+    <p>The real advantage of Plan Mode is <strong>enforcement, not capability</strong>. If your prompting discipline is solid, you're already getting Plan Mode's benefit without the keystroke.</p>
+
+    <h3>Best Practice: Save the Plan as a .md File</h3>
+    <p>Whether you use Plan Mode or a plain prompt, ask Claude to write the plan to a <code>.md</code> file before it starts executing:</p>
+    <pre><code>Research the approach for this refactor, write the plan to PLAN.md, then wait for my approval.</code></pre>
+    <p>This gives you the plan as a <strong>persistent artifact</strong> — on disk, in git, survives compaction and session end. You can review it, edit it, share it with your team, feed it back into a future session, or refer to it mid-execution if something goes wrong. A plan that only exists in the conversation is gone after the first <code>/compact</code>. A plan in a <code>.md</code> file is there forever.</p>
   </div>
 
   <!-- ==================== CHAPTER 9 ==================== -->
@@ -1022,6 +1042,8 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy-human">Like cleaning out your inbox before starting a new project phase. You archive the old threads, keep the active ones, and start fresh with clarity. If you don't do it intentionally, the system will eventually do it for you — but it won't know which emails you still needed. /compact is that intentional cleanup, done on your schedule.</div>
 
     <p>You can also pass a summary hint: <code>/compact focus on the authentication refactor</code> tells the compressor what to prioritize keeping.</p>
+
+    <div class="gotcha"><strong>/compact will likely deactivate any skills you loaded.</strong> When you compact a session, the skill's content — which was sitting in conversation history — gets summarized or dropped. Claude does not automatically re-read the skill file afterward. It will silently stop following the skill's instructions. You won't see an error. You'll just notice Claude is no longer behaving as the skill specified. Fix: re-invoke the skill after compacting, or use the compact hint to preserve its key rules.</div>
 
     <h3>Skills and Compaction — A Known Problem</h3>
     <div class="real-talk"><strong>Compaction can silently drop skills you loaded earlier in the session.</strong> This is a documented real-world issue. After compaction, Claude may completely forget that a skill was active — and will not automatically re-read it. It will stop following the skill's instructions without telling you. You will just notice that Claude is no longer behaving as instructed.</div>
@@ -2679,6 +2701,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   <table class="compare-table">
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
+      <tr><td>Architecture Decision Record (ADR)</td><td>A short document that records a significant architectural decision: what was decided, why, what alternatives were considered, and what the consequences are. Written before the work starts, not after. The software equivalent of writing down why you made a structural choice before pouring the concrete. Plan Mode in Claude Code is the same discipline — describe your approach before touching files.<a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">→ Chapter IX (Plans)</a></td></tr>
       <tr><td>Repository (repo / repos)</td><td><strong>It is a directory. That's it.</strong> A repository is just a folder — on your machine, or on a server like GitHub — that has version history tracking turned on. Your local copy is a directory on your hard drive (e.g., <code>C:\repos\MyProject</code>). The GitHub copy is the same directory stored on GitHub's server. When someone says "the repo," they mean one of those two directories. When they say "clone the repo," they mean: download a copy of that server directory to your machine. When they say "push to the repo," they mean: upload your local changes to the server's copy. There is no mysticism here. Repository = versioned directory. Repo = short for repository. Repos = more than one. The word "repository" sounds like it belongs in a library or a pharmaceutical warehouse, which is why it confuses people. It doesn't. It's a folder with a history log.</td></tr>
       <tr><td>git</td><td>The version control system that tracks changes to files over time. It lets you save snapshots (commits), try experiments on separate branches, and go back to any previous state. git itself is a command-line tool. <strong>Products that provide git hosting and collaboration:</strong> GitHub (most popular, owned by Microsoft), GitLab (popular in enterprises, can be self-hosted), Bitbucket (popular with Atlassian/Jira shops), Azure DevOps (Microsoft's enterprise git platform), and Gitea/Forgejo (self-hosted open source options). GitHub is the public face of git for most developers.<a class="gloss-link" data-tab="glossary" data-anchor="glossary" href="#">→ Glossary</a></td></tr>
       <tr><td>GitHub</td><td>A website (github.com) where developers store and share git repositories. Think of it as Google Drive for code, with version history and collaboration tools built in. Free for public projects. Owned by Microsoft. When someone says "it's on GitHub," they mean the source code is publicly available there.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">→ Other AI CLIs</a></td></tr>
@@ -2866,6 +2889,8 @@ const glossaryTerms = {
   'DLP': 'Data Loss Prevention. Corporate software that blocks sensitive data from leaving the network. Can interfere with CLI tools.',
   'Group Policy': 'Windows enterprise feature for centrally controlling what employees can install and run. May block Claude Code until IT whitelists it.',
   'Audit log': 'A record of who did what and when. Enterprise Claude logs every prompt and response for compliance review.',
+  'ADR': 'Architecture Decision Record. A short document recording a significant architectural decision: what, why, alternatives considered, consequences. Written before the work, not after.',
+  'Architecture Decision Record': 'A short document recording why a significant architectural decision was made. What was decided, why, what alternatives were considered. Written before the work starts — same discipline as Plan Mode in Claude Code.',
   'Red-green': 'A testing practice: write a failing test first (red), then write code that makes it pass (green). Proves the test catches the problem.',
   'Runbook': 'A step-by-step procedure document for completing a task. Skills in Claude Code are essentially runbooks for AI.',
   'SOP': 'Standard Operating Procedure. Documented instructions for a routine task. Skills are SOPs for Claude.',
