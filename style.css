@@ -432,7 +432,7 @@ body {
 }
 
 .real-talk::before {
-  content: 'Real Talk';
+  content: 'Reality Check';
   display: block;
   font-size: 0.7rem;
   font-weight: 700;
