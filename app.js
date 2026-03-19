@@ -1777,13 +1777,13 @@ const bonusQuestions = [
   {
     question: "The Task tool in Claude Code is most like:",
     choices: [
-      "A CI/CD pipeline",
-      "A shared Trello board inside the conversation",
+      "A to-do list you check off as work completes",
+      "A fork() call — it spawns an independent subagent with its own context",
       "A cron job scheduler",
       "A git branch manager"
     ],
     answer: 1,
-    explanation: "<strong>A shared Trello board inside the conversation.</strong> Tasks are created, tracked as in-progress or complete, and persist within the conversation. Claude can create them to break down complex work, and you can see the status at any time."
+    explanation: "<strong>A fork() call — it spawns a subagent.</strong> The Task tool launches an independent subprocess with its own conversation context and tool access. It's not a task tracker — that's the TodoWrite/Read tools. Task = spawn an agent. Todo = track a checklist."
   },
   {
     question: "You're planning architecture with Opus, then switching to implementation. What command switches models mid-session?",
