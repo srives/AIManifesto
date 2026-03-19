@@ -982,17 +982,6 @@ const shorterQuestions = [
     explanation: "<strong>CLAUDE.md.</strong> This is exactly what CLAUDE.md is for: persistent project instructions that are automatically loaded into every session. Write your conventions there once, check it into git, and every session in that repo starts with those instructions already in context. No manual repetition needed."
   },
   {
-    question: "In the file system layout, .claude/settings.local.json is typically:",
-    choices: [
-      "Checked into git for team sharing",
-      "Listed in .gitignore for local-only overrides",
-      "Stored in the cloud",
-      "Auto-generated and read-only"
-    ],
-    answer: 1,
-    explanation: "<strong>In .gitignore.</strong> Just like <code>.env.local</code>, this file contains personal overrides that shouldn't be shared. Your teammate might allow different tools or have different preferences. The base <code>.claude/settings.json</code> can be checked in for team defaults; the <code>.local.json</code> version stays personal."
-  },
-  {
     question: "What mechanism lets Claude Code edit files, run commands, and search codebases?",
     choices: [
       "Skills",
