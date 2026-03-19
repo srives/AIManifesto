@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuiz('tokenquiz', tokenQuestions);
   initQuiz('shorter', shorterQuestions);
   initQuiz('larger', largerQuestions);
-  initQuiz('plugins', pluginQuestions);
   initQuiz('bonusquiz', bonusQuestions);
 });
 
@@ -1002,6 +1001,39 @@ const shorterQuestions = [
     ],
     answer: 1,
     explanation: "<strong>Multiple, all merged.</strong> You can have CLAUDE.md at the repo root, in subdirectories, and at <code>~/.claude/CLAUDE.md</code> for user-level instructions. They're all loaded and merged. It's like CSS cascading: user-level is the base, repo root adds to it, subdirectory-level adds more specific instructions. This lets teams set repo standards while individuals add personal preferences."
+  },
+  {
+    question: "What does /plugin install actually do?",
+    choices: [
+      "Configures a single MCP server in settings.json",
+      "Installs a bundle that can contain any combination of slash commands, subagents, hooks, and MCP server configs — all in one step",
+      "Downloads a SKILL.md file into .claude/skills/",
+      "Adds a VS Code extension to your editor"
+    ],
+    answer: 1,
+    explanation: "<strong>A bundle, not just an MCP server.</strong> A plugin can contain slash commands, subagents, hooks, and/or MCP configs. <code>/plugin install package-name</code> sets up everything the plugin includes at once. Some plugins contain only slash commands. Some contain only MCP configs. Superpowers contains all four."
+  },
+  {
+    question: "What is the difference between a plugin and an MCP server?",
+    choices: [
+      "They are the same thing — plugin is just the newer term for MCP server",
+      "A plugin is an installable bundle; an MCP server is a process that exposes tools. A plugin may include an MCP server config but can also contain slash commands, subagents, and hooks with no MCP server at all",
+      "Plugins are personal; MCP servers are for teams",
+      "MCP servers require restarting Claude; plugins hot-reload"
+    ],
+    answer: 1,
+    explanation: "<strong>A plugin is a bundle; an MCP server is one possible ingredient.</strong> You can install a plugin containing only slash commands and hooks — no MCP server involved. You can also configure an MCP server directly in settings.json without using the plugin system at all. The two concepts overlap but are independent."
+  },
+  {
+    question: "Can a malicious MCP server read your source code and exfiltrate it?",
+    choices: [
+      "No — MCP servers are sandboxed by Claude Code",
+      "No — Claude Code blocks network access from MCP servers",
+      "Yes — an MCP server is a process running with your user permissions and has full system access",
+      "Only if you explicitly grant it file read permissions"
+    ],
+    answer: 2,
+    explanation: "<strong>Yes.</strong> An MCP server is just a process on your machine. It runs with whatever permissions your user account has — no sandbox, no network restrictions. Treat installing an MCP server the same as installing any other executable: review the source or publisher before trusting it."
   }
 ];
 
@@ -1726,253 +1758,6 @@ const largerQuestions = [
   }
 ];
 
-// =====================================================
-// PLUGIN QUIZ - MCP Servers, installation, security
-// =====================================================
-const pluginQuestions = [
-  {
-    question: "What is the closest thing to a 'plugin system' in Claude Code?",
-    choices: [
-      "Skills",
-      "Hooks",
-      "MCP Servers",
-      "Slash Commands"
-    ],
-    answer: 2,
-    explanation: "<strong>MCP Servers.</strong> They are the only mechanism that adds entirely new tools to Claude. Skills teach behavior, hooks run shell commands on events, slash commands are stored prompts. MCP servers add new capabilities (database queries, API calls, etc.) that didn't exist before."
-  },
-  {
-    question: "When someone says 'install this Claude Code plugin,' they mean:",
-    choices: [
-      "Configure an MCP server in settings.json — that's all a plugin can contain",
-      "Run /plugin install, which installs a bundle that can contain slash commands, subagents, hooks, and/or MCP configs",
-      "Copy a SKILL.md file into .claude/skills/",
-      "Install a VS Code extension"
-    ],
-    answer: 1,
-    explanation: "<strong>Run /plugin install.</strong> A Claude Code Plugin is an installable bundle — it can contain any combination of slash commands, subagents, hooks, and MCP server configs. It is NOT the same as an MCP server. An MCP server is one possible ingredient inside a plugin. <code>/plugin install package-name</code> installs everything the plugin contains in one step. The most popular example is Superpowers (~54K GitHub stars), which installs a full TDD methodology framework."
-  },
-  {
-    question: "How does an MCP server communicate with Claude Code?",
-    choices: [
-      "HTTP REST API on a random port",
-      "Named pipes (Windows) or Unix domain sockets",
-      "JSON-RPC over stdin/stdout (local) or HTTP (remote)",
-      "gRPC with protobuf"
-    ],
-    answer: 2,
-    explanation: "<strong>JSON-RPC over stdin/stdout.</strong> Similar to the Language Server Protocol (LSP) that powers IntelliSense in VS Code. The MCP server runs as a child process and communicates via its standard input/output streams using JSON-RPC messages."
-  },
-  {
-    question: "Where do you configure an MCP server that only YOU should use (not your team)?",
-    choices: [
-      "CLAUDE.md in the repo root",
-      "~/.claude/settings.json (user-level)",
-      ".claude/settings.json (repo-level, checked in)",
-      ".claude/commands/mcp.md"
-    ],
-    answer: 1,
-    explanation: "<strong>~/.claude/settings.json (user-level).</strong> This is your personal settings file, never checked into git. Good for MCP servers that connect to your personal databases, Jira accounts, or other individual tools."
-  },
-  {
-    question: "Where do you configure an MCP server that your whole team should use?",
-    choices: [
-      "~/.claude/settings.json",
-      ".claude/settings.local.json",
-      ".claude/settings.json (repo-level, checked in)",
-      "package.json"
-    ],
-    answer: 2,
-    explanation: "<strong>.claude/settings.json in the repo (checked in).</strong> When team members clone the repo, the MCP server config comes with it. Use environment variables for any credentials so the config is safe to commit."
-  },
-  {
-    question: "After adding an MCP server to settings.json, what must you do?",
-    choices: [
-      "Run 'claude mcp install'",
-      "Restart Claude Code (start a new session)",
-      "Nothing — it hot-reloads automatically",
-      "Run 'npm start' in the MCP server directory"
-    ],
-    answer: 1,
-    explanation: "<strong>Restart Claude Code.</strong> MCP servers are loaded at session start. Changes to the <code>mcpServers</code> configuration require starting a new session to take effect."
-  },
-  {
-    question: "An MCP server entry in settings.json requires at minimum:",
-    choices: [
-      "A name, a Docker image, and a port number",
-      "A name and a command (what to execute)",
-      "A URL and an API key",
-      "A package name and version"
-    ],
-    answer: 1,
-    explanation: "<strong>A name and a command.</strong> The minimal config is a key (the server name) with a <code>command</code> field (what executable to run). Optional: <code>args</code> (command arguments) and <code>env</code> (environment variables like API keys)."
-  },
-  {
-    question: "How does Claude know what tools an MCP server provides?",
-    choices: [
-      "You list them in CLAUDE.md",
-      "The MCP server declares them via the protocol at startup",
-      "You define them in settings.json",
-      "Claude scans the server's source code"
-    ],
-    answer: 1,
-    explanation: "<strong>The MCP server declares them.</strong> When Claude Code launches an MCP server, the server responds with a list of available tools (name, description, parameter schema). Claude then treats these tools exactly like its built-in tools (Read, Edit, Bash, etc.)."
-  },
-  {
-    question: "Which analogy best describes MCP servers?",
-    choices: [
-      "Like .gitignore rules — they filter what Claude sees",
-      "Like COM objects — separate processes exposing methods via a protocol",
-      "Like CSS stylesheets — they change how things look",
-      "Like unit tests — they verify behavior"
-    ],
-    answer: 1,
-    explanation: "<strong>COM objects.</strong> A COM server is a separate process that exposes interfaces via a well-defined protocol (COM/DCOM). Your application calls its methods without knowing the implementation. MCP servers work the same way: separate processes exposing tools via the MCP protocol."
-  },
-  {
-    question: "Can a malicious MCP server read your source code and send it to an external server?",
-    choices: [
-      "No — MCP servers are sandboxed",
-      "No — Claude Code blocks network access for MCP servers",
-      "Yes — an MCP server runs with your user permissions and has full system access",
-      "Only if you grant it explicit file permissions in settings.json"
-    ],
-    answer: 2,
-    explanation: "<strong>Yes.</strong> An MCP server is just a process running on your machine. It has whatever permissions your user account has. There is no sandbox. Treat installing an MCP server like installing any other executable — review the source or publisher before trusting it."
-  },
-  {
-    question: "How do MCP servers handle credentials (API keys, database passwords)?",
-    choices: [
-      "You put them in CLAUDE.md",
-      "Claude stores them in its conversation history",
-      "Through environment variables in the MCP server's config, passed at launch",
-      "You paste them into the chat when asked"
-    ],
-    answer: 2,
-    explanation: "<strong>Environment variables in the config.</strong> The <code>env</code> field in the MCP server's settings.json entry passes environment variables to the server process at launch. Claude never sees the raw credentials — it just asks the server to 'create a ticket' and the server handles auth internally."
-  },
-  {
-    question: "You want Claude to query your team's PostgreSQL database during conversations. What do you need?",
-    choices: [
-      "Put the connection string in CLAUDE.md and tell Claude to use psql",
-      "Install a database MCP server and configure it with the connection string",
-      "Write a skill that explains SQL syntax",
-      "Create a hook that runs queries on every message"
-    ],
-    answer: 1,
-    explanation: "<strong>Install a database MCP server.</strong> This adds tools like <code>run_query</code> and <code>list_tables</code> that Claude can call. The connection string goes in the MCP server's <code>env</code> config, not in CLAUDE.md (never put credentials in CLAUDE.md)."
-  },
-  {
-    question: "What language can you write an MCP server in?",
-    choices: [
-      "Only TypeScript (it's an npm ecosystem tool)",
-      "Only Python (Anthropic's SDK is Python-only)",
-      "Any language that can read stdin and write stdout",
-      "Only languages with an official Anthropic SDK"
-    ],
-    answer: 2,
-    explanation: "<strong>Any language.</strong> MCP is a protocol (JSON-RPC over stdin/stdout). If your program can read from stdin, process JSON, and write to stdout, it's a valid MCP server. Anthropic provides TypeScript and Python SDKs for convenience, but the protocol is language-agnostic."
-  },
-  {
-    question: "What's the difference between an MCP server configured in ~/.claude/settings.json vs .claude/settings.local.json?",
-    choices: [
-      "No difference — they're the same file",
-      "User-level (available everywhere, personal) vs repo-level (this project only, not checked in)",
-      "One runs on startup, the other runs on demand",
-      "One is for production, the other for development"
-    ],
-    answer: 1,
-    explanation: "<strong>User-level vs repo-level.</strong> <code>~/.claude/settings.json</code> applies to all your sessions everywhere. <code>.claude/settings.local.json</code> is repo-specific and not checked into git (the <code>.local</code> convention, like <code>.env.local</code>). Use user-level for personal tools, repo-level for project-specific tools."
-  },
-  {
-    question: "You install an MCP server but Claude doesn't seem to see its tools. What's the most likely cause?",
-    choices: [
-      "You need to add the tool names to CLAUDE.md",
-      "You haven't restarted Claude Code since adding the config",
-      "The MCP server needs a license key",
-      "MCP servers only work on Linux"
-    ],
-    answer: 1,
-    explanation: "<strong>You haven't restarted.</strong> MCP servers are loaded at session start. If you added the config mid-session, Claude won't see it until you start a new session."
-  },
-  {
-    question: "A typical MCP server config in settings.json looks like:",
-    choices: [
-      "<code>{ \"plugins\": [\"database-server\"] }</code>",
-      "<code>{ \"mcpServers\": { \"mydb\": { \"command\": \"npx\", \"args\": [\"-y\", \"@example/mcp-db\"], \"env\": { \"DB_URL\": \"...\" } } } }</code>",
-      "<code>{ \"extensions\": { \"database\": { \"url\": \"...\" } } }</code>",
-      "<code>{ \"tools\": [{ \"name\": \"database\", \"path\": \"/usr/local/bin/mcp-db\" }] }</code>"
-    ],
-    answer: 1,
-    explanation: "<strong>The mcpServers block with command, args, and env.</strong> The key is the server name (you choose it). <code>command</code> is what to execute. <code>args</code> are command-line arguments. <code>env</code> passes environment variables (credentials, config). This is the standard format."
-  },
-  {
-    question: "MCP servers are most analogous to which Visual Studio concept?",
-    choices: [
-      "Solution files (.sln)",
-      "VS Code extensions running in the extension host process",
-      "Project references",
-      "NuGet package restore"
-    ],
-    answer: 1,
-    explanation: "<strong>VS Code extensions.</strong> They run in a separate process (the extension host), expose commands and capabilities via an API, and the editor calls them when needed. MCP servers are the same: separate processes exposing tools via a standardized protocol."
-  },
-  {
-    question: "You want to share an MCP server with your team WITHOUT including credentials in the repo. Best approach?",
-    choices: [
-      "Put the full config with credentials in .claude/settings.json and add it to .gitignore",
-      "Put the config in .claude/settings.json (checked in) using environment variable references, and document required env vars in the README",
-      "Email the config to each team member",
-      "Put credentials in CLAUDE.md with a warning not to commit them"
-    ],
-    answer: 1,
-    explanation: "<strong>Checked-in config with env var references.</strong> The MCP server config in <code>.claude/settings.json</code> can reference environment variables via the <code>env</code> field. Check in the config (so teammates get it on clone) but use env vars for secrets. Document in the README which env vars to set."
-  },
-  {
-    question: "Which of these is NOT something an MCP server can do?",
-    choices: [
-      "Query a database and return results to Claude",
-      "Modify Claude's system prompt or personality",
-      "Send messages to Slack channels",
-      "Create Jira tickets"
-    ],
-    answer: 1,
-    explanation: "<strong>Modify Claude's system prompt.</strong> MCP servers add tools — they give Claude new actions it can take (query, send, create). They cannot modify Claude's instructions, personality, or system prompt. That's what CLAUDE.md and skills do."
-  },
-  {
-    question: "What happens if an MCP server crashes during a conversation?",
-    choices: [
-      "Claude Code crashes too",
-      "The conversation is lost",
-      "Claude loses access to that server's tools but the conversation continues",
-      "Claude automatically restarts the server"
-    ],
-    answer: 2,
-    explanation: "<strong>Claude loses the tools but continues.</strong> MCP servers are separate processes. If one crashes, Claude can no longer call its tools, but the conversation and all other functionality continue normally. You may need to restart Claude Code to reconnect."
-  },
-  {
-    question: "What is 'Superpowers' and why do developers recommend it?",
-    choices: [
-      "An MCP server that connects Claude to 500+ SaaS apps",
-      "A plugin (~54K GitHub stars) that enforces a structured development methodology: brainstorming, spec writing, TDD, parallel subagents, and code review",
-      "A skill document that teaches Claude advanced SQL",
-      "A hook that runs security audits before every commit"
-    ],
-    answer: 1,
-    explanation: "<strong>Superpowers is a methodology framework plugin.</strong> It's the most starred Claude Code plugin with ~54K GitHub stars and is in Anthropic's official marketplace. Install with <code>/plugin install superpowers</code>. It doesn't just add tools — it enforces a discipline: Socratic brainstorming first, detailed spec writing, test-driven development, parallel subagent implementation, then structured code review. It's what developers mean when they say 'I use Claude Code properly.'"
-  },
-  {
-    question: "A plugin can contain which of the following? (choose the most complete answer)",
-    choices: [
-      "Only MCP server configurations",
-      "Only slash commands and skills",
-      "Any combination of slash commands, subagents, MCP configs, and hooks",
-      "Only hooks and subagents"
-    ],
-    answer: 2,
-    explanation: "<strong>Any combination of all four.</strong> A plugin is a bundle. It can contain slash commands (pre-canned prompts), subagents (specialized agents), MCP configs (connections to external systems), and hooks (automated triggers). One <code>/plugin install</code> sets up whatever the plugin includes. Some plugins contain only slash commands. Some contain only MCP configs. Superpowers contains all four working together."
-  }
-];
 
 // =====================================================
 // BONUS FEATURES QUIZ
