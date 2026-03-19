@@ -539,11 +539,11 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="chapter-number">Chapter 7</div>
     <h2>Hooks</h2>
 
-    <p>Hooks are the one thing in this architecture that actually <em>executes code</em>. A hook is a shell command (bash, PowerShell, whatever) that runs in response to a specific event. When the event fires, the command runs on your machine, with your permissions, in your environment.</p>
+    <p>Hooks are the one thing in this architecture that actually <em>executes code</em>. A hook is a command or program (bash script, PowerShell script, Python script, compiled binary &mdash; anything your OS can run) that fires in response to a specific event. When the event fires, it runs on your machine, with your permissions, in your environment.</p>
 
     <p>Every other concept in this document &mdash; CLAUDE.md, skills, memory, slash commands &mdash; is a document that gets loaded and read. None of them execute code on their own. Hooks are the exception: they are active executors.</p>
 
-    <div class="analogy">Like git hooks (<code>pre-commit</code>, <code>post-merge</code>, <code>pre-push</code>). You drop a script into <code>.git/hooks/pre-commit</code>, and git runs it before every commit. If it exits non-zero, the commit is aborted. Claude Code hooks work the same way: you configure a command to run on an event, and the system runs it. Real shell command, real execution, real consequences.</div>
+    <div class="analogy">Like git hooks (<code>pre-commit</code>, <code>post-merge</code>, <code>pre-push</code>). You drop a script into <code>.git/hooks/pre-commit</code>, and git runs it before every commit. If it exits non-zero, the commit is aborted. Claude Code hooks work the same way: you configure a command to run on an event, and the system runs it. Real command, real execution, real consequences.</div>
 
     <div class="analogy-alt">Like MSBuild pre-build and post-build events in Visual Studio. You specify a command in project properties, and Visual Studio runs it before or after the build. Or like Windows Task Scheduler triggers: "When event X happens, run command Y." Hooks are event-driven automation within Claude Code.</div>
 
@@ -853,7 +853,7 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="real-talk"><strong>"MCP server" is a misnomer — Anthropic's own term, used consistently in their docs, but technically misleading.</strong> Here is what actually happens: Claude Code launches a <em>program</em> as a child process. That program listens for JSON-RPC messages on its stdin, executes tool calls, and writes results back on stdout. It is a local process acting as a tool dispatcher — not a server in any meaningful sense of that word. There is no port. There is no network. There is no deployment. It starts when your Claude Code session starts and stops when the session ends. Calling it a "server" is like calling a calculator a "computation server." The word stuck because the underlying protocol (MCP) borrowed server/client terminology from web architecture, even though the actual implementation is just two programs talking through pipes on your own machine. We use "MCP server" throughout because that is what every doc, tutorial, and developer uses — but now you know what it actually is.</div>
 
-    <p>An MCP server gives Claude access to external systems — databases, APIs, Jira, Slack, GitHub. Without one, Claude can read and edit your files and run shell commands, but it cannot call external APIs in a structured, credential-safe way. An MCP server is the bridge between Claude and the outside world.</p>
+    <p>An MCP server gives Claude access to external systems — databases, APIs, Jira, Slack, GitHub. Without one, Claude can read and edit your files and run commands in your terminal, but it cannot call external APIs in a structured, credential-safe way. An MCP server is the bridge between Claude and the outside world.</p>
 
     <div class="aha"><strong>Claude Code can run any program on your machine without MCP.</strong> Through its Bash tool, Claude has access to every CLI program in your PATH. Git, curl, the Atlassian CLI, AWS CLI, kubectl, psql — if you can run it in a terminal, Claude can run it. MCP is the structured, credential-safe approach. The Bash tool + an installed CLI is the shortcut — simpler to set up, less elegant, same result for many tasks.</div>
 
@@ -2284,7 +2284,7 @@ if __name__ == "__main__":
     <thead><tr><th></th><th>CLI program (Bash tool)</th><th>MCP server</th></tr></thead>
     <tbody>
       <tr><td><strong>Setup time</strong></td><td>Minutes — write the program, Claude uses it</td><td>Hours — implement the protocol, write tool definitions</td></tr>
-      <tr><td><strong>How Claude calls it</strong></td><td>By constructing a shell command string</td><td>By calling a named tool with structured JSON parameters</td></tr>
+      <tr><td><strong>How Claude calls it</strong></td><td>By constructing a command-line string</td><td>By calling a named tool with structured JSON parameters</td></tr>
       <tr><td><strong>Parameter handling</strong></td><td>Claude guesses flags from --help or your instructions; prone to errors</td><td>Strict JSON Schema — Claude always passes correct types</td></tr>
       <tr><td><strong>Output parsing</strong></td><td>Claude reads stdout as text and interprets it</td><td>Structured JSON response — no interpretation needed</td></tr>
       <tr><td><strong>Credentials</strong></td><td>Must be in environment variables Claude can see, or hardcoded</td><td>Configured in the server — Claude never sees raw credentials</td></tr>
@@ -2517,7 +2517,7 @@ const args = ['--session-id', sessionId, prompt]</code></pre>
 }</code></pre>
 
   <h3>Step 2: The SessionStart Hook</h3>
-  <p>Hooks run shell commands in response to Claude Code events. The <code>hooks.json</code> file tells Claude Code what to execute:</p>
+  <p>Hooks run commands in response to Claude Code events. The <code>hooks.json</code> file tells Claude Code what to execute:</p>
 
 <pre><code>// hooks/hooks.json
 {
@@ -2684,7 +2684,7 @@ function findSkillsInDir(dir, sourceType, maxDepth = 3) {
   <p>Personal skills in <code>~/.claude/skills/</code> shadow plugin skills, so teams can override behavior without forking the plugin.</p>
 
   <h3>Step 6: Cross-Platform Hook Wrapper</h3>
-  <p>Since hooks execute shell commands, Windows compatibility requires a polyglot wrapper &mdash; a file that works as both a Windows batch file and a bash script:</p>
+  <p>Since hooks execute commands, Windows compatibility requires a polyglot wrapper &mdash; a single file that works as both a Windows batch file and a bash script:</p>
 
 <pre><code>: &lt;&lt; 'CMDBLOCK'
 @echo off
@@ -2764,7 +2764,7 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
   <table class="compare-table">
     <thead><tr><th>Component</th><th>What It Is</th><th>When It Runs</th></tr></thead>
     <tbody>
-      <tr><td><strong>Hook</strong></td><td>A shell command triggered by a Claude Code event</td><td>Automatically, on events like SessionStart, PreToolUse, Stop</td></tr>
+      <tr><td><strong>Hook</strong></td><td>A command or program triggered by a Claude Code event</td><td>Automatically, on events like SessionStart, PreToolUse, Stop</td></tr>
       <tr><td><strong>Skill</strong></td><td>A markdown file (SKILL.md) that teaches Claude a workflow</td><td>When Claude or a command invokes it</td></tr>
       <tr><td><strong>Command</strong></td><td>A markdown file that defines a user-typed slash command</td><td>When the user types <code>/command-name</code></td></tr>
       <tr><td><strong>Agent</strong></td><td>A template for spawning a specialized subagent</td><td>When Claude dispatches parallel work</td></tr>
@@ -2773,7 +2773,7 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
 
   <div class="analogy-human">A plugin is like a car. A hook is the ignition &mdash; it starts things up automatically. Skills are the engine &mdash; they do the actual work. Commands are the steering wheel &mdash; the driver controls them directly. Agents are passengers you send on errands. The car is not the ignition, but the car contains the ignition.</div>
 
-  <p>When we say "the SessionStart hook fires," we mean: one specific component inside the plugin (the hook) executes a shell command in response to a Claude Code event. The plugin as a whole is the package that contains that hook, plus all the skills, commands, and agents.</p>
+  <p>When we say "the SessionStart hook fires," we mean: one specific component inside the plugin (the hook) executes a command in response to a Claude Code event. The plugin as a whole is the package that contains that hook, plus all the skills, commands, and agents.</p>
 
   <h3>Is a Plugin "Live" or Dormant?</h3>
   <p><strong>Dormant.</strong> Between sessions, the plugin is just files sitting on your local disk at <code>~/.claude/plugins/cache/</code>. No process is running. Anthropic's servers have zero awareness that your plugin exists. Nothing is consuming memory, CPU, or tokens.</p>
@@ -2782,7 +2782,7 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
 
   <ol>
     <li><strong>You start a Claude Code session</strong> &mdash; the plugin is dormant files on disk</li>
-    <li><strong>Claude Code fires the SessionStart event</strong> &mdash; the plugin's hook runs a shell script</li>
+    <li><strong>Claude Code fires the SessionStart event</strong> &mdash; the plugin's hook runs a script</li>
     <li><strong>The hook injects the meta-skill</strong> &mdash; a markdown document listing all available skills gets added to the conversation context</li>
     <li><strong>From this point on, Claude "knows"</strong> what the plugin can do &mdash; because the meta-skill is part of its context window</li>
     <li><strong>When you close the session</strong> &mdash; the plugin goes back to dormant. Nothing persists in memory.</li>
@@ -4065,7 +4065,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   <ul>
     <li>CLAUDE.md — persistent project instructions loaded every session</li>
     <li>Skills — specialized instruction documents loaded on demand</li>
-    <li>Hooks — automated shell commands triggered by events</li>
+    <li>Hooks — automated commands triggered by events</li>
     <li>Memory — notes that persist across sessions</li>
     <li>Agents/Worktrees — delegating subtasks to isolated environments</li>
     <li>Plan Mode — design-before-coding workflow</li>
@@ -4154,7 +4154,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Headless</td><td>Running software without any visual interface &mdash; no windows, no mouse, no screen. Servers run headless. Claude Code can run headless in automated pipelines, executing tasks without a human watching.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
       <tr><td><code>/help</code></td><td>A Claude Code command. Lists all available commands, built-in tools, and current session information.<a class="gloss-link" data-tab="confession" data-anchor="ch15" href="#">&rarr; Chapter XV</a></td></tr>
       <tr><td>HIPAA</td><td>Health Insurance Portability and Accountability Act. US federal law regulating how health data must be protected. If your organization handles patient data, you need HIPAA-compliant tools &mdash; meaning the vendor must sign a Business Associate Agreement and meet specific security requirements.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">&rarr; Pricing page</a></td></tr>
-      <tr><td>Hook</td><td>A shell command that executes in response to an event (before/after tool use, session start). Unlike skills, hooks actually run code.<a class="gloss-link" data-tab="confession" data-anchor="ch6" href="#">&rarr; Chapter VII</a></td></tr>
+      <tr><td>Hook</td><td>A command or program that executes automatically in response to a Claude Code event (before/after tool use, session start, session stop). Can be any executable &mdash; a bash script, a PowerShell script, a Python script, or a compiled binary. Unlike skills (which are instructions Claude reads), hooks actually run code.<a class="gloss-link" data-tab="confession" data-anchor="ch6" href="#">&rarr; Chapter VII</a></td></tr>
       <tr><td>HTTP / HTTPS</td><td><strong>HyperText Transfer Protocol (Secure).</strong> The protocol web browsers use. HTTPS adds encryption (TLS). APIs, web pages, and remote MCP servers use HTTPS.</td></tr>
       <tr><td>IDE</td><td><strong>Integrated Development Environment.</strong> A code editor with built-in tools (debugger, compiler, etc.). Visual Studio, VS Code, JetBrains products.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">&rarr; Introduction</a></td></tr>
       <tr><td><code>/init</code></td><td>A Claude Code command. Analyzes your project and generates an initial CLAUDE.md automatically. Run it when starting a new project, or to improve an existing CLAUDE.md.<a class="gloss-link" data-tab="confession" data-anchor="ch2" href="#">&rarr; Chapter III</a></td></tr>
@@ -4221,6 +4221,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Session</td><td>A conversation with Claude Code. Has a unique ID, persists as a .jsonl file, can be resumed later.<a class="gloss-link" data-tab="confession" data-anchor="ch1" href="#">&rarr; Chapter II</a></td></tr>
       <tr><td>settings.json</td><td>Claude Code's configuration file. Controls permissions, MCP servers, environment variables, model preferences.<a class="gloss-link" data-tab="confession" data-anchor="ch15-6" href="#">&rarr; Chapter 15.6</a></td></tr>
       <tr><td>settings.local.json</td><td>Repo-level settings override that is NOT checked into git. For personal credentials and local-only config.<a class="gloss-link" data-tab="confession" data-anchor="ch15-6" href="#">&rarr; Chapter 15.6</a></td></tr>
+      <tr><td>Shell</td><td>The program that interprets your typed commands. On Unix/macOS it's bash or zsh. On Windows it's Command Prompt (<code>cmd.exe</code>) or PowerShell. When someone says "open a shell," they mean open a terminal window. The terms "shell," "terminal," and "command line" are often used interchangeably in casual conversation, though technically the terminal is the window and the shell is the program running inside it.</td></tr>
       <tr><td>Shell script</td><td>A text file containing commands that a command-line interpreter executes. On Unix/macOS, these are bash or sh scripts (no file extension or <code>.sh</code>). On Windows, the equivalent is a batch file (<code>.bat</code> or <code>.cmd</code>) or a PowerShell script (<code>.ps1</code>). Claude Code plugins use shell scripts for hooks. Cross-platform plugins often use a polyglot wrapper &mdash; a single file that works as both a batch file and a bash script. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Building a Plugin</a></td></tr>
       <tr><td>Skill</td><td>A SKILL.md instruction file in <code>.claude/skills/</code>. Loaded into context when relevant. Not a running process &mdash; a document that informs behavior.<a class="gloss-link" data-tab="confession" data-anchor="ch4" href="#">&rarr; Chapter V</a></td></tr>
       <tr><td>Slash Command</td><td>A custom command defined as a file in <code>.claude/commands/</code>. Typing <code>/foo</code> loads the prompt from that file.<a class="gloss-link" data-tab="confession" data-anchor="ch5" href="#">&rarr; Chapter VI</a></td></tr>
@@ -4344,7 +4345,7 @@ const glossaryTerms = {
   'Session': 'A single conversation with Claude Code. Persists to disk so you can resume it later. Every session has a unique ID.',
   'CLAUDE.md': 'An instruction file Claude reads at the start of every session. Written and maintained by Claude when you tell it to. Run /init to create one.',
   'Skill': 'An instruction document in the .claude/skills/ folder. Claude reads it when relevant — like a reference card. Not a running process.',
-  'Hook': 'A shell command that runs automatically in response to an event (e.g., after every file edit). Unlike skills, hooks actually execute code.',
+  'Hook': 'A command or program that runs automatically in response to a Claude Code event (session start, tool use, etc.). Can be any executable — bash, PowerShell, Python, a compiled binary. Unlike skills, hooks actually execute code.',
   'Agent': 'A separate Claude instance spawned to handle one specific subtask. Works independently, reports back results.',
   'Subagent': 'Same as Agent — a separate Claude instance that handles a subtask independently and reports back.',
   'Worktree': 'An isolated copy of your repo where an agent can work safely. If the experiment fails, your real files are untouched.',
@@ -4437,6 +4438,7 @@ const glossaryTerms = {
   'TypeScript': 'A superset of JavaScript that adds static type checking. Files end in .ts. Used in modern web development and many Claude Code plugins.',
   'Frontmatter': 'A metadata block at the top of a markdown file, delimited by --- lines. Contains key-value pairs like name and description. Used in skills and slash commands.',
   'keytar': 'A Node.js library for securely storing credentials in your OS native keychain (Windows Credential Manager, macOS Keychain). Apps use it to store API tokens without exposing them in plain text.',
+  'Shell': 'The program that interprets your typed commands. On Unix/macOS: bash or zsh. On Windows: Command Prompt (cmd.exe) or PowerShell. When someone says "open a shell," they mean open a terminal window.',
   'Shell script': 'A text file of commands run by a command-line interpreter. On Unix/macOS: bash scripts (.sh). On Windows: batch files (.bat or .cmd) or PowerShell scripts (.ps1).',
 };
 
