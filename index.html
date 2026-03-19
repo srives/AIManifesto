@@ -991,8 +991,14 @@ Ask me for the component name and path before starting.</code></pre>
 
       <h3>What "200K Tokens" Means Physically — The Math</h3>
       <p>Each token in a long context contributes to memory use in the <strong>KV cache</strong> — an internal memory structure used by transformer-style models to track attention state across prior tokens during generation.</p>
-      <p>A rough KV-cache estimate for a model in this general class is:</p>
-      <p style="margin-left:1.5rem;font-family:monospace">KV cache per token &asymp; 2 &times; layers &times; KV_heads &times; head_dim &times; bytes_per_element</p>
+      <p>A rough way to think about the memory cost per token:</p>
+      <ul>
+        <li>For each token, the model stores <strong>two vectors</strong> — called Key and Value — which encode what that token &ldquo;means&rdquo; in context.</li>
+        <li>Those two vectors are stored at <strong>every layer</strong> of the network. A large model might have 80 layers; a smaller one might have 32.</li>
+        <li>Each layer has some number of <strong>attention heads</strong> that maintain Key/Value pairs. Modern models (using Grouped Query Attention) use far fewer heads than older designs, which is why they are cheaper to run.</li>
+        <li>Each vector is made of <strong>numbers stored in half-precision</strong> (2 bytes each, typically).</li>
+      </ul>
+      <p>Multiply those four things together — 2 vectors &times; layers &times; heads &times; bytes per number — and you get the memory footprint per token.</p>
       <p>A reasonable middle-of-the-road teaching estimate is about <strong>0.5 MB per token</strong>, though the real number can vary significantly by architecture and serving design. A broad rough range based on publicly measured architectures is ~64 KB to ~0.5 MB per token — modern GQA models (Llama 3-class) sit toward the low end; older full multi-head attention models sit toward the high end.</p>
       <p>That implies:</p>
       <ul>
@@ -1001,14 +1007,36 @@ Ask me for the component name and path before starting.</code></pre>
       </ul>
       <p>Again, those are rough estimates, not universal constants.</p>
       <p>The key point is simple: large context windows are a real infrastructure cost. The raw text itself is tiny. What takes memory is the model&rsquo;s internal mathematical state for handling that text.</p>
-      <p>A very large hosted context may require more accelerator memory than a consumer graphics card has in total, and can be substantial even by server standards. That is one major reason large-context AI is expensive to provide.</p>
+      <p>To put that in perspective: a 1M token context at even the low end of the range requires around 64 GB of GPU memory — more than any gaming GPU holds, and a large fraction of a high-end server GPU. That is one major reason large-context AI is expensive to provide.</p>
+
+      <h3>Why GPUs? And Are They Even "Graphics" Cards Anymore?</h3>
+      <p>GPUs won the AI race by accident. They were designed to render 3D graphics — which requires multiplying enormous matrices of numbers in parallel, thousands of operations at once. It turned out that transformer models are also, at their core, enormous parallel matrix multiplications. So GPUs were already the right tool.</p>
+      <p>A CPU has a handful of powerful cores — maybe 8 to 64 — each running at high clock speed, good at sequential logic. A GPU has <strong>thousands of weaker cores</strong> running simultaneously, good at doing the same simple operation on millions of numbers at once. For AI inference, that trade-off wins by a large margin.</p>
+      <p>The chips running Claude today are not gaming cards. They are purpose-built server hardware that happen to share an architecture with graphics chips:</p>
+      <table class="compare-table">
+        <thead><tr><th>Chip</th><th>Memory</th><th>Memory bandwidth</th><th>Approx. price (per chip)</th><th>Who makes it</th></tr></thead>
+        <tbody>
+          <tr><td>NVIDIA H100</td><td>80 GB HBM3</td><td>3.35 TB/s</td><td>$25,000–$40,000</td><td>NVIDIA</td></tr>
+          <tr><td>NVIDIA H200</td><td>141 GB HBM3e</td><td>4.8 TB/s</td><td>~$35,000–$45,000</td><td>NVIDIA</td></tr>
+          <tr><td>NVIDIA B200</td><td>192 GB HBM3e</td><td>8 TB/s</td><td>~$70,000–$80,000</td><td>NVIDIA</td></tr>
+          <tr><td>AMD MI300X</td><td>192 GB HBM3</td><td>5.3 TB/s</td><td>~$10,000–$15,000</td><td>AMD</td></tr>
+          <tr><td>Google TPU (Ironwood)</td><td>HBM (shared across pod)</td><td>Very high</td><td>Cloud rental only</td><td>Google</td></tr>
+          <tr style="color:var(--text-muted)"><td>RTX 4090 <em>(consumer, for comparison)</em></td><td>24 GB GDDR6X</td><td>576 GB/s</td><td>~$1,600</td><td>NVIDIA</td></tr>
+        </tbody>
+      </table>
+      <p>The key differences from a consumer card are not just price — it is <strong>memory capacity</strong> (80–192 GB vs 24 GB), <strong>memory type</strong> (HBM is stacked directly on the chip for much higher bandwidth), and the ability to <strong>connect multiple chips together</strong> at high speed so they share memory across a server.</p>
+
+      <h3>Are GPUs Even Required?</h3>
+      <p>No. GPUs dominate today because they were available and proven, not because they are the only or best option. The underlying requirement is just: hardware that can do massive parallel matrix math efficiently.</p>
+      <p>Purpose-built AI chips already exist and are in production use. Google's TPUs are designed from scratch for transformer inference and have no graphics heritage at all. Amazon's Trainium chips serve the same role. <strong>Anthropic itself runs on all three platforms</strong> — Google TPUs, AWS Trainium, and NVIDIA GPUs via Azure — specifically to avoid being locked into any one vendor. The "AI data center runs on GPUs" story is already becoming "AI data center runs on parallel math chips, some of which used to be GPUs."</p>
+      <p>There is an active race to build better chips. NVIDIA releases a new generation roughly every 18 months. Google, AMD, Amazon, and others are investing heavily in alternatives. The economics are enormous: a single H100 costs more than most developers earn in a year, and Anthropic has committed to spending tens of billions on compute infrastructure.</p>
 
       <h3>Why This Matters to You</h3>
       <ul>
-        <li><strong>Latency:</strong> Larger context = more GPU compute = slower first response. You've noticed this — a fresh session responds faster than one with 50,000 tokens of history.</li>
+        <li><strong>Latency:</strong> In this context, latency means the delay between sending your message and receiving the first word of Claude&rsquo;s response. A larger context window means more tokens to process during the prefill phase, which means more GPU work before any output begins. A fresh session with no history responds noticeably faster than one carrying 50,000 tokens of prior conversation.</li>
         <li><strong>Cost:</strong> More tokens = more GPU time = more cost to Anthropic = why larger context plans cost more.</li>
         <li><strong>The "lost in the middle" problem:</strong> The KV cache stores all tokens, but the attention mechanism pays disproportionate attention to recent and early tokens. Middle tokens are physically present in memory — they're just attended to less. This is a GPU math problem, not a storage problem.</li>
-        <li><strong>Local models (Ollama etc.) ARE limited by your hardware:</strong> When you run a model locally, the KV cache lives in your GPU's VRAM. A 16GB graphics card running a 7B model may only support 4K–8K context before running out of VRAM — which is why local models feel so much more limited than cloud models.</li>
+        <li><strong>Local models (Ollama etc.) are limited by your own hardware:</strong> When you run a model locally, the KV cache lives in your GPU&rsquo;s VRAM. A 16 GB card running a 7B model may only support 4K&ndash;8K context before running out of memory. The most a serious local AI user would typically spend is an <strong>RTX 4090 (24 GB, ~$1,600&ndash;2,000)</strong> or the newer <strong>RTX 5090 (32 GB, ~$2,000&ndash;2,500)</strong>. Stepping up to a prosumer workstation card like the <strong>RTX 6000 Ada (48 GB, ~$6,000)</strong> buys meaningful headroom. The wildcard is <strong>Apple Silicon</strong> — an M4 Ultra Mac Studio treats RAM and GPU memory as a single shared pool, giving up to 192 GB of effective VRAM for around $5,000&ndash;8,000, which is genuinely competitive for local inference. None of these touch the 80&ndash;192 GB that a single data center chip carries, which is why cloud models feel so much more capable.</li>
       </ul>
     </div>
   </div>
@@ -3554,6 +3582,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>KV</td><td>Key-Value. In AI: the &ldquo;Key-Value&rdquo; cache &mdash; a GPU memory structure that stores attention computations for every token in the context window. The K and V stand for Key and Value vectors &mdash; internal mathematical representations the model needs to &ldquo;remember&rdquo; what it has read. For every token, at every model layer, two vectors are stored. This is what the context window physically occupies on Anthropic's servers.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">&rarr; Chapter 15 (Context Window)</a></td></tr>
       <tr><td>KV Cache</td><td>The GPU memory structure where every token's attention data is stored during a conversation. Grows linearly with context size. Rough estimate: ~64 KB to ~0.5 MB per token depending on architecture (modern GQA models at the low end, older full multi-head attention models toward the high end). 200K tokens &asymp; 100 GB. 1M tokens &asymp; 500 GB. Bigger context windows are not a software feature &mdash; they reflect real infrastructure cost.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">&rarr; Chapter 15 (Context Window)</a></td></tr>
       <tr><td>KV heads</td><td>The number of Key-Value head pairs in a model. In full multi-head attention: KV heads = total heads. In GQA models: KV heads is much smaller (e.g. 8 vs 64 total). KV heads directly determine KV cache size per token. The correct KV cache formula is: 2 &times; layers &times; KV_heads &times; head_dim &times; bytes &mdash; not total heads.</td></tr>
+      <tr><td>Latency</td><td>The delay between sending a request and receiving the first response. In AI tools, this usually means the time between submitting your message and seeing the first word appear — sometimes called time-to-first-token (TTFT). A longer context window increases latency because the model must process all prior tokens before it can begin generating output.<a class="gloss-link" data-tab="pricing" data-anchor="ch11" href="#">&rarr; Context Window chapter</a></td></tr>
       <tr><td>Lint / Linter</td><td>A tool that checks code for style violations, potential bugs, and anti-patterns. ESLint (JavaScript), PSScriptAnalyzer (PowerShell).</td></tr>
       <tr><td>LLM</td><td><strong>Large Language Model.</strong> The AI model that powers Claude, GPT, Gemini, etc. Trained on massive text datasets to understand and generate language and code.</td></tr>
       <tr><td><code>ls</code></td><td>Lists files in a directory. The Unix equivalent of <code>dir</code> on Windows.</td></tr>
@@ -3709,6 +3738,7 @@ const glossaryTerms = {
   'REST': 'Representational State Transfer. A common style for web APIs using HTTP methods (GET, POST, etc.) on URLs.',
   'MCP': 'Model Context Protocol. The standard that lets external tools (plugins) connect to Claude and give it new capabilities.',
   'SDK': 'Software Development Kit. A library that makes it easier to use an API or protocol. Like pre-built Lego pieces instead of raw plastic.',
+  'Latency': 'The delay between sending your message and seeing the first word of the response (time-to-first-token). Increases with context size — more prior tokens means more GPU work before output begins.',
   'LLM': 'Large Language Model. The AI brain that powers Claude, GPT, Gemini, etc. Trained on massive text datasets.',
   'JSON': 'JavaScript Object Notation. A data format: {"name": "Steve", "age": 42}. Used everywhere for config files and APIs.',
   'TLS': 'Transport Layer Security. Encryption for network traffic. The "S" in HTTPS. Keeps data private in transit.',
