@@ -71,25 +71,25 @@
   <div class="toc">
     <h3>Chapters</h3>
     <ol>
-      <li><a href="#ch0">1. Introduction: What Is a CLI and Why Would Anyone Use One?</a></li>
-      <li><a href="#ch1">2. The Session</a></li>
-      <li><a href="#ch2">3. CLAUDE.md &mdash; The Constitution</a></li>
-      <li><a href="#ch3">4. The .claude Directory</a></li>
-      <li><a href="#ch4">5. Skills (SKILL.md Files)</a></li>
-      <li><a href="#ch5">6. Slash Commands</a></li>
-      <li><a href="#ch6">7. Hooks</a></li>
-      <li><a href="#ch7">8. Agents (Subagents)</a></li>
-      <li><a href="#ch7b">9. Running Multiple Background Prompts</a></li>
-      <li><a href="#ch8">10. Plans</a></li>
-      <li><a href="#ch9">11. Memory (mini-CLAUDE.md files)</a></li>
-      <li><a href="#ch9b">12. Documentation as Dormant Memory</a></li>
-      <li><a href="#ch10">13. Plugins (<code>/plugin install</code>)</a></li>
-      <li><a href="#ch10b">14. MCP Config (Model Context Protocol)</a></li>
-      <li><a href="#ch11">15. The Context Window</a></li>
-      <li><a href="#ch12">16. The File System Layout</a></li>
-      <li><a href="#ch13">17. Scope and Distribution</a></li>
-      <li><a href="#ch14">18. The Prompt Engineering Trap</a></li>
-      <li><a href="#ch15">19. Bonus Features</a></li>
+      <li><a href="#ch0">Introduction: What Is a CLI and Why Would Anyone Use One?</a></li>
+      <li><a href="#ch1">The Session</a></li>
+      <li><a href="#ch2">CLAUDE.md &mdash; The Constitution</a></li>
+      <li><a href="#ch3">The .claude Directory</a></li>
+      <li><a href="#ch4">Skills (SKILL.md Files)</a></li>
+      <li><a href="#ch5">Slash Commands</a></li>
+      <li><a href="#ch6">Hooks</a></li>
+      <li><a href="#ch7">Agents (Subagents)</a></li>
+      <li><a href="#ch7b">Running Multiple Background Prompts</a></li>
+      <li><a href="#ch8">Plans</a></li>
+      <li><a href="#ch9">Memory (mini-CLAUDE.md files)</a></li>
+      <li><a href="#ch9b">Documentation as Dormant Memory</a></li>
+      <li><a href="#ch10">Plugins (<code>/plugin install</code>)</a></li>
+      <li><a href="#ch10b">MCP Config (Model Context Protocol)</a></li>
+      <li><a href="#ch11">The Context Window</a></li>
+      <li><a href="#ch12">The File System Layout</a></li>
+      <li><a href="#ch13">Scope and Distribution</a></li>
+      <li><a href="#ch14">The Prompt Engineering Trap</a></li>
+      <li><a href="#ch15">Bonus Features</a></li>
     </ol>
   </div>
 
@@ -365,6 +365,17 @@
     </table>
 
     <p><strong>The rule:</strong> Keep CLAUDE.md short and universal. If it's longer than one page, ask whether any of it could move to a skill. Everything in CLAUDE.md is paying rent on your context window 24/7. Everything in a skill is free until called.</p>
+
+    <h3>Rules Files — CLAUDE.md Split by Topic</h3>
+    <p>If your CLAUDE.md is growing unwieldy, rules files offer a way to break it up without losing any coverage. Drop <code>.md</code> files into <code>.claude/rules/</code> inside your project (or <code>~/.claude/rules/</code> for personal rules that apply everywhere), and Claude will load them alongside your CLAUDE.md.</p>
+    <p>The practical difference from CLAUDE.md is organization, not behavior. Instead of one long file covering testing, security, style, and architecture all together, you might have:</p>
+    <ul>
+      <li><code>.claude/rules/testing.md</code> &mdash; your test standards and required coverage rules</li>
+      <li><code>.claude/rules/security.md</code> &mdash; forbidden patterns, input validation requirements</li>
+      <li><code>.claude/rules/style.md</code> &mdash; naming conventions, formatting rules</li>
+    </ul>
+    <p>Rules files are discovered recursively, so you can organize them into subfolders. They stack on top of CLAUDE.md rather than replacing it. Project rules (<code>.claude/rules/</code>) can be committed to git and shared with the team the same way CLAUDE.md can.</p>
+    <div class="gotcha"><strong>Rules files do not solve the token cost problem.</strong> Every rules file that loads still costs tokens on every message, just like CLAUDE.md. Splitting one long CLAUDE.md into several rules files keeps your repo tidy, but the total token cost is the same. If you want to reduce token overhead, move content to skills — not to rules files.</div>
   </div>
 
   <!-- ==================== CHAPTER 3 ==================== -->
@@ -1055,10 +1066,13 @@ Ask me for the component name and path before starting.</code></pre>
       <thead><tr><th>Unix notation</th><th>Windows path</th><th>What it is</th></tr></thead>
       <tbody>
         <tr><td><code>~/.claude/</code></td><td><code>C:\Users\YourName\.claude\</code></td><td>Root of your personal config</td></tr>
+        <tr><td><code>~/.claude.json</code></td><td><code>C:\Users\YourName\.claude.json</code></td><td>User-level MCP server definitions, OAuth sessions, and preferences (theme, notifications). Note: this is a file at your home directory, not inside the <code>.claude\</code> folder.</td></tr>
         <tr><td><code>~/.claude/settings.json</code></td><td><code>C:\Users\YourName\.claude\settings.json</code></td><td>Your personal preferences (tools, model, permissions)</td></tr>
         <tr><td><code>~/.claude/CLAUDE.md</code></td><td><code>C:\Users\YourName\.claude\CLAUDE.md</code></td><td>Your instructions, applied to every project</td></tr>
+        <tr><td><code>~/.claude/rules/</code></td><td><code>C:\Users\YourName\.claude\rules\</code></td><td>User-level rules — topic-specific <code>.md</code> files that apply to all projects</td></tr>
         <tr><td><code>~/.claude/commands/</code></td><td><code>C:\Users\YourName\.claude\commands\</code></td><td>Your personal slash commands, everywhere</td></tr>
         <tr><td><code>~/.claude/skills/</code></td><td><code>C:\Users\YourName\.claude\skills\</code></td><td>Your personal skills, everywhere</td></tr>
+        <tr><td><code>~/.claude/agents/</code></td><td><code>C:\Users\YourName\.claude\agents\</code></td><td>User-scoped subagent definitions, available in all projects</td></tr>
         <tr><td><code>~/.claude/projects/</code></td><td><code>C:\Users\YourName\.claude\projects\</code></td><td>Session data for all your projects (auto-managed)</td></tr>
         <tr><td><code>~/.claude/projects/C--repos-MyApp/</code></td><td><code>C:\Users\YourName\.claude\projects\C--repos-MyApp\</code></td><td>Data for the project at <code>C:\repos\MyApp</code></td></tr>
         <tr><td><code>~/.claude/projects/C--repos-MyApp/memory/</code></td><td><code>C:\Users\YourName\.claude\projects\C--repos-MyApp\memory\</code></td><td>Memory files for that project</td></tr>
@@ -1070,8 +1084,11 @@ Ask me for the component name and path before starting.</code></pre>
       <thead><tr><th>Unix notation</th><th>Windows path (example)</th><th>What it is</th></tr></thead>
       <tbody>
         <tr><td><code>.claude/</code></td><td><code>C:\repos\MyProject\.claude\</code></td><td>Project config folder (like .vscode in a repo)</td></tr>
+        <tr><td><code>.claude/CLAUDE.md</code></td><td><code>C:\repos\MyProject\.claude\CLAUDE.md</code></td><td>Alternative location for project instructions — works the same as <code>CLAUDE.md</code> at the repo root; use whichever keeps your root cleaner</td></tr>
         <tr><td><code>.claude/commands/</code></td><td><code>C:\repos\MyProject\.claude\commands\</code></td><td>Project slash commands, shareable via git</td></tr>
         <tr><td><code>.claude/skills/</code></td><td><code>C:\repos\MyProject\.claude\skills\</code></td><td>Project skills, shareable via git</td></tr>
+        <tr><td><code>.claude/rules/</code></td><td><code>C:\repos\MyProject\.claude\rules\</code></td><td>Project rules — topic-specific <code>.md</code> files, discovered recursively, shareable via git</td></tr>
+        <tr><td><code>.claude/agents/</code></td><td><code>C:\repos\MyProject\.claude\agents\</code></td><td>Project subagent definitions, shareable via git</td></tr>
         <tr><td><code>.claude/settings.json</code></td><td><code>C:\repos\MyProject\.claude\settings.json</code></td><td>Project settings, can be committed to git</td></tr>
         <tr><td><code>.claude/settings.local.json</code></td><td><code>C:\repos\MyProject\.claude\settings.local.json</code></td><td>Your personal overrides — add to .gitignore</td></tr>
       </tbody>
@@ -1081,7 +1098,8 @@ Ask me for the component name and path before starting.</code></pre>
     <table class="compare-table">
       <thead><tr><th>File</th><th>Windows path (example)</th><th>What it is</th></tr></thead>
       <tbody>
-        <tr><td><code>CLAUDE.md</code></td><td><code>C:\repos\MyProject\CLAUDE.md</code></td><td>Project instructions — committed to git, shared with team</td></tr>
+        <tr><td><code>CLAUDE.md</code></td><td><code>C:\repos\MyProject\CLAUDE.md</code></td><td>Project instructions — committed to git, shared with team. Can also live at <code>.claude/CLAUDE.md</code> inside the repo; both locations work.</td></tr>
+        <tr><td><code>.mcp.json</code></td><td><code>C:\repos\MyProject\.mcp.json</code></td><td>Project-scoped MCP server definitions — committable to git so the whole team shares the same MCP setup</td></tr>
       </tbody>
     </table>
 
@@ -1102,13 +1120,19 @@ Ask me for the component name and path before starting.</code></pre>
     <table class="compare-table">
       <thead><tr><th>File / Folder</th><th>Scope</th><th>In Git?</th></tr></thead>
       <tbody>
+        <tr><td><code>C:\Users\YourName\.claude.json</code></td><td><strong>Personal + All projects.</strong> MCP servers, OAuth, preferences.</td><td>Never</td></tr>
         <tr><td><code>C:\Users\YourName\.claude\settings.json</code></td><td><strong>Personal + All projects.</strong> Your preferences everywhere.</td><td>Never</td></tr>
-        <tr><td><code>C:\Users\YourName\.claude\commands\</code></td><td><strong>Personal + All projects.</strong> Your commands everywhere.</td><td>Never</td></tr>
         <tr><td><code>C:\Users\YourName\.claude\CLAUDE.md</code></td><td><strong>Personal + All projects.</strong> Your instructions everywhere.</td><td>Never</td></tr>
+        <tr><td><code>C:\Users\YourName\.claude\rules\</code></td><td><strong>Personal + All projects.</strong> Your topic-specific rules everywhere.</td><td>Never</td></tr>
+        <tr><td><code>C:\Users\YourName\.claude\commands\</code></td><td><strong>Personal + All projects.</strong> Your commands everywhere.</td><td>Never</td></tr>
+        <tr><td><code>C:\Users\YourName\.claude\agents\</code></td><td><strong>Personal + All projects.</strong> Your subagent definitions everywhere.</td><td>Never</td></tr>
         <tr><td><code>C:\Users\YourName\.claude\projects\*\memory\</code></td><td><strong>Personal + Per-project.</strong> Your notes for one project.</td><td>Never</td></tr>
-        <tr><td><code>C:\repos\MyProject\CLAUDE.md</code></td><td><strong>Shared + Per-project.</strong> Team instructions.</td><td>Yes</td></tr>
+        <tr><td><code>C:\repos\MyProject\CLAUDE.md</code> or <code>.claude\CLAUDE.md</code></td><td><strong>Shared + Per-project.</strong> Team instructions.</td><td>Yes</td></tr>
+        <tr><td><code>C:\repos\MyProject\.claude\rules\</code></td><td><strong>Shared + Per-project.</strong> Team rules.</td><td>Optional</td></tr>
         <tr><td><code>C:\repos\MyProject\.claude\commands\</code></td><td><strong>Shared + Per-project.</strong> Team commands.</td><td>Optional</td></tr>
+        <tr><td><code>C:\repos\MyProject\.claude\agents\</code></td><td><strong>Shared + Per-project.</strong> Team subagent definitions.</td><td>Optional</td></tr>
         <tr><td><code>C:\repos\MyProject\.claude\settings.json</code></td><td><strong>Shared + Per-project.</strong> Team settings.</td><td>Optional</td></tr>
+        <tr><td><code>C:\repos\MyProject\.mcp.json</code></td><td><strong>Shared + Per-project.</strong> Team MCP servers.</td><td>Optional</td></tr>
         <tr><td><code>C:\repos\MyProject\.claude\settings.local.json</code></td><td><strong>Personal + Per-project.</strong> Your local overrides.</td><td>Never (.gitignore)</td></tr>
       </tbody>
     </table>
@@ -1130,7 +1154,7 @@ Ask me for the component name and path before starting.</code></pre>
       <li><code>.claude/settings.local.json</code> &mdash; Personal overrides</li>
       <li>Your personal <code>C:\Users\YourName\.claude\</code> folder is outside every repo, so it's inherently never in git</li>
     </ul>
-    <p>What CAN be checked in: <code>CLAUDE.md</code>, <code>.claude/commands/</code>, <code>.claude/skills/</code>, <code>.claude/settings.json</code></p>
+    <p>What CAN be checked in: <code>CLAUDE.md</code>, <code>.claude/CLAUDE.md</code>, <code>.claude/rules/</code>, <code>.claude/commands/</code>, <code>.claude/skills/</code>, <code>.claude/agents/</code>, <code>.claude/settings.json</code>, <code>.mcp.json</code></p>
   </div>
 
   <!-- ==================== CHAPTER 14 ==================== -->
@@ -1144,7 +1168,7 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy">You know how to type C# code. But there's a world of difference between someone who types C# and someone who understands SOLID principles, dependency injection, the CLR, garbage collection, and async/await internals. Both write C# code. One writes C# code that works in production. The architecture knowledge is the difference between a junior developer who can code and a senior developer who can engineer.</div>
 
-    <div class="analogy-human">Everyone knows how to send an email. But there's a difference between someone who sends emails and someone who builds a communication strategy — cadence, segmentation, tone by audience, escalation paths, follow-up rules. Both use email. One uses it as a tool; the other uses it as a system. AI architecture knowledge is the difference between using Claude as a fancy search engine and deploying it as a repeatable, configurable, team-wide workflow.</div>
+    <div class="analogy-human">A child can send an email. A scientist can send an email describing a new cure for a disease — the precise formulation, the trial data, the dosing protocol, the contraindications — to the right colleagues, in the right format, so it gets acted on rather than ignored. Both used the same email button. The difference is not the tool; it is what the person brought to it. AI architecture knowledge is the difference between clicking send and knowing exactly what to say, to whom, and how to make it count.</div>
 
     <h3>What Architecture Gives You</h3>
     <ul>
@@ -1179,7 +1203,13 @@ Ask me for the component name and path before starting.</code></pre>
   <div class="chapter" id="ch15-1">
     <div class="chapter-number">15.1</div>
     <h2>Worktrees (Isolated Agent Sandboxes)</h2>
-    <p>When Claude spawns a subagent, it normally edits your working tree &mdash; the same files you're looking at. Worktrees change that: the agent gets its own isolated copy of the repo (a git worktree), works there, and the results are merged back only if successful.</p>
+
+    <h3>First: Two Git Terms Worth Knowing</h3>
+    <p><strong>Working tree</strong> — git's name for the folder where your actual files live. When you clone a repo, the folder you get is the working tree. Git distinguishes it from the hidden <code>.git</code> folder (which stores your commit history, branches, and objects) — the working tree is what you edit, the <code>.git</code> folder is git's internal bookkeeping. You always work in the working tree; you never touch <code>.git</code> directly.</p>
+    <p><strong>Worktree</strong> — a git feature that lets you check out the same repository into multiple folders at the same time, each on its own branch. Normally, one repo means one folder with one branch checked out. A worktree creates a second (or third) folder — same git history, different branch, different files on disk — all live simultaneously. For example: <code>C:\repos\MyApp</code> on <code>main</code> and <code>C:\repos\MyApp-experiment</code> on a feature branch, both checked out at once from the same repo.</p>
+
+    <h3>How Claude Uses This</h3>
+    <p>When Claude spawns a subagent, it normally edits your working tree &mdash; the same files you are looking at. Worktrees change that: instead of working in your folder, the agent gets its own separate folder checked out to its own branch. It works there in complete isolation. Your files are never touched. When the agent finishes, you review its branch and decide whether to merge it or discard it.</p>
 
     <div class="analogy">Like branching in real life. Instead of renovating a room while you're living in it, the contractor builds the renovation in a separate identical room. When it's done, you inspect it. If it's good, you swap. If it's bad, you tear down the copy &mdash; your original room was never touched.</div>
 
@@ -1188,12 +1218,15 @@ Ask me for the component name and path before starting.</code></pre>
     <p>How to use it: when calling the Agent tool, set <code>isolation: "worktree"</code>. The agent runs in a temporary git worktree. If it makes no changes, the worktree is cleaned up automatically. If changes are made, you get the worktree path and branch name to review.</p>
 
     <p><strong>When to use it:</strong> risky refactors, experimental changes, anything where you want a safety net. The agent can go wild without affecting your working files.</p>
+
+    <div class="real-talk"><strong>Sandboxing on Windows:</strong> Claude Code's OS-level sandboxing relies on platform primitives that are not currently supported on native Windows. On macOS it uses the Seatbelt framework; on Linux and WSL2 it uses bubblewrap. If you are running Claude Code on native Windows (not WSL2), the sandbox layer is not active. If you see unexpected user accounts appear on your Windows machine, that is not Claude Code — check other installed software, virtualization tools, or recent Windows updates.</div>
   </div>
 
   <!-- 15.2 Task Tool -->
   <div class="chapter" id="ch15-2">
     <div class="chapter-number">15.2</div>
     <h2>Task Tool (Built-in Todo Tracker)</h2>
+    <div class="gotcha"><strong>"Task" and "Todo" are used interchangeably here — but "Task" also means something completely different elsewhere in Claude Code.</strong> The todo tracker is called the "Task Tool" and its items are called tasks or todos depending on which part of the UI or docs you're reading. Separately, Claude Code has a <em>Task tool</em> that launches subagents — independent Claude processes that do work in parallel. That kind of "task" has nothing to do with a todo item. A subagent task can itself create todo tasks, which makes the overlap genuinely confusing. When you see the word "task," context is the only way to know which meaning is intended.</div>
     <p>Claude Code has a built-in task/todo system that persists within a conversation. You can create tasks, mark them in-progress, mark them complete, and track what's left.</p>
 
     <p>Claude can also create tasks on its own when working through complex multi-step work. It uses them to track progress, and you see the task status in the conversation.</p>
@@ -1203,6 +1236,14 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy-human">Like a checklist in a project management tool that both you and your assistant can see and update. You assign "write the agenda," "book the room," "send invites" — your assistant works through them and checks them off. You can glance at any time and see exactly what's done and what's left. No "where are we on this?" emails needed.</div>
 
     <p><strong>When to use it:</strong> any multi-step task. Instead of hoping Claude remembers all 7 things you asked for, tasks make the list explicit and trackable.</p>
+
+    <h3>The Catch: Session Tasks Don't Survive the Session</h3>
+    <p>The built-in task system stores everything in session memory only — not on disk, not in any file. When the session ends, all tasks are gone. If you come back tomorrow, Claude has no memory of what was in progress.</p>
+    <p>A <strong>TODO.md file</strong> is a common alternative for persistence — but Claude does not pick it up automatically. It is just a regular markdown file. To make it work, add a line to your CLAUDE.md:</p>
+    <pre><code>Check TODO.md at the start of each session for outstanding tasks. Update it when tasks are completed or new ones are discovered.</code></pre>
+    <p>With that instruction in place, Claude reads TODO.md on every session and can update it as work progresses. Because it is a plain file in your repo, it gets committed to git and the whole team sees the same list.</p>
+    <div class="gotcha"><strong>TODO.md loaded via CLAUDE.md costs tokens every session</strong> — just like any other content in your context. If the file grows long, you are paying for all of it on every message. Keep it trimmed to current and near-term work only; archive completed items rather than leaving them in the file.</div>
+    <p>The tradeoff in plain terms: the built-in task tool is free and effortless but evaporates when you close the terminal. A TODO.md file persists and is shareable but costs tokens. Use whichever matches how long your work spans.</p>
   </div>
 
   <!-- 15.3 Model Switching -->
@@ -1301,6 +1342,24 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy-human">Like the approval levels in an expense policy. Anything under $50 you can approve yourself. Between $50-500 needs your manager. Over $500 needs the VP. You configure the rules once; the system enforces them automatically. Claude's permission tiers work the same way — you decide in advance what requires your sign-off and what can proceed automatically.</div>
 
     <p>The <code>settings.json</code> allowlist lets you pre-approve specific tools and bash command patterns so Claude doesn't interrupt your flow for routine operations.</p>
+
+    <h3>Bypass Permissions — And Why to Be Careful</h3>
+    <p>Claude Code has a <strong>dangerouslySkipPermissions</strong> flag that disables all permission prompts entirely. You can invoke it two ways:</p>
+    <pre><code># Command line flag
+claude --dangerously-skip-permissions
+
+# Or with a prompt inline
+claude --dangerously-skip-permissions -p "your prompt here"</code></pre>
+    <p>It can also be set in <code>settings.json</code>:</p>
+    <pre><code>{
+  "dangerouslySkipPermissions": true
+}</code></pre>
+    <p>Either way, every file edit, every bash command, every tool call proceeds without asking. No pauses, no confirmations.</p>
+    <p>The intended use case is fully automated pipelines — CI environments, scripted agents, headless runs where there is no human at the keyboard to approve anything. In that context it is a reasonable tool.</p>
+    <p>In interactive use, it is a loaded gun with the safety off.</p>
+    <div class="gotcha"><strong>If you run your terminal with elevated privileges (Run as Administrator on Windows, <code>sudo</code> on Mac/Linux), bypassing permissions means Claude can execute anything on your machine with full admin rights — deleting system files, modifying the registry, killing processes, overwriting configs — without a single confirmation prompt.</strong> Claude will not refuse because it has been told not to ask. Mistakes at that level are not easily undone. A misunderstood instruction, a hallucinated file path, an overly aggressive cleanup task — any of these become immediate and irreversible.<br><br>
+    Even without elevated rights, bypassing permissions removes your last line of defence against Claude misunderstanding what you asked. The permission prompts exist precisely to catch the gap between what you said and what Claude heard.<br><br>
+    <strong>Recommendation:</strong> Never use <code>dangerouslySkipPermissions</code> in an interactive session. Never run Claude in an admin terminal unless you have a specific reason to. If you do need to run an automated pipeline with skipped permissions, do it in a sandboxed environment — a container, a VM, a dedicated low-privilege service account — not your main development machine.</div>
   </div>
 
   <!-- 15.6 settings.json -->
@@ -1345,6 +1404,11 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy">Like reopening a saved game. <code>--continue</code> is "load last save." <code>--resume &lt;id&gt;</code> is "load specific save file." The conversation history, context, and any in-progress work are all restored.</div>
 
     <div class="analogy-human">Like reopening a shared document you were working on with a colleague last week. Everything is still there — your comments, their edits, the tracked changes, the notes in the margin. You don't start over. You continue from where you left off. The session ID is just the document's file name.</div>
+
+    <h3>How Much Do These Actually Add, Given CLAUDE.md and Compaction?</h3>
+    <p>If your CLAUDE.md is well-maintained, you might wonder what <code>--continue</code> really adds. The distinction is: <strong>CLAUDE.md carries instructions; session history carries conversation state.</strong> CLAUDE.md tells Claude how to work. Session history tells it what you were doing — "we were mid-way through debugging the auth middleware, you had proposed three approaches, I'd rejected two of them." That context lives in the conversation, not in any file.</p>
+    <p><code>--resume</code> adds one more thing: the ability to return to a specific past thread rather than just the most recent one, useful when you've been working on multiple things in parallel.</p>
+    <div class="gotcha"><strong>Compaction erodes the value of both flags.</strong> Once a session has been compacted, you are not resuming the original conversation — you are resuming Claude's compressed summary of it. The further back and the more heavily compacted the session, the less you recover. For a short session interrupted mid-task (you closed the terminal, stepped away, came back), <code>--continue</code> is genuinely useful — the conversation is still intact. For a long session that ran through multiple compaction cycles, resuming gives you little more than you would get from a fresh start with good CLAUDE.md notes. The practical takeaway: use <code>--continue</code> for same-day interruptions. For anything older, write good session-end memory notes instead and start fresh.</div>
   </div>
 
   <!-- 15.8 Cost Tracking -->
@@ -1410,7 +1474,7 @@ Ask me for the component name and path before starting.</code></pre>
 
     <div class="analogy-human">Like corporate policy vs team policy vs project guidelines. Company-wide: "All client communications must be approved before sending." Team-level: "Our team uses a specific email template for proposals." Project-level: "On this particular account, always copy the account director." All three are active at once. The most specific one wins when they conflict.</div>
 
-    <div class="real-talk">Don't go overboard. Every CLAUDE.md consumes context window tokens. A 500-line global CLAUDE.md plus a 300-line repo CLAUDE.md plus subdirectory files can eat 5-10% of your context before you've typed a single prompt. Keep each file focused and concise.</div>
+    <div class="real-talk">Don't go overboard. Every CLAUDE.md consumes context window tokens on every message. A rough estimate: 800 lines of markdown costs about 12,000 tokens (at ~15 tokens per line). On a <strong>200K Pro window</strong> that is roughly <strong>6%</strong> of your entire context budget, gone before you type a word. On a <strong>1M Max/Enterprise window</strong> it drops to about <strong>1.2%</strong> — far less painful, but it still never leaves context for the entire session. Keep each file focused and concise.</div>
   </div>
 
   <!-- 15.10 Extended Thinking -->
@@ -2450,10 +2514,16 @@ if __name__ == "__main__":
         <td>The same idea travels through six names: Characters → Tokens → HTTPS request → KV cache → Context window → Awareness (pages). It starts on your keyboard and ends in GPU VRAM on Anthropic's servers. Your laptop contributes nothing except sending text over the internet. The math: <strong>1 token ≈ ~0.5 MB of GPU VRAM</strong> (rough midpoint; empirically measured range ~64 KB–0.5 MB depending on architecture). 200K tokens ≈ ~100 GB. 1M tokens ≈ ~500 GB at the midpoint. Real number varies significantly by model design.</td>
         <td>AI industry — each name is technically correct at its layer, but nobody explains the journey. "Tokens" sounds like a billing unit. "Context window" sounds like a software setting. Neither hints that you're reserving terabytes of server GPU memory. <a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (advanced box)</a></td>
       </tr>
+      <tr>
+        <td><strong>"Task"</strong> — two unrelated meanings</td>
+        <td>One meaning</td>
+        <td>"Task" is used two completely different ways in Claude Code. (1) <strong>Todo item</strong> — an entry in the built-in todo tracker (the "Task Tool"), something to be done, marked in-progress, or completed. (2) <strong>Subagent process</strong> — an independent Claude subprocess launched via the Agent/Task tool to do work in parallel. A subagent (meaning 2) can create todo items (meaning 1), which means you can have a task managing tasks. The word "todo" is sometimes used to mean only the first sense, but "task" is used for both with no consistent distinction in the docs.</td>
+        <td>Anthropic — same word chosen for two separate features with no disambiguation</td>
+      </tr>
     </tbody>
   </table>
 
-  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 24 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 25 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
 
 </section>
 
@@ -3256,7 +3326,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr>
         <td>Permission Model</td>
         <td>Per-action approval or bypass mode</td>
-        <td>Sandbox + approval tiers</td>
+        <td>Sandbox + approval tiers. <strong>Creates restricted Windows user accounts</strong> for OS-level isolation on Windows.</td>
         <td><code>--yolo</code> (allow-all) mode</td>
         <td>Config-based</td>
         <td><code>--approval-mode yolo</code></td>
@@ -3324,7 +3394,8 @@ else if (platform == "codex") { doZ() }</code></pre>
 
   <ol>
     <li><p><strong>Claude Code</strong> (Anthropic) is the subject of this entire guide. It has the deepest architecture of any CLI coding tool — skills, hooks, slash commands, agents, memory, plan mode, and Remote Control. If you invest time in learning one CLI deeply, this is the one.</p></li>
-    <li><p><strong>Codex CLI</strong> (OpenAI) is OpenAI's answer to Claude Code. It uses the GPT-5 Codex model variants, stores sessions in SQLite, and supports forking. It runs in a sandbox mode with tiered approval for commands. Its main advantage is the GPT-5 Codex model family, which has strengths in certain code generation tasks. Weaker extension architecture than Claude Code.</p></li>
+    <li><p><strong>Codex CLI</strong> (OpenAI) is OpenAI's answer to Claude Code. It uses the GPT-5 Codex model variants, stores sessions in SQLite, and supports forking. It runs in a sandbox mode with tiered approval for commands. Its main advantage is the GPT-5 Codex model family, which has strengths in certain code generation tasks. Weaker extension architecture than Claude Code.</p>
+    <p><strong>Windows users: Codex creates sandboxed Windows user accounts on your machine</strong> as part of its security model. You may notice new user accounts (named something like "Codex Sandbox" or similar) appearing in your Windows user list after installing Codex. This is intentional — those restricted accounts run Codex's operations with limited OS permissions so that commands cannot reach beyond what a low-privilege user can do. Do not delete them; removing them breaks Codex's sandboxing. This is specific to Codex's Windows implementation and is not something Claude Code does.</p></li>
     <li><p><strong>Copilot CLI</strong> (GitHub / Microsoft) is backed by Microsoft's investment in GitHub and OpenAI. It offers multiple model choices (Claude Haiku, GPT-4.1, GPT-5 Mini), which is unusual — most CLIs are locked to their vendor's model. It has session persistence and file editing but no forking, no skills, no hooks. Strong choice if your organization is already deep in the GitHub ecosystem.</p></li>
     <li><p><strong>OpenCode</strong> is open-source and model-agnostic — you can point it at Claude, GPT, or any other supported provider. This makes it attractive for organizations that want control over which AI model processes their code, or that need to run everything on-premises. The trade-off is a thinner feature set: no skills, no hooks, no memory. A good choice for teams with strict data residency requirements.</p></li>
     <li><p><strong>Gemini CLI</strong> (Google) brings Google's Gemini models to the command line. Gemini 2.5 Pro has an exceptionally large context window, which helps with large codebases. It supports MCP servers and has session persistence. Weaker extension architecture than Claude Code, but the model itself handles large-scale codebase analysis well. Natural choice if your organization is on Google Cloud.</p></li>
@@ -3660,7 +3731,8 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Visual Studio</td><td>Microsoft's full-featured IDE for Windows. Used primarily for C#, C++, and .NET development. Not the same as VS Code &mdash; Visual Studio is the big one, VS Code is the lightweight one.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
       <tr><td>VS Code</td><td>Visual Studio Code. A free, lightweight code editor by Microsoft. Works on Windows, Mac, Linux. Popular for almost every language. Not the same as Visual Studio &mdash; it's smaller and more general-purpose.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
       <tr><td>WinGet</td><td>Windows Package Manager, built into Windows 10/11. Install software with <code>winget install PackageName</code>. Like apt (Linux) or Homebrew (Mac), but for Windows. Use <code>winget install Anthropic.ClaudeCode</code> to install Claude Code.<a class="gloss-link" data-tab="confession" data-anchor="ch0" href="#">&rarr; Introduction</a></td></tr>
-      <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.<a class="gloss-link" data-tab="confession" data-anchor="ch15-1" href="#">&rarr; Chapter 15.1</a></td></tr>
+      <tr><td>Working tree</td><td>Git's name for the folder where your actual files live — the checked-out copy you edit. When you clone a repo, the folder you get is the working tree. Distinct from the hidden <code>.git</code> folder, which stores git's internal history and objects. You work in the working tree; git manages the <code>.git</code> folder.</td></tr>
+      <tr><td>Worktree</td><td>A git feature that lets you check out the same repository into multiple folders simultaneously, each on its own branch. Normally one repo = one folder = one branch at a time. A worktree creates a second (or third) folder from the same repo — same git history, different branch, different files on disk, all live at once. Claude Code uses this to give subagents their own isolated folder to work in, so the agent's changes never touch your files until you choose to merge them.<a class="gloss-link" data-tab="confession" data-anchor="ch15-1" href="#">&rarr; Chapter 15.1</a></td></tr>
       <tr><td>WSL</td><td><strong>Windows Subsystem for Linux.</strong> Runs a real Linux environment inside Windows. Many CLI tools work better under WSL. Available via the <code>wsl</code> command.</td></tr>
       <tr><td>YAML</td><td><strong>YAML Ain't Markup Language.</strong> A human-readable data format (like JSON but with indentation instead of braces). Used by Copilot for session config.</td></tr>
     </tbody>
@@ -3824,6 +3896,8 @@ const glossaryTerms = {
   'Merge': 'Combining changes from one branch into another. Like accepting tracked changes in a Word document.',
   'Refactor': 'Restructuring code without changing what it does. Improving organization, naming, or structure.',
   'Sandbox': 'An isolated environment that limits what a program can access or do. Used for security.',
+  'Working tree': 'Git\'s name for the folder where your actual files live — the checked-out copy you edit. Distinct from the hidden .git folder, which stores git\'s internal history.',
+  'Worktree': 'A git feature that creates a second checkout of the same repo in a separate folder, on its own branch. Claude Code uses this to give subagents an isolated workspace so their changes never touch your files until you choose to merge them.',
   'Monorepo': 'A single git repository that contains multiple projects or teams\' code together.',
   'Boilerplate': 'Repetitive standard code that every project needs but isn\'t interesting. Templates, configuration files, import statements.',
   'Pull Request': 'A request to merge your branch into main. Others review your changes before they\'re accepted.',

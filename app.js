@@ -1723,6 +1723,17 @@ const largerQuestions = [
     ],
     answer: 2,
     explanation: "<strong>CLAUDE.md instruction or slash command.</strong> Pasting manually wastes effort. Adding the full content to CLAUDE.md means paying for those tokens on every session even when not doing feature work. A line in CLAUDE.md like 'When starting a new feature, read ARCHITECTURE.md' triggers Claude to read it contextually — you pay only when relevant. A /load-docs slash command gives you explicit control: invoke it when you need a full project briefing, skip it for quick tasks. Both avoid the permanent token overhead of embedding large documentation in CLAUDE.md."
+  },
+  {
+    question: "Scenario: Your team's CLAUDE.md has grown to 600 lines covering testing standards, security rules, style conventions, and architecture notes. A teammate suggests splitting it into separate rules files under .claude/rules/. A second teammate says to move most of it to skills instead. Who is right, and why?",
+    choices: [
+      "The first teammate — rules files reduce token costs because Claude only loads the relevant ones",
+      "The second teammate — moving content to skills eliminates the per-message token cost for content that isn't always needed",
+      "Both approaches are equivalent — rules files and skills have the same token behavior",
+      "Neither — the correct fix is to split into subdirectory CLAUDE.md files instead"
+    ],
+    answer: 1,
+    explanation: "<strong>Skills eliminate the token cost; rules files do not.</strong> Rules files under <code>.claude/rules/</code> are loaded alongside CLAUDE.md on every session — splitting a 600-line CLAUDE.md into six rules files gives you a tidier repo but the same total token cost. Skills, by contrast, cost zero tokens until you explicitly invoke them. If your testing standards only matter when writing tests, a <code>/testing</code> skill loads them on demand and costs nothing the rest of the time. Rules files are an organizational tool. Skills are a cost-reduction tool. Use rules files when you want structure; use skills when you want to stop paying for content you don't always need."
   }
 ];
 
