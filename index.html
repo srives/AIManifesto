@@ -775,6 +775,17 @@ Ask me for the component name and path before starting.</code></pre>
 
     <h3>Popular Plugins — Real Examples</h3>
 
+    <div class="aha"><strong>You can always ask your AI how to install any of these.</strong> Type "how do I install the Superpowers plugin?" and Claude will give you current steps. We include one real example below so you get a sense of what plugin installation actually looks like — but for any specific plugin, just ask Claude.</div>
+
+    <div class="compare-section-title blue">Example: Installing Superpowers on Windows</div>
+    <p>Superpowers is the most popular Claude Code plugin (~54K GitHub stars). Here is the actual install on Windows:</p>
+    <pre><code>/plugin marketplace add obra/superpowers-marketplace
+/plugin install superpowers@superpowers-marketplace
+
+# Optional: Install globally (activates in every project automatically)
+/plugin install superpowers@superpowers-marketplace --global</code></pre>
+    <p>After installation, use slash commands like <code>/brainstorming</code> to explore requirements before coding, or <code>/execute-plan</code> to run a structured implementation plan with review checkpoints. Requires Claude Code v2.0.13 or later.</p>
+
     <div class="compare-section-title blue">Methodology Frameworks</div>
     <ul>
       <li><strong>Superpowers</strong> (<code>/plugin install superpowers</code>) — The most starred Claude Code plugin (~54K GitHub stars, in Anthropic's official marketplace). Enforces a full structured development methodology: Socratic brainstorming first, detailed spec writing, test-driven development, parallel subagent implementation, and built-in code review. If you install one plugin, this is the one developers recommend first. <a href="https://github.com/obra/superpowers" style="color:var(--accent-blue)">github.com/obra/superpowers</a></li>
@@ -840,7 +851,40 @@ Ask me for the component name and path before starting.</code></pre>
         <div class="aha">You can bypass the Jira MCP entirely by installing the official Atlassian CLI (ACLI). Claude calls it through the Bash tool — no MCP needed. This works for most enterprise tools with a CLI.</div>
       </li>
       <li><strong>Slack MCP:</strong> Exposes <code>send_message</code>, <code>search_messages</code>.</li>
-      <li><strong>GitHub MCP:</strong> Exposes <code>create_pr</code>, <code>list_issues</code>.</li>
+      <li><strong>GitHub MCP:</strong> Exposes <code>create_pr</code>, <code>list_issues</code>, <code>search_code</code>, <code>get_file_contents</code>, and more. Claude can create pull requests, search issues, read files, and interact with GitHub Actions.
+
+        <div class="aha"><strong>You don't actually need a GitHub MCP server to use GitHub from Claude Code.</strong> If you install the GitHub CLI (<code>gh</code>) and Git on Windows, Claude can call them directly through the Bash tool — no MCP required. Claude already knows how to use <code>gh pr create</code>, <code>gh issue list</code>, and standard git commands. The MCP server gives you a cleaner, credential-safe interface, but for most tasks the CLI tools are faster to set up. We show the MCP install here as a real example of what MCP installation actually looks like.</div>
+
+        <h3 style="margin-top:1rem;color:var(--accent-blue);">Installing the GitHub MCP Server — Step by Step</h3>
+        <p><strong>Step 1: Create a GitHub Personal Access Token (PAT)</strong></p>
+        <ol>
+          <li>Go to <a href="https://github.com/settings/tokens" style="color:var(--accent-blue)">github.com/settings/tokens</a></li>
+          <li>Click <strong>Generate new token (classic)</strong></li>
+          <li>Name it "Claude Code MCP"</li>
+          <li>Scopes: <code>repo</code> for private repos; no scopes for public-only read access</li>
+          <li>Copy the token — you will not see it again</li>
+        </ol>
+        <p><strong>Step 2: Or manually edit settings.json</strong></p>
+        <p>File location: <code>C:\Users\YourName\.claude\settings.json</code></p>
+        <pre><code>{
+  "mcpServers": {
+    "github": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_YOUR_TOKEN_HERE"
+      }
+    }
+  }
+}</code></pre>
+        <p><strong>Step 3: Restart Claude Code and test</strong></p>
+        <p>Start a new session. Try: <em>"List my open pull requests"</em> or <em>"What issues are open in my repo?"</em></p>
+
+      </li>
     </ul>
 
     <h3>Installing an MCP Server Manually</h3>
@@ -1685,26 +1729,81 @@ Ask me for the component name and path before starting.</code></pre>
   <div class="compare-section-title blue">The Complete Journey</div>
 
   <div class="seq-diagram">
-    <div class="seq-actors">
-      <div class="seq-actor">Your Machine</div>
-      <div class="seq-actor">Internet</div>
-      <div class="seq-actor">GPU Cluster (Data Center)</div>
-    </div>
+    <svg viewBox="0 0 800 405" xmlns="http://www.w3.org/2000/svg" style="font-family:'Cascadia Code','Fira Code',Consolas,monospace">
 
-    <div class="seq-note">You type a message</div>
-    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 1</span><span class="msg">Tokenization</span><span class="detail">Your text is split into token IDs. "Hello world" maps to [9906, 1917]. Done locally in milliseconds. Trivially small data.</span></div></div>
+      <!-- PARTICIPANT BOXES -->
+      <rect x="20" y="8" width="200" height="36" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+      <text x="120" y="31" text-anchor="middle" fill="#58a6ff" font-size="13" font-weight="bold">Your Machine</text>
 
-    <div class="seq-note">Tokens travel to Anthropic</div>
-    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 2 &rarr;</span><span class="msg">HTTPS Request</span><span class="detail">Token IDs plus conversation history sent as JSON over TLS. A few kilobytes crossing the public internet to Anthropic's load balancer.</span></div></div>
+      <rect x="300" y="8" width="200" height="36" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+      <text x="400" y="31" text-anchor="middle" fill="#58a6ff" font-size="13" font-weight="bold">Internet</text>
 
-    <div class="seq-note">Inside the data center</div>
-    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 3</span><span class="msg">Routing to Model GPU Pool</span><span class="detail">Load balancer routes to a GPU server running the model you requested. Opus goes to the Opus hardware pool. Sonnet goes to the Sonnet pool. Different models live on different machines. This is why one can be unavailable when the other is not.</span></div></div>
-    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 4</span><span class="msg">Prefill Phase (Input Tokens)</span><span class="detail">ALL input tokens processed in PARALLEL. Key and Value vectors computed for each token and stored in the KV cache in GPU VRAM. Fast because it is parallel. This is what you pay $3/M for.</span></div></div>
-    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 5</span><span class="msg">Generation Phase (Output Tokens)</span><span class="detail">Model generates ONE token at a time. Each requires a full forward pass through ALL model layers reading the entire KV cache. Cannot parallelize. This is why output costs $15/M (5x input).</span></div></div>
+      <rect x="580" y="8" width="200" height="36" rx="4" fill="#1c2128" stroke="#58a6ff" stroke-width="1.5"/>
+      <text x="680" y="25" text-anchor="middle" fill="#58a6ff" font-size="13" font-weight="bold">GPU Cluster</text>
+      <text x="680" y="40" text-anchor="middle" fill="#8b949e" font-size="11">(Data Center)</text>
 
-    <div class="seq-note">Response streams back</div>
-    <div class="seq-row"><div class="seq-arrow" style="flex-direction:row-reverse"><span class="arr">&larr; Step 6</span><span class="msg">Streaming Response</span><span class="detail">Each output token sent back as generated. This is why Claude streams word by word rather than appearing all at once.</span></div></div>
-    <div class="seq-row"><div class="seq-arrow"><span class="arr">Step 7</span><span class="msg">De-tokenization</span><span class="detail">Token IDs converted back to text characters on your machine. Words appear on screen.</span></div></div>
+      <!-- LIFELINES -->
+      <line x1="120" y1="44" x2="120" y2="400" stroke="#30363d" stroke-width="2" stroke-dasharray="5,4"/>
+      <line x1="400" y1="44" x2="400" y2="400" stroke="#30363d" stroke-width="2" stroke-dasharray="5,4"/>
+      <line x1="680" y1="44" x2="680" y2="400" stroke="#30363d" stroke-width="2" stroke-dasharray="5,4"/>
+
+      <!-- SECTION: You type a message -->
+      <line x1="0" y1="50" x2="800" y2="50" stroke="#30363d" stroke-width="0.5" stroke-dasharray="2,4"/>
+      <text x="400" y="61" text-anchor="middle" fill="#6e7681" font-size="10" font-style="italic">You type a message</text>
+
+      <!-- STEP 1: Tokenization (local — Your Machine) -->
+      <rect x="113" y="66" width="14" height="40" rx="2" fill="#39d2c0"/>
+      <text x="135" y="80" fill="#e6edf3" font-size="12" font-weight="bold"><tspan fill="#39d2c0">1  </tspan>Tokenization</text>
+      <text x="135" y="94" fill="#8b949e" font-size="10">Text split into token IDs. "Hello world" &#x2192; [9906, 1917]. Done locally in milliseconds.</text>
+
+      <!-- SECTION: Tokens travel to Anthropic -->
+      <line x1="0" y1="113" x2="800" y2="113" stroke="#30363d" stroke-width="0.5" stroke-dasharray="2,4"/>
+      <text x="400" y="123" text-anchor="middle" fill="#6e7681" font-size="10" font-style="italic">Tokens travel to Anthropic</text>
+
+      <!-- STEP 2: HTTPS Request (Your Machine &#x2192; GPU Cluster) -->
+      <line x1="127" y1="139" x2="672" y2="139" stroke="#58a6ff" stroke-width="2"/>
+      <polygon points="672,134 681,139 672,144" fill="#58a6ff"/>
+      <text x="400" y="134" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="bold"><tspan fill="#39d2c0">2  </tspan>HTTPS Request  &#x2192;</text>
+      <text x="400" y="153" text-anchor="middle" fill="#8b949e" font-size="10">Token IDs + conversation history as JSON/TLS. A few KB to Anthropic&#x2019;s load balancer.</text>
+
+      <!-- SECTION: Inside the data center -->
+      <line x1="0" y1="162" x2="800" y2="162" stroke="#30363d" stroke-width="0.5" stroke-dasharray="2,4"/>
+      <text x="400" y="172" text-anchor="middle" fill="#6e7681" font-size="10" font-style="italic">Inside the data center</text>
+
+      <!-- STEP 3: Routing (Internet &#x2192; GPU Cluster) -->
+      <line x1="407" y1="186" x2="672" y2="186" stroke="#58a6ff" stroke-width="2"/>
+      <polygon points="672,181 681,186 672,191" fill="#58a6ff"/>
+      <text x="543" y="181" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="bold"><tspan fill="#39d2c0">3  </tspan>Route to GPU Pool  &#x2192;</text>
+      <text x="543" y="199" text-anchor="middle" fill="#8b949e" font-size="10">Opus &#x2192; Opus pool. Sonnet &#x2192; Sonnet pool. Models run on separate hardware.</text>
+
+      <!-- STEP 4: Prefill Phase (local — GPU Cluster) -->
+      <rect x="673" y="210" width="14" height="46" rx="2" fill="#39d2c0"/>
+      <text x="665" y="225" text-anchor="end" fill="#e6edf3" font-size="12" font-weight="bold">Prefill Phase  <tspan fill="#39d2c0">4</tspan></text>
+      <text x="665" y="239" text-anchor="end" fill="#8b949e" font-size="10">ALL input tokens in parallel &#x2192; KV cache in GPU VRAM.</text>
+      <text x="665" y="251" text-anchor="end" fill="#8b949e" font-size="10">Fast. This is what you pay $3/M input for.</text>
+
+      <!-- STEP 5: Generation Phase (local — GPU Cluster) -->
+      <rect x="673" y="263" width="14" height="52" rx="2" fill="#39d2c0"/>
+      <text x="665" y="278" text-anchor="end" fill="#e6edf3" font-size="12" font-weight="bold">Generation Phase  <tspan fill="#39d2c0">5</tspan></text>
+      <text x="665" y="292" text-anchor="end" fill="#8b949e" font-size="10">ONE token at a time. Full forward pass through all model layers,</text>
+      <text x="665" y="305" text-anchor="end" fill="#8b949e" font-size="10">reading the entire KV cache. Cannot parallelize. $15/M output.</text>
+
+      <!-- SECTION: Response streams back -->
+      <line x1="0" y1="323" x2="800" y2="323" stroke="#30363d" stroke-width="0.5" stroke-dasharray="2,4"/>
+      <text x="400" y="333" text-anchor="middle" fill="#6e7681" font-size="10" font-style="italic">Response streams back</text>
+
+      <!-- STEP 6: Streaming Response (GPU Cluster &#x2192; Your Machine) -->
+      <line x1="128" y1="348" x2="673" y2="348" stroke="#3fb950" stroke-width="2"/>
+      <polygon points="128,343 119,348 128,353" fill="#3fb950"/>
+      <text x="400" y="343" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="bold">&#x2190;  <tspan fill="#39d2c0">6  </tspan>Streaming Response</text>
+      <text x="400" y="361" text-anchor="middle" fill="#8b949e" font-size="10">Each token sent as generated. This is why Claude streams word by word.</text>
+
+      <!-- STEP 7: De-tokenization (local — Your Machine) -->
+      <rect x="113" y="371" width="14" height="30" rx="2" fill="#39d2c0"/>
+      <text x="135" y="384" fill="#e6edf3" font-size="12" font-weight="bold"><tspan fill="#39d2c0">7  </tspan>De-tokenization</text>
+      <text x="135" y="397" fill="#8b949e" font-size="10">Token IDs &#x2192; text on screen. Words appear.</text>
+
+    </svg>
   </div>
 
   <div class="compare-section-title green">What the Token Is Called at Each Step</div>
@@ -2317,6 +2416,12 @@ if __name__ == "__main__":
         <td>Anthropic — tier benefits changed but old articles persist; the gap no longer exists at published tier level</td>
       </tr>
       <tr>
+        <td><strong>"Token"</strong> — four unrelated meanings</td>
+        <td>One word, one meaning</td>
+        <td>"Token" is one of the most overloaded words in this space. It means four completely different things depending on context: (1) <strong>Text unit</strong> — ~4 characters, the chunk of text the model reads and writes. (2) <strong>Billing unit</strong> — what you pay for; input tokens at $3/M, output tokens at $15/M on Sonnet. (3) <strong>RAM</strong> — each token physically occupies ~0.5 MB of GPU VRAM on Anthropic's servers for the duration of your session. (4) <strong>Security credential</strong> — a string that proves your identity (GitHub Personal Access Token, API key, bearer token). Meanings 1–3 are the same object seen from different angles. Meaning 4 is a completely unrelated concept from the security world that happens to share the name.</td>
+        <td>Software industry — "token" is independently overloaded in linguistics, economics, computer security, and AI infrastructure, then all four usages collide in a single AI coding session</td>
+      </tr>
+      <tr>
         <td><strong>"Context window" / "tokens"</strong> — what they physically are</td>
         <td>Something on your laptop, like RAM or disk storage</td>
         <td>The same idea travels through six names: Characters → Tokens → HTTPS request → KV cache → Context window → Awareness (pages). It starts on your keyboard and ends in GPU VRAM on Anthropic's servers. Your laptop contributes nothing except sending text over the internet. The math: <strong>1 token ≈ ~0.5 MB of GPU VRAM</strong> (median estimate; range 0.3–2.5 MB). 200K tokens ≈ 100 GB. 1M tokens ≈ 500 GB. Real number varies by model design. A single Pro session can consume more GPU memory than 10 gaming PCs combined.</td>
@@ -2325,7 +2430,7 @@ if __name__ == "__main__":
     </tbody>
   </table>
 
-  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 23 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 24 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
 
 </section>
 
@@ -3479,7 +3584,8 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Plan / Plan Mode</td><td>A structured design-before-coding approach. Claude outlines the implementation strategy before writing code.</td></tr>
       <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.<a class="gloss-link" data-tab="confession" data-anchor="ch9" href="#">→ Chapter X</a></td></tr>
       <tr><td>Context Window</td><td>The total token capacity Claude can hold at once. Lives in GPU VRAM on Anthropic's servers (the KV cache), not your laptop. Median cost: ~0.5 MB per token. 200K tokens (Pro) ≈ 100 GB of server VRAM. 1M tokens (Max/Enterprise) ≈ 500 GB. Bigger context windows are real hardware costs, not just software features.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (advanced box)</a></td></tr>
-      <tr><td>Token</td><td>A unit of text (~4 characters, ~¾ of a word). Physically: each token occupies ~0.5 MB of GPU VRAM on Anthropic's servers (the KV cache). 200K tokens ≈ 100 GB of server GPU memory. Billed as input tokens ($3/M) or output tokens ($15/M on Sonnet). Your laptop contributes nothing to this storage.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>Token</td><td>A unit of text (~4 characters, ~¾ of a word). Physically: each token occupies ~0.5 MB of GPU VRAM on Anthropic's servers (the KV cache). 200K tokens ≈ 100 GB of server GPU memory. Billed as input tokens ($3/M) or output tokens ($15/M on Sonnet). Your laptop contributes nothing to this storage. <em>Not to be confused with a security token (API key, PAT) — a completely unrelated meaning of the same word.</em><a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
+      <tr><td>Personal Access Token (PAT)</td><td>A security credential string you generate on a site like GitHub to prove your identity to an API. Starts with <code>ghp_</code> on GitHub. Has nothing to do with AI text tokens — a PAT is an auth secret, not a billing unit or a unit of text.<a class="gloss-link" data-tab="demystify" data-anchor="demystify" href="#">→ Confusing Terms</a></td></tr>
       <tr><td>Governance (features)</td><td>Controls that let an organization manage, monitor, and restrict how employees use a tool. In Claude Enterprise: audit logs (who sent what), SSO (employees log in with company accounts), RBAC (which employees can use which features), SCIM (auto-add/remove users when they join or leave). None of it makes Claude smarter — it makes IT and legal teams happy.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
       <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible "thinking" tokens. Costs more but produces better answers for complex problems.<a class="gloss-link" data-tab="confession" data-anchor="ch15-10" href="#">→ Chapter 15.10</a></td></tr>
       <tr><td>Worktree</td><td>An isolated git working copy. Agents can work in a worktree so they don't modify your actual files.<a class="gloss-link" data-tab="confession" data-anchor="ch15-1" href="#">→ Chapter 15.1</a></td></tr>
@@ -3537,7 +3643,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Forward pass</td><td>One complete computation through all layers of a neural network. Each output token requires one full forward pass. For a model with 80+ layers, this is expensive — hence output tokens cost 5x input tokens.</td></tr>
       <tr><td>HBM (High Bandwidth Memory)</td><td>The memory type used in AI GPUs (H100, H200). Stacked directly on the GPU for maximum bandwidth (~3.35 TB/s on H100). Essential because the KV cache must be read on every forward pass — bandwidth is the bottleneck, not compute.</td></tr>
       <tr><td>NVLink</td><td>Nvidia's GPU-to-GPU interconnect (~900 GB/s on H100s). Required when a session's KV cache exceeds one GPU's VRAM. Allows 12-25 GPUs to share a single massive KV cache. This interconnect advantage, combined with CUDA, is why Nvidia dominates AI infrastructure.</td></tr>
-      <tr><td>KV (Key-Value)</td><td>In AI: the "Key-Value" cache — a GPU memory structure that stores attention computations for every token in the context window. The K and V stand for Key and Value vectors — internal mathematical representations the model needs to "remember" what it has read. For every token, at every model layer, two vectors are stored. This is what the context window physically occupies on Anthropic's servers.</td></tr>
+      <tr><td>KV</td><td>Key-Value. In AI: the "Key-Value" cache — a GPU memory structure that stores attention computations for every token in the context window. The K and V stand for Key and Value vectors — internal mathematical representations the model needs to "remember" what it has read. For every token, at every model layer, two vectors are stored. This is what the context window physically occupies on Anthropic's servers.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (Context Window)</a></td></tr>
       <tr><td>KV Cache</td><td>The GPU memory structure where every token's attention data is stored during a conversation. Grows linearly with context size. Median estimate: ~0.5 MB per token (range 0.3–2.5 MB by model design). 200K tokens ≈ 100 GB. 1M tokens ≈ 500 GB. Bigger context windows are not a software feature — they reflect real infrastructure cost. This is why large context windows are expensive and require data center hardware.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (Context Window)</a></td></tr>
       <tr><td>Corporate proxy</td><td>A network intermediary in enterprise environments that routes and inspects outbound internet traffic. Can require special configuration for CLI tools that make HTTPS requests.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">→ Pricing page</a></td></tr>
 
@@ -3672,7 +3778,7 @@ const glossaryTerms = {
   'Subagent': 'Same as Agent — a separate Claude instance that handles a subtask independently and reports back.',
   'Worktree': 'An isolated copy of your repo where an agent can work safely. If the experiment fails, your real files are untouched.',
   'Memory': 'Persistent notes stored in your personal Claude folder. Survives across sessions. Claude loads them automatically for the relevant project.',
-  'Token': 'Unit of text (~4 characters). Physically: each token occupies ~0.5 MB of GPU VRAM on Anthropic's servers (the KV cache). 200K tokens ≈ 100 GB of server GPU memory. Billed as input tokens ($3/M) or output tokens ($15/M).',
+  'Token': 'Unit of text (~4 characters). Physically: each token occupies ~0.5 MB of GPU VRAM on Anthropic\'s servers (the KV cache). 200K tokens ≈ 100 GB of server GPU memory. Billed as input tokens ($3/M) or output tokens ($15/M).',
   'Allowlist': 'A pre-approved list of tools or commands in settings.json. Claude won\'t ask permission before running allowlisted actions.',
   'Remote Control': 'A Claude Code feature that lets you control a running CLI session from your phone or another device via QR code.',
   'Context Window': 'The total amount of text Claude can "see" at once. Everything loaded (files, history, instructions) takes up space in this finite window.',
@@ -3712,6 +3818,9 @@ const glossaryTerms = {
   'HBM': 'High Bandwidth Memory. Memory type on AI GPUs (H100/H200). ~3.35 TB/s bandwidth. Critical for KV cache reads on every forward pass.',
   'NVLink': 'Nvidia GPU-to-GPU interconnect (~900 GB/s). Allows multiple GPUs to share a KV cache larger than one card can hold. Core reason Nvidia dominates AI.',
   'KV cache': 'Key-Value cache. A GPU memory structure on Anthropic\'s servers that stores attention computations for every token in the context window. Grows linearly with context size. This is what the "context window" physically occupies — GPU VRAM on a remote server, not your laptop.',
+  'PAT': 'Personal Access Token. A security credential string you generate on a website (GitHub, etc.) to prove your identity to an API. Unrelated to AI tokens — a PAT is an auth key, not a unit of text.',
+  'Personal Access Token': 'A security credential string (e.g. from GitHub) that grants API access. Starts with "ghp_" on GitHub. Not the same as an AI text token — this is an authentication secret, not a billing unit.',
+  'KV': 'Key-Value. In AI, shorthand for the Key-Value cache — the GPU memory structure that stores attention computation data for every token in the context window. Each token produces a Key vector and a Value vector at every model layer; together these are the KV pairs that make up the KV cache.',
   'GPU VRAM': 'Graphics card memory on a server. Where Claude\'s context window physically lives. Not your laptop\'s RAM. Each token in context occupies space here in the KV cache.',
   'VRAM': 'Video RAM — memory on a graphics card. Claude\'s context window lives in VRAM on Anthropic\'s GPU servers. Local models (Ollama) are limited by your own GPU\'s VRAM.',
   'JSON-RPC': 'A lightweight remote procedure call protocol using JSON messages. How MCP servers communicate with Claude Code — over stdin/stdout for local servers. One JSON message per line.',
