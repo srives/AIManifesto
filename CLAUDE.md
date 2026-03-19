@@ -62,6 +62,10 @@ When adding a new term to the glossary, do all three steps:
 
 The visual convention is: dashed underline = "this term has a glossary entry." In the body, hovering shows the definition popup. In the glossary table, the term cell is a clickable link back to a usage in the document.
 
+### Collaboration
+
+When the user asks a question, answer it. Do not treat a question as a command to act. Wait for an explicit instruction before making changes.
+
 ### Deployment
 
 Pushing to `master` auto-deploys via GitHub Pages. The live site reflects `index.html` at the repo root.

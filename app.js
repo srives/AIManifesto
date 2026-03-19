@@ -46,18 +46,22 @@ function initTabs() {
     });
   });
 
-  // Glossary back-links — make entire row clickable, not just the arrow
+  // Glossary back-links — clicking the Term column (first td) navigates;
+  // the Definition column (second td) is left alone so text can be selected/copied.
   document.querySelectorAll('.gloss-link').forEach(a => {
     a.addEventListener('click', e => {
       e.preventDefault();
+      // Only navigate when the link itself is in the first column
+      const td = a.closest('td');
+      if (!td || td !== td.parentElement.cells[0]) return;
       goToAnchor(a.dataset.tab, a.dataset.anchor);
     });
-    // Also wire up the whole row
+    // Wire up the whole row, but only for first-column clicks
     const row = a.closest('tr');
     if (row) {
-      row.style.cursor = 'pointer';
       row.addEventListener('click', e => {
-        if (e.target.tagName === 'A' || e.target.tagName === 'CODE') return;
+        const td = e.target.closest('td');
+        if (!td || td !== td.parentElement.cells[0]) return;
         goToAnchor(a.dataset.tab, a.dataset.anchor);
       });
     }

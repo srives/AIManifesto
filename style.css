@@ -293,7 +293,7 @@ body {
 #glossary td { cursor: default; user-select: none; }
 #glossary td:first-child { color: var(--text-primary); font-weight: 600; }
 #glossary tr:has(.gloss-link) { cursor: pointer; }
-#glossary tr:has(.gloss-link):hover { background: var(--bg-tertiary); }
+#glossary tr:has(.gloss-link):hover td:first-child { background: var(--bg-tertiary); }
 
 /* Dashed underline on clickable term names — matches the .tt style in body text */
 #glossary tr:has(.gloss-link) td:first-child {
@@ -305,6 +305,11 @@ body {
 }
 #glossary tr:has(.gloss-link):hover td:first-child {
   text-decoration-color: var(--accent-blue);
+}
+/* Definition column is copy-only — normal text cursor, no row-highlight bleed */
+#glossary td:nth-child(2) {
+  cursor: text;
+  user-select: text;
 }
 
 .gloss-link {
