@@ -35,6 +35,8 @@
           <button class="tab-btn" data-tab="tokenquiz">Tokens Quiz</button>
           <button class="tab-btn" data-tab="mcpdev">Advanced: Building MCP Servers</button>
           <button class="tab-btn" data-tab="mcpdevquiz">MCP Server Builder Quiz</button>
+          <button class="tab-btn" data-tab="makeplugin">Advanced: Building a Plugin</button>
+          <button class="tab-btn" data-tab="pluginquiz">Plugin-Builder Quiz</button>
           <button class="tab-btn" data-tab="demystify">Confusing Terms</button>
           <button class="tab-btn" data-tab="glossary">Glossary</button>
           <button class="tab-btn" data-tab="about">About</button>
@@ -840,6 +842,8 @@ Ask me for the component name and path before starting.</code></pre>
       <li><a href="https://github.com/hesreallyhim/awesome-claude-code" style="color:var(--accent-blue)">awesome-claude-code</a> — Community curated list of skills, hooks, slash commands, and plugins</li>
       <li><a href="https://github.com/rohitg00/awesome-claude-code-toolkit" style="color:var(--accent-blue)">awesome-claude-code-toolkit</a> — 135 agents, 42 commands, 150+ plugins, 19 hooks</li>
     </ul>
+
+    <div class="aha"><strong>Want to build your own plugin?</strong> The <a class="tab-btn-inline" data-tab="makeplugin">Advanced: Building a Plugin</a> tab walks through a complete JIRA integration plugin step by step &mdash; manifests, hooks, skills, slash commands, credential security, and the token cost implications most people miss.</div>
   </div>
 
   <!-- ==================== CHAPTER 13B: MCP SERVERS ==================== -->
@@ -2361,6 +2365,526 @@ if __name__ == "__main__":
   </div>
 </section>
 
+<section id="makeplugin" class="tab-panel">
+
+  <h2>Making a Plugin: JIRA Integration Example</h2>
+  <p>Claude Code has its own plugin system &mdash; separate from MCP servers. A plugin is a package that gives Claude sessions custom slash commands, skills, and hooks. It contains markdown files (skills, commands), JSON configs (manifests, hook definitions), scripts, and optionally compiled programs written in any language &mdash; C#, Go, Python, Rust, whatever you want. It gets installed into your local Claude Code environment and runs whenever Claude needs it.</p>
+
+  <div class="analogy">Think of it like a VS Code extension, but for Claude Code. You install it once and it gives Claude new capabilities.</div>
+
+  <div class="analogy-human">Think of a plugin like hiring a specialist contractor for your team. Claude is the general contractor, and the plugin is the plumber &mdash; Claude doesn't know how to talk to JIRA, but the plugin does. When Claude needs JIRA data, it calls the specialist, who handles the messy details (API tokens, field IDs, transitions) and hands back a clean result.</div>
+
+  <h3>What Languages Can You Use?</h3>
+  <p>This surprises most people: <strong>plugins are not language-restricted.</strong> The plugin itself is mostly markdown and JSON. The tools it tells Claude to run can be written in anything.</p>
+
+  <p>A plugin has four parts, each written in different "languages":</p>
+
+  <table class="compare-table">
+    <thead><tr><th>Part</th><th>What It Is</th><th>Written In</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Plugin structure</strong></td><td>Manifests, skills, commands, hooks config</td><td>Markdown, JSON, YAML frontmatter</td></tr>
+      <tr><td><strong>Hook scripts</strong></td><td>SessionStart, PreToolUse, etc.</td><td>Bash, PowerShell, or any shell script</td></tr>
+      <tr><td><strong>Utility code</strong></td><td>Optional helpers (e.g., skill discovery)</td><td>JavaScript/TypeScript (Node.js is already installed with Claude Code)</td></tr>
+      <tr><td><strong>CLI tools invoked by skills</strong></td><td>The programs Claude actually runs</td><td><em>Anything</em> &mdash; whatever produces an executable</td></tr>
+    </tbody>
+  </table>
+
+  <p>That last row is the key. When a skill tells Claude to run a command, Claude doesn't care what language that command was built in. It just runs it locally and reads the output. So the tools your plugin invokes can be:</p>
+
+  <ul>
+    <li><strong>C# / .NET</strong> &mdash; Build a console app, invoke it as <code>dotnet MyApp.dll --get-ticket PROJ-123 --json</code> or compile to a native <code>.exe</code></li>
+    <li><strong>Go</strong> &mdash; Compiles to a single static binary with no runtime dependencies. Excellent for cross-platform CLI tools</li>
+    <li><strong>Python</strong> &mdash; <code>python script.py --query "assignee = currentUser()"</code></li>
+    <li><strong>Rust</strong> &mdash; Single binary, no runtime. Fast and cross-platform</li>
+    <li><strong>Node.js / TypeScript</strong> &mdash; Already available since Claude Code requires Node.js</li>
+    <li><strong>Any existing CLI tool</strong> &mdash; acli, gh, aws, kubectl, curl &mdash; if it's on your PATH, your skill can use it</li>
+  </ul>
+
+  <div class="insight"><strong>The plugin system isn't language-specific &mdash; it's command-specific.</strong> You write skills in markdown that tell Claude which commands to run. Those commands can be written in any language that produces an executable. A C# developer can build a <code>.exe</code> that queries JIRA, a Python developer can write a script that calls the GitHub API, a Go developer can compile a binary that talks to Slack. The skill just says "run this command" and reads the output. Claude doesn't know or care what language produced the binary.</div>
+
+  <div class="gotcha"><strong>Cross-platform matters.</strong> Claude Code runs on Windows, macOS, and Linux. If your plugin will be shared with a team, the CLI tools it invokes need to work on all platforms your team uses. Shell scripts are Unix-native (bash) &mdash; on Windows they require Git Bash, WSL, or the polyglot wrapper pattern shown earlier. C# with .NET and Go are naturally cross-platform. Python requires a Python installation. Native <code>.exe</code> files only work on Windows.</div>
+
+  <h3>Wait &mdash; How Does Claude Even Know What a Plugin Can Do?</h3>
+  <p>This is the question most people skip, and it's the key to understanding the whole system. There's no compiled interface, no API contract, no type system. Instead:</p>
+
+  <ol>
+    <li><strong>At session start</strong>, the plugin's SessionStart hook fires and injects a special skill &mdash; sometimes called a "meta-skill" &mdash; into the conversation context. Despite the fancy name, <span id="anchor-meta-skill"></span>it's just a regular SKILL.md file whose job is to list every other available skill and when to use each one. Think of it as the table of contents for the plugin. (Note: "meta-skill" is not an official Anthropic term &mdash; it's plugin-community jargon. Anthropic's docs just call everything a "skill." The community started calling the auto-injected table-of-contents skill a "meta-skill" to distinguish it, but structurally it's identical to any other skill.)</li>
+    <li><strong>Claude reads that context</strong> the same way it reads any system prompt. It now knows: "I have a <code>jira-workflow</code> skill I should invoke when the user mentions a ticket"</li>
+    <li><strong>When Claude invokes a skill</strong>, the skill's markdown content gets loaded and Claude follows the instructions &mdash; "use <code>acli.exe</code> to query this ticket, check the assignee, transition the status"</li>
+  </ol>
+
+  <p>The "contract" is natural language. The plugin teaches Claude what tools exist and how to use them, the same way a README teaches a human developer. There is no schema, no function signature, no compiled binding. Just instructions that Claude interprets at runtime.</p>
+
+  <h3>Where Does the Code Actually Run?</h3>
+  <p>This is the other common misconception. The plugin code does <strong>not</strong> run in Anthropic's data center. Here's the actual flow:</p>
+
+  <ol>
+    <li><strong>Claude's model</strong> runs on Anthropic's GPU servers in a data center &mdash; this is where token generation happens</li>
+    <li><strong>Claude Code</strong> runs on <em>your local machine</em> &mdash; it sends prompts to the API and receives responses</li>
+    <li>When Claude decides to run a command (like <code>acli.exe jira workitem view PROJ-12345</code>), that command executes <strong>on your machine</strong>, not in the cloud</li>
+    <li>The command's output gets sent back to Claude as context for the next response</li>
+  </ol>
+
+  <div class="analogy">It's like a phone call with an expert. The expert (Claude) is in another city, but when they say "open your terminal and run this command," <em>you</em> run it on <em>your</em> computer. The expert never touches your machine directly.</div>
+
+  <p><strong>JIRA tokens never leave your machine.</strong> When the plugin tells Claude to run <code>acli.exe</code>, that command executes locally using credentials stored in your local acli config. The API token goes from your machine directly to Atlassian's servers. Claude's data center never sees it &mdash; Claude only sees the JSON output that comes back.</p>
+
+  <h3>How Plugins Differ from MCP Servers</h3>
+  <table class="compare-table">
+    <thead><tr><th>Feature</th><th>Plugin</th><th>MCP Server</th></tr></thead>
+    <tbody>
+      <tr><td>Provides</td><td>Slash commands, skills, hooks, agents</td><td>Tools (function calls)</td></tr>
+      <tr><td>Installed via</td><td><code>/plugin install</code></td><td>Config in <code>settings.json</code></td></tr>
+      <tr><td>Runs as</td><td>Part of Claude Code's process</td><td>Separate long-running process</td></tr>
+      <tr><td>Best for</td><td>Workflows, methodologies, multi-step processes</td><td>Exposing APIs as callable tools</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Key Insight: Claude Sessions Don't Talk to APIs Directly</h3>
+  <p>This is the most misunderstood part. When an app launches a Claude session to work on a JIRA ticket, <strong>Claude doesn't get raw JIRA REST API access</strong>. Instead:</p>
+
+  <ol>
+    <li><strong>The host app</strong> manages your JIRA credentials securely (API tokens stored via keytar, never exposed to the renderer or to Claude)</li>
+    <li><strong>The host app</strong> provides a UI to browse tickets and launches Claude sessions with just a ticket key</li>
+    <li><strong>The plugin</strong> handles all JIRA API calls within the session, using its own credential management</li>
+  </ol>
+
+  <p>The launch looks like this:</p>
+<pre><code>// The app passes just the ticket key to Claude, not credentials
+const prompt = `/my-plugin:start-work ${ticketKey}`
+const args = ['--session-id', sessionId, prompt]</code></pre>
+
+  <p>Claude only ever sees the ticket key. The plugin fetches the actual JIRA data using credentials stored separately.</p>
+
+  <h3>Anatomy of a Plugin</h3>
+  <p>Here's the structure of a production JIRA workflow plugin that integrates ticket lifecycle management into Claude Code:</p>
+
+<pre><code>my-jira-plugin/
+├── .claude-plugin/
+│   ├── plugin.json          # Plugin metadata &amp; version
+│   └── marketplace.json     # Marketplace registration
+├── hooks/
+│   ├── hooks.json           # SessionStart hook config
+│   ├── run-hook.cmd         # Cross-platform polyglot wrapper
+│   └── session-start        # Injects skills into every session
+├── lib/
+│   └── skills-core.js       # Skill discovery &amp; resolution
+├── skills/                  # Reusable skills
+│   ├── jira-workflow/SKILL.md
+│   ├── meta-skill/SKILL.md
+│   ├── brainstorming/SKILL.md
+│   └── ...
+├── commands/                # User-invoked slash commands
+│   ├── start-work.md
+│   ├── commit.md
+│   ├── pr-check.md
+│   └── ...
+└── agents/                  # Agent templates for subagent dispatch</code></pre>
+
+  <h3>Step 1: The Plugin Manifest</h3>
+  <p>Every plugin needs a <code>.claude-plugin/plugin.json</code> that declares its identity:</p>
+
+<pre><code>{
+  "name": "my-jira-plugin",
+  "description": "Development workflow: Jira lifecycle, code review, standards enforcement",
+  "version": "1.0.0",
+  "author": {
+    "name": "Your Team",
+    "email": "you@example.com"
+  },
+  "repository": "https://github.com/your-org/my-jira-plugin",
+  "license": "MIT",
+  "keywords": ["jira", "tdd", "code-review", "workflows"]
+}</code></pre>
+
+  <p>And a <code>.claude-plugin/marketplace.json</code> if you want it discoverable by other users:</p>
+
+<pre><code>{
+  "name": "my-jira-plugin",
+  "description": "Development workflow plugin with Jira integration",
+  "owner": {
+    "name": "Your Team",
+    "email": "you@example.com"
+  },
+  "plugins": [
+    {
+      "name": "my-jira-plugin",
+      "description": "Jira lifecycle, code review, standards enforcement",
+      "version": "1.0.0",
+      "source": "./"
+    }
+  ]
+}</code></pre>
+
+  <h3>Step 2: The SessionStart Hook</h3>
+  <p>Hooks run shell commands in response to Claude Code events. The <code>hooks.json</code> file tells Claude Code what to execute:</p>
+
+<pre><code>// hooks/hooks.json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd' session-start",
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+  <p>The <code>session-start</code> script reads the meta-skill and injects it as context into every new session:</p>
+
+<pre><code>#!/usr/bin/env bash
+# hooks/session-start — inject the meta-skill into every session
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Read the meta-skill that tells Claude how to use all other skills
+content=$(cat "${PLUGIN_ROOT}/skills/meta-skill/SKILL.md")
+
+# Escape for JSON embedding
+escape_for_json() {
+    local s="$1"
+    s="${s//\\/\\\\}"    # backslashes
+    s="${s//\"/\\\"}"    # quotes
+    s="${s//$'\n'/\\n}"  # newlines
+    printf '%s' "$s"
+}
+
+escaped=$(escape_for_json "$content")
+
+# Output JSON that Claude Code picks up as session context
+cat &lt;&lt;EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "${escaped}"
+  }
+}
+EOF</code></pre>
+
+  <p>This is the magic &mdash; every time Claude starts a session, it automatically knows about all the skills available in the plugin.</p>
+
+  <h3>Step 3: Slash Commands</h3>
+  <p>Commands are markdown files in <code>commands/</code> that define user-invocable actions. Here's a <code>start-work</code> command that kicks off JIRA integration:</p>
+
+<pre><code># commands/start-work.md
+---
+description: "Start work on a Jira ticket. Looks up the ticket, checks assignment,
+  transitions to In Progress, fetches acceptance criteria, and kicks off brainstorming."
+disable-model-invocation: true
+---
+
+Invoke the jira-workflow skill to start work on the specified ticket.
+
+Follow this sequence exactly:
+1. Look up the ticket (fetch summary, status, acceptance criteria, assignee, sprint)
+2. Check assignee — if assigned to someone else, STOP and ask
+3. Assign to me if unassigned
+4. Transition to In Progress
+5. Set sprint to active sprint
+6. Present the ticket summary and acceptance criteria to the user
+7. Then invoke the brainstorming skill to begin design</code></pre>
+
+  <p>Notice: the command itself is just instructions. It delegates the actual work to a <strong>skill</strong>.</p>
+
+  <h3>Step 4: Skills (Where the JIRA Logic Lives)</h3>
+  <p>Skills are markdown files in <code>skills/*/SKILL.md</code> with YAML frontmatter. The <code>jira-workflow</code> skill contains the actual JIRA integration logic:</p>
+
+<pre><code># skills/jira-workflow/SKILL.md
+---
+name: jira-workflow
+description: Use when starting work on a Jira ticket, transitioning ticket
+  status, updating ticket fields, or checking ticket assignment
+---
+
+# Jira Workflow
+
+## Tools
+
+**Primary: acli** (Atlassian CLI) — more token efficient
+```bash
+# View a ticket with specific fields
+acli.exe jira workitem view PROJ-12345 \
+  --fields "summary,status,description,assignee" --json
+
+# Transition ticket status
+acli.exe jira workitem transition -k PROJ-12345 \
+  -s "In Progress" --yes
+
+# Assign ticket to yourself
+acli.exe jira workitem assign -k PROJ-12345 -a @me --yes
+```
+
+**Fallback: Jira MCP** — when acli fails or for complex field updates
+```
+getJiraIssue -> editJiraIssue -> transitionJiraIssue
+```</code></pre>
+
+  <p>The skill teaches Claude <em>how</em> to interact with JIRA &mdash; which CLI tool to use, what fields to fetch, what transitions exist, and what to do when things fail. Claude reads this skill at runtime and follows the instructions.</p>
+
+  <h3>Step 5: Skill Discovery</h3>
+  <p>The plugin includes a <code>lib/skills-core.js</code> module that handles finding and loading skills at runtime:</p>
+
+<pre><code>// lib/skills-core.js — finds SKILL.md files and extracts their metadata
+import fs from 'fs';
+import path from 'path';
+
+function extractFrontmatter(filePath) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split('\n');
+    let inFrontmatter = false;
+    let name = '', description = '';
+
+    for (const line of lines) {
+        if (line.trim() === '---') {
+            if (inFrontmatter) break;
+            inFrontmatter = true;
+            continue;
+        }
+        if (inFrontmatter) {
+            const match = line.match(/^(\w+):\s*(.*)$/);
+            if (match) {
+                if (match[1] === 'name') name = match[2].trim();
+                if (match[1] === 'description') description = match[2].trim();
+            }
+        }
+    }
+    return { name, description };
+}
+
+function findSkillsInDir(dir, sourceType, maxDepth = 3) {
+    const skills = [];
+    if (!fs.existsSync(dir)) return skills;
+
+    function recurse(currentDir, depth) {
+        if (depth > maxDepth) return;
+        for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+            if (entry.isDirectory()) {
+                const skillFile = path.join(currentDir, entry.name, 'SKILL.md');
+                if (fs.existsSync(skillFile)) {
+                    const { name, description } = extractFrontmatter(skillFile);
+                    skills.push({ name: name || entry.name, description, sourceType });
+                }
+                recurse(path.join(currentDir, entry.name), depth + 1);
+            }
+        }
+    }
+    recurse(dir, 0);
+    return skills;
+}</code></pre>
+
+  <p>Personal skills in <code>~/.claude/skills/</code> shadow plugin skills, so teams can override behavior without forking the plugin.</p>
+
+  <h3>Step 6: Cross-Platform Hook Wrapper</h3>
+  <p>Since hooks execute shell commands, Windows compatibility requires a polyglot wrapper &mdash; a file that works as both a Windows batch file and a bash script:</p>
+
+<pre><code>: &lt;&lt; 'CMDBLOCK'
+@echo off
+REM Windows batch portion — finds bash and delegates
+if "%~1"=="" ( echo run-hook.cmd: missing script name &gt;&amp;2 &amp; exit /b 1 )
+set "HOOK_DIR=%~dp0"
+
+REM Try Git for Windows bash
+if exist "C:\Program Files\Git\bin\bash.exe" (
+    "C:\Program Files\Git\bin\bash.exe" "%HOOK_DIR%%~1" %2 %3 %4 %5
+    exit /b %ERRORLEVEL%
+)
+REM Try bash on PATH
+where bash &gt;nul 2&gt;nul
+if %ERRORLEVEL% equ 0 ( bash "%HOOK_DIR%%~1" %2 %3 %4 %5 &amp; exit /b %ERRORLEVEL% )
+exit /b 0
+CMDBLOCK
+
+# Unix portion — run the named script directly
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec bash "${SCRIPT_DIR}/$1" "${@:2}"</code></pre>
+
+  <p>The trick: Windows <code>cmd.exe</code> sees the <code>:</code> as a label and runs the batch code. Bash sees <code>:</code> as a no-op and skips to the bottom.</p>
+
+  <h3>The Full Flow</h3>
+  <p>Here's what happens end-to-end when a developer types <code>/start-work PROJ-12345</code>:</p>
+
+  <ol>
+    <li><strong>SessionStart hook</strong> already fired &mdash; Claude knows about all available skills</li>
+    <li><strong>Slash command</strong> <code>start-work.md</code> tells Claude to invoke the <code>jira-workflow</code> skill</li>
+    <li><strong>Skill</strong> <code>jira-workflow</code> instructs Claude to:
+      <ul>
+        <li>Run <code>acli.exe jira workitem view PROJ-12345 --fields "summary,status,description,assignee" --json</code></li>
+        <li>Check assignee &mdash; stop if assigned to someone else</li>
+        <li>Transition: <code>acli.exe jira workitem transition -k PROJ-12345 -s "In Progress" --yes</code></li>
+        <li>Set sprint: <code>acli.exe jira workitem edit -k PROJ-12345 --custom "customfield_10007:42" --yes</code></li>
+      </ul>
+    </li>
+    <li><strong>Claude presents</strong> the ticket summary and acceptance criteria to the developer</li>
+    <li><strong>Next skill</strong> (<code>brainstorming</code>) kicks in automatically to design the approach</li>
+  </ol>
+
+  <p>Credentials never touch Claude's servers. The plugin instructs Claude to run local CLI commands that use locally-stored API tokens.</p>
+
+  <h3>Installation &amp; Distribution</h3>
+  <p>Users install a plugin with two commands:</p>
+
+<pre><code># Register the marketplace (one time)
+/plugin marketplace add your-org/my-jira-plugin
+
+# Install the plugin
+/plugin install my-jira-plugin@my-jira-plugin</code></pre>
+
+  <p>The plugin gets downloaded to <code>~/.claude/plugins/cache/my-jira-plugin/</code>. A host app can manage updates programmatically:</p>
+
+<pre><code>// A host app can keep the plugin updated automatically
+await runCommand(['plugin', 'marketplace', 'update', 'my-jira-plugin'])
+await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></pre>
+
+  <h3>Building Your Own JIRA Plugin</h3>
+  <p>To build a plugin that integrates with JIRA (or any external API), follow this pattern:</p>
+
+  <ol>
+    <li><strong>Create the manifest</strong> &mdash; <code>.claude-plugin/plugin.json</code> with name, version, description</li>
+    <li><strong>Add a SessionStart hook</strong> &mdash; inject context so Claude knows about your skills on every session</li>
+    <li><strong>Write skills as markdown</strong> &mdash; teach Claude which CLI tools to use and how (e.g., acli for JIRA, gh for GitHub)</li>
+    <li><strong>Create slash commands</strong> &mdash; entry points that chain skills together into workflows</li>
+    <li><strong>Handle credentials locally</strong> &mdash; use tools like acli with saved configs or keytar; never pass tokens through Claude</li>
+    <li><strong>Publish to the marketplace</strong> &mdash; add <code>.claude-plugin/marketplace.json</code> so others can install it</li>
+  </ol>
+
+  <p>The key design principle: <strong>skills are instructions, not code</strong>. You're teaching Claude a workflow in natural language, backed by CLI tools that handle the actual API calls. Claude never needs raw REST access &mdash; it executes local commands that have their own authentication.</p>
+
+  <h3>A Plugin Is Not a Hook</h3>
+  <p>This is easy to confuse. A plugin is <strong>not</strong> a hook. A plugin <strong>contains</strong> hooks, along with skills, commands, and agents. These are four distinct components that live inside a plugin:</p>
+
+  <table class="compare-table">
+    <thead><tr><th>Component</th><th>What It Is</th><th>When It Runs</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Hook</strong></td><td>A shell command triggered by a Claude Code event</td><td>Automatically, on events like SessionStart, PreToolUse, Stop</td></tr>
+      <tr><td><strong>Skill</strong></td><td>A markdown file (SKILL.md) that teaches Claude a workflow</td><td>When Claude or a command invokes it</td></tr>
+      <tr><td><strong>Command</strong></td><td>A markdown file that defines a user-typed slash command</td><td>When the user types <code>/command-name</code></td></tr>
+      <tr><td><strong>Agent</strong></td><td>A template for spawning a specialized subagent</td><td>When Claude dispatches parallel work</td></tr>
+    </tbody>
+  </table>
+
+  <div class="analogy-human">A plugin is like a car. A hook is the ignition &mdash; it starts things up automatically. Skills are the engine &mdash; they do the actual work. Commands are the steering wheel &mdash; the driver controls them directly. Agents are passengers you send on errands. The car is not the ignition, but the car contains the ignition.</div>
+
+  <p>When we say "the SessionStart hook fires," we mean: one specific component inside the plugin (the hook) executes a shell command in response to a Claude Code event. The plugin as a whole is the package that contains that hook, plus all the skills, commands, and agents.</p>
+
+  <h3>Is a Plugin "Live" or Dormant?</h3>
+  <p><strong>Dormant.</strong> Between sessions, the plugin is just files sitting on your local disk at <code>~/.claude/plugins/cache/</code>. No process is running. Anthropic's servers have zero awareness that your plugin exists. Nothing is consuming memory, CPU, or tokens.</p>
+
+  <p>But it <strong>wakes up automatically</strong> when you start a session. Here's the lifecycle:</p>
+
+  <ol>
+    <li><strong>You start a Claude Code session</strong> &mdash; the plugin is dormant files on disk</li>
+    <li><strong>Claude Code fires the SessionStart event</strong> &mdash; the plugin's hook runs a shell script</li>
+    <li><strong>The hook injects the meta-skill</strong> &mdash; a markdown document listing all available skills gets added to the conversation context</li>
+    <li><strong>From this point on, Claude "knows"</strong> what the plugin can do &mdash; because the meta-skill is part of its context window</li>
+    <li><strong>When you close the session</strong> &mdash; the plugin goes back to dormant. Nothing persists in memory.</li>
+  </ol>
+
+  <p>So the plugin is dormant between sessions, active within sessions, and the transition happens automatically via the SessionStart hook.</p>
+
+  <h3>Can Claude Use the Plugin Without Being Asked?</h3>
+  <p><strong>Yes</strong> &mdash; and this surprises most people. Claude can invoke plugin skills on its own, without the user explicitly asking, if the meta-skill instructs it to. Here's a concrete example of how aggressive this can be. A real production meta-skill contains instructions like:</p>
+
+  <div class="real-talk">
+    A real production plugin's meta-skill contains instructions like: <em>"If you think there is even a 1% chance a skill might apply, you ABSOLUTELY MUST invoke the skill. This is not negotiable. This is not optional."</em>
+  </div>
+
+  <p>With instructions like this in the context, if you say "fix the bug in ticket PROJ-12345," Claude will:</p>
+  <ol>
+    <li>Read its injected context and see it has a <code>jira-workflow</code> skill</li>
+    <li>Invoke that skill autonomously &mdash; without asking you first</li>
+    <li>Follow the skill's instructions to run <code>acli.exe</code> locally to fetch the ticket</li>
+  </ol>
+
+  <p>However, <strong>slash commands</strong> can opt out of this. The <code>disable-model-invocation: true</code> frontmatter flag means only a human can type that command. So <code>/start-work</code> requires you to type it, but the underlying <code>jira-workflow</code> skill that it delegates to can be invoked by Claude freely.</p>
+
+  <h3>Human-Only vs. Claude-Autonomous: The <code>disable-model-invocation</code> Flag</h3>
+  <p>This is one of the most important design decisions a plugin author makes. Every slash command in a plugin has a choice: can Claude invoke it on its own, or does only a human get to type it?</p>
+
+  <p>The <code>disable-model-invocation: true</code> flag in a command's YAML frontmatter means: <strong>this command requires a human to type it.</strong> Claude cannot decide on its own to run <code>/start-work PROJ-12345</code>. Only you can. But here's the subtlety &mdash; that restriction only applies to the <em>command</em>, not the <em>skill</em> it delegates to. The <code>jira-workflow</code> skill that <code>/start-work</code> invokes? Claude can call that skill directly, any time, without asking.</p>
+
+  <p>This creates a two-tier permission system:</p>
+
+  <table class="compare-table">
+    <thead><tr><th>Layer</th><th>Who Can Invoke</th><th>Example</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Command</strong> with <code>disable-model-invocation: true</code></td><td>Human only</td><td><code>/start-work PROJ-12345</code></td><td>Dangerous entry points: transitions a ticket, assigns it to you, starts a whole workflow</td></tr>
+      <tr><td><strong>Command</strong> without the flag</td><td>Human or Claude</td><td><code>/commit</code></td><td>Safe or routine actions Claude might reasonably initiate</td></tr>
+      <tr><td><strong>Skill</strong></td><td>Human or Claude (always)</td><td><code>jira-workflow</code></td><td>Skills are the building blocks &mdash; Claude needs to call them freely to do its work</td></tr>
+    </tbody>
+  </table>
+
+  <p>Think of it like this: the command is the front door with a lock &mdash; only the homeowner (you) has the key. The skill is the toolbox inside the house &mdash; once someone is inside (via a command you approved, or via Claude's autonomous judgment based on the meta-skill instructions), they can use any tool freely. This lets plugin authors put guardrails on <em>initiating</em> workflows while still letting Claude work autonomously <em>within</em> them.</p>
+
+  <h3>Plugins and Token Cost</h3>
+  <p>This is the part nobody talks about. <strong>The plugin's "contract" IS token usage.</strong> There is no free metadata channel, no side-band, no compiled shortcut. Everything Claude knows about the plugin travels as tokens in the conversation context.</p>
+
+  <p>Here's what that means concretely:</p>
+
+  <table class="compare-table">
+    <thead><tr><th>What</th><th>When It Costs Tokens</th><th>Approximate Size</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Meta-skill</strong></td><td>Every single message, for the entire session</td><td>~1,500&ndash;2,000 tokens</td></tr>
+      <tr><td><strong>Individual skill</strong> (e.g., jira-workflow)</td><td>Only when invoked &mdash; loaded on demand</td><td>~500&ndash;2,000 tokens each</td></tr>
+      <tr><td><strong>Slash command</strong></td><td>Only when the user types it</td><td>~100&ndash;300 tokens each</td></tr>
+      <tr><td><strong>Command output</strong> (JIRA JSON, etc.)</td><td>Once generated, stays in context</td><td>Varies widely</td></tr>
+    </tbody>
+  </table>
+
+  <p>The meta-skill is the expensive part because it's <strong>always there</strong>. Every prompt you send &mdash; even "what does this variable mean?" &mdash; carries the full meta-skill as context overhead. A plugin with 19 skills needs a bigger meta-skill "menu," which means more baseline token cost on every message.</p>
+
+  <p>The full flow, in terms of what consumes tokens:</p>
+
+  <ol>
+    <li><strong>Session starts</strong> &rarr; hook fires &rarr; meta-skill (~2K tokens) injected into context</li>
+    <li><strong>Every prompt you send</strong> now carries that meta-skill as context overhead</li>
+    <li><strong>Claude reads it</strong>, sees available skills, decides which to invoke</li>
+    <li><strong>When Claude invokes a skill</strong>, that skill's full content loads &mdash; more tokens added to context</li>
+    <li><strong>Claude follows the skill instructions</strong>, runs local commands, gets output</li>
+    <li><strong>Command output</strong> (JIRA JSON, git diff, etc.) comes back as yet more context tokens</li>
+  </ol>
+
+  <p>This is a real design tradeoff: <strong>more plugin capabilities = more tokens per message = more cost</strong>. A lean plugin with 3 skills has minimal overhead. A comprehensive plugin with 19 skills pays a significant per-message tax just for Claude to know what's available. Plugin authors should think carefully about what goes in the meta-skill versus what gets loaded on demand.</p>
+
+  <div class="analogy-human">Imagine you're on a phone call with a consultant, and you're paying by the minute. At the start of every call, you read them a menu of everything they could possibly help you with. The longer that menu is, the more you pay &mdash; even if you only end up asking about one thing. That menu is the meta-skill. The actual work they do after hearing the menu is the individual skill invocations.</div>
+
+</section>
+
+<section id="pluginquiz" class="tab-panel">
+  <div class="time-estimate">Estimated time: 12-15 minutes | 18 questions</div>
+
+  <div class="quiz-header">
+    <div class="quiz-title">Plugin-Builder Quiz</div>
+    <div class="quiz-score">Score: <span class="correct" id="pluginquiz-score">0</span> / <span class="total" id="pluginquiz-total">0</span></div>
+  </div>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="pluginquiz-progress"></div>
+  </div>
+
+  <div class="quiz-controls">
+    <button data-filter-quiz="pluginquiz" data-filter="all" class="active-filter">All</button>
+    <button data-filter-quiz="pluginquiz" data-filter="unanswered">Unanswered</button>
+    <button data-filter-quiz="pluginquiz" data-filter="incorrect">Incorrect</button>
+  </div>
+
+  <div id="pluginquiz-questions"></div>
+
+  <div class="final-score" id="pluginquiz-final">
+    <div class="big-score" id="pluginquiz-final-score">0/0</div>
+    <div class="label">Questions Correct</div>
+    <button class="reset-btn" id="pluginquiz-reset">Reset Quiz</button>
+  </div>
+</section>
+
 <section id="demystify" class="tab-panel">
 
   <h2>Confusing Terms</h2>
@@ -2522,6 +3046,12 @@ if __name__ == "__main__":
         <td>AI industry — each name is technically correct at its layer, but nobody explains the journey. "Tokens" sounds like a billing unit. "Context window" sounds like a software setting. Neither hints that you're reserving terabytes of server GPU memory. <a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (advanced box)</a></td>
       </tr>
       <tr>
+        <td><strong>"Meta-skill"</strong> — is it a skill or not?</td>
+        <td>A different kind of thing from a skill</td>
+        <td>A "meta-skill" is just a regular skill (a SKILL.md file with YAML frontmatter, like any other) that happens to have one special job: listing all the other skills and telling Claude when to use each one. It gets auto-injected at session start via a hook. There is nothing structurally different about it — same file format, same directory layout, same invocation mechanism. The "meta-" prefix makes it sound like a separate concept or a higher-level abstraction. It's not. It's the table of contents for the plugin, written as a skill so Claude can read it like any other instruction.</td>
+        <td>Plugin ecosystem — naming a regular thing with a prefix that implies it's a different kind of thing</td>
+      </tr>
+      <tr>
         <td><strong>"Task"</strong> — two unrelated meanings</td>
         <td>One meaning</td>
         <td>"Task" is used two completely different ways in Claude Code. (1) <strong>Todo item</strong> — an entry in the built-in todo tracker (the "Task Tool"), something to be done, marked in-progress, or completed. (2) <strong>Subagent process</strong> — an independent Claude subprocess launched via the Agent/Task tool to do work in parallel. A subagent (meaning 2) can create todo items (meaning 1), which means you can have a task managing tasks. The word "todo" is sometimes used to mean only the first sense, but "task" is used for both with no consistent distinction in the docs.</td>
@@ -2530,7 +3060,7 @@ if __name__ == "__main__":
     </tbody>
   </table>
 
-  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 25 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~3 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 26 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~4 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
 
 </section>
 
@@ -3607,6 +4137,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Environment Variable</td><td>A named value set in the operating system, accessible by programs. Used for credentials: <code>DATABASE_URL=postgres://...</code></td></tr>
       <tr><td>Extended context model</td><td><em>Anthropic's term</em> for the same Opus or Sonnet model with the 1M context window enabled instead of 200K. Not a different AI. Not a new model. Just more Awareness turned on. Plain term: 1M Awareness (available on Max/Team/Enterprise).</td></tr>
       <tr><td>Extended Thinking</td><td>Internal reasoning Claude does before responding. Generates invisible &ldquo;thinking&rdquo; tokens. Costs more but produces better answers for complex problems.<a class="gloss-link" data-tab="confession" data-anchor="ch15-10" href="#">&rarr; Chapter 15.10</a></td></tr>
+      <tr><td>Frontmatter</td><td>A metadata block at the top of a markdown file, delimited by <code>---</code> lines. Contains key-value pairs like <code>name:</code> and <code>description:</code>. Used in Claude Code skills and slash commands so the system can discover and describe them. Written in YAML format. <a class="gloss-link" data-tab="makeplugin" data-anchor="anchor-meta-skill" href="#">&rarr; Making a Plugin</a></td></tr>
       <tr><td>Forward pass</td><td>One complete computation through all layers of a neural network. Each output token requires one full forward pass. For a model with 80+ layers, this is expensive &mdash; hence output tokens cost 5x input tokens.</td></tr>
       <tr><td>git</td><td>The version control system that tracks changes to files over time. It lets you save snapshots (commits), try experiments on separate branches, and go back to any previous state. git itself is a command-line tool. <strong>Products that provide git hosting and collaboration:</strong> GitHub (most popular, owned by Microsoft), GitLab (popular in enterprises, can be self-hosted), Bitbucket (popular with Atlassian/Jira shops), Azure DevOps (Microsoft's enterprise git platform), and Gitea/Forgejo (self-hosted open source options). GitHub is the public face of git for most developers.<a class="gloss-link" data-tab="glossary" data-anchor="glossary" href="#">&rarr; Glossary</a></td></tr>
       <tr><td>GitHub</td><td>A website (github.com) where developers store and share git repositories. Think of it as Google Drive for code, with version history and collaboration tools built in. Free for public projects. Owned by Microsoft.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
@@ -3629,10 +4160,12 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td><code>/init</code></td><td>A Claude Code command. Analyzes your project and generates an initial CLAUDE.md automatically. Run it when starting a new project, or to improve an existing CLAUDE.md.<a class="gloss-link" data-tab="confession" data-anchor="ch2" href="#">&rarr; Chapter III</a></td></tr>
       <tr><td>IQ (AI)</td><td>The AI model's reasoning capability &mdash; how well it thinks, writes code, solves hard problems. Opus has higher IQ than Haiku. Distinct from Awareness (context window size). Both matter; they measure different things.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">&rarr; IQ/Awareness chart</a></td></tr>
       <tr><td>JetBrains</td><td>A software company that makes professional IDEs: IntelliJ IDEA (Java), Rider (.NET/C#), PyCharm (Python), WebStorm (JavaScript), and others. Known for smart code completion and refactoring tools.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
+      <tr><td>JIRA</td><td>A project management and issue tracking tool by Atlassian, widely used in software teams. Developers track bugs, stories, and tasks as "tickets" (e.g., PROJ-12345). Has a REST API and CLI tools (acli) for automation. Claude Code plugins can integrate with JIRA to look up tickets, transition statuses, and update fields. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Making a Plugin</a></td></tr>
       <tr><td>JSON</td><td><strong>JavaScript Object Notation.</strong> A data format: <code>{"name": "Steve", "age": 42}</code>. Used everywhere for configuration files and API communication.</td></tr>
       <tr><td>JSON-RPC</td><td><strong>JSON Remote Procedure Call.</strong> A protocol for calling functions on another process using JSON messages. How MCP servers communicate with Claude.</td></tr>
       <tr><td>.jsonl (JSON Lines)</td><td>A file format where each line is a separate, complete JSON object. Claude Code stores session history in .jsonl files &mdash; one event per line, making them easy to read one record at a time without loading the whole file.</td></tr>
       <tr><td>JWT</td><td><strong>JSON Web Token.</strong> A compact token format for authentication. Sometimes used by MCP servers or APIs for auth.</td></tr>
+      <tr><td>keytar</td><td>A Node.js library for securely storing credentials in your operating system's native keychain (Windows Credential Manager, macOS Keychain, Linux Secret Service). Used by apps to store API tokens without exposing them in plain text files. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Making a Plugin</a></td></tr>
       <tr><td>KV</td><td>Key-Value. In AI: the &ldquo;Key-Value&rdquo; cache &mdash; a GPU memory structure that stores attention computations for every token in the context window. The K and V stand for Key and Value vectors &mdash; internal mathematical representations the model needs to &ldquo;remember&rdquo; what it has read. For every token, at every model layer, two vectors are stored. This is what the context window physically occupies on Anthropic's servers.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">&rarr; Chapter 15 (Context Window)</a></td></tr>
       <tr><td>KV Cache</td><td>The GPU memory structure where every token's attention data is stored during a conversation. Grows linearly with context size. Rough estimate: ~64 KB to ~0.5 MB per token depending on architecture (modern GQA models at the low end, older full multi-head attention models toward the high end). 200K tokens &asymp; 100 GB. 1M tokens &asymp; 500 GB. Bigger context windows are not a software feature &mdash; they reflect real infrastructure cost.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">&rarr; Chapter 15 (Context Window)</a></td></tr>
       <tr><td>KV heads</td><td>The number of Key-Value head pairs in a model. In full multi-head attention: KV heads = total heads. In GQA models: KV heads is much smaller (e.g. 8 vs 64 total). KV heads directly determine KV cache size per token. The correct KV cache formula is: 2 &times; layers &times; KV_heads &times; head_dim &times; bytes &mdash; not total heads.</td></tr>
@@ -3642,10 +4175,12 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td><code>ls</code></td><td>Lists files in a directory. The Unix equivalent of <code>dir</code> on Windows.</td></tr>
       <tr><td>LSP</td><td><strong>Language Server Protocol.</strong> A protocol for code intelligence (autocomplete, go-to-definition). Powers VS Code's IntelliSense. MCP is modeled after LSP.</td></tr>
       <tr><td>Markdown (.md)</td><td>A lightweight text formatting language. You write plain text with simple symbols (* for bold, # for headings) and it renders as formatted text. CLAUDE.md, README.md, and SKILL.md files are all Markdown. GitHub displays .md files as formatted pages.</td></tr>
+      <tr><td>Marketplace (Plugin)</td><td>A distribution system for Claude Code plugins. A marketplace is a GitHub repository that hosts plugin packages. Users register it with <code>/plugin marketplace add org/repo</code> and then install plugins from it. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Making a Plugin</a></td></tr>
       <tr><td>MCP</td><td><strong>Model Context Protocol.</strong> Anthropic's protocol for connecting external tools (plugins) to Claude. JSON-RPC over stdin/stdout.<a class="gloss-link" data-tab="confession" data-anchor="ch10" href="#">&rarr; Chapter XI</a></td></tr>
       <tr><td>MCP Server (Plugin)</td><td>An external process that gives Claude new tools (database queries, API calls). The closest thing to a plugin system.<a class="gloss-link" data-tab="confession" data-anchor="ch10" href="#">&rarr; Chapter XI</a></td></tr>
       <tr><td>Memory</td><td>Persistent notes in <code>~/.claude/projects/*/memory/</code>. Survives across sessions. Like a developer's project wiki.<a class="gloss-link" data-tab="confession" data-anchor="ch9" href="#">&rarr; Chapter X</a></td></tr>
       <tr><td>Merge</td><td>Combining changes from one branch into another. Like accepting tracked changes in a Word document.</td></tr>
+      <tr><td>Meta-skill</td><td>A regular skill (SKILL.md file) whose special job is listing all other available skills in a plugin and telling Claude when to use each one. Auto-injected at session start via a hook. Despite the "meta-" prefix, it's structurally identical to any other skill &mdash; just a table of contents for the plugin. <a class="gloss-link" data-tab="makeplugin" data-anchor="anchor-meta-skill" href="#">&rarr; Making a Plugin</a></td></tr>
       <tr><td><code>mkdir</code></td><td><strong>Make Directory.</strong> Creates a new folder.</td></tr>
       <tr><td><code>/model</code></td><td>Switches between AI models (Opus, Sonnet, Haiku) mid-session without losing conversation history.</td></tr>
       <tr><td>Monorepo</td><td>A single repository containing multiple projects or teams' code. Requires careful configuration (e.g., subdirectory CLAUDE.md files).</td></tr>
@@ -3657,6 +4192,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Opus (Claude Opus)</td><td>Claude's most capable AI model. Best for complex reasoning, architecture decisions, and hard bugs. Slowest and most expensive. Use it when the problem actually needs deep thinking.<a class="gloss-link" data-tab="compare" data-anchor="iq-awareness-chart" href="#">&rarr; IQ/Awareness chart</a></td></tr>
       <tr><td>OSS</td><td><strong>Open Source Software.</strong> Software whose source code is publicly available. OpenCode is OSS. Claude Code is not.</td></tr>
       <tr><td>Personal Access Token (PAT)</td><td>A security credential string you generate on a site like GitHub to prove your identity to an API. Starts with <code>ghp_</code> on GitHub. Has nothing to do with AI text tokens &mdash; a PAT is an auth secret, not a billing unit or a unit of text.<a class="gloss-link" data-tab="demystify" data-anchor="demystify" href="#">&rarr; Confusing Terms</a></td></tr>
+      <tr><td>Plugin (Claude Code)</td><td>A program installed into Claude Code that provides slash commands, skills, hooks, and/or agents. Lives on your local disk at <code>~/.claude/plugins/cache/</code>. Dormant between sessions; wakes up via hooks at session start. Not the same as an MCP server &mdash; plugins provide workflows and methodologies; MCP servers expose API tools. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Making a Plugin</a></td></tr>
       <tr><td>Plan / Plan Mode</td><td>A Claude Code mode activated with Shift+Tab. Claude describes its intended approach before making any changes. You review and approve the plan first. Same discipline as an Architecture Decision Record &mdash; describe your approach before touching files.<a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">&rarr; Chapter IX</a></td></tr>
       <tr><td>PowerShell</td><td>Microsoft's command-line shell and scripting language for Windows. More powerful than the old Command Prompt. The recommended terminal for Windows developers. Like bash, but for Windows.</td></tr>
       <tr><td>Prefill phase</td><td>The fast phase where all input tokens are processed in parallel as one batch. What you pay input token prices for ($3/M on Sonnet). Contrast with the generation phase (output tokens), which is slow and sequential.</td></tr>
@@ -3685,6 +4221,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>Session</td><td>A conversation with Claude Code. Has a unique ID, persists as a .jsonl file, can be resumed later.<a class="gloss-link" data-tab="confession" data-anchor="ch1" href="#">&rarr; Chapter II</a></td></tr>
       <tr><td>settings.json</td><td>Claude Code's configuration file. Controls permissions, MCP servers, environment variables, model preferences.<a class="gloss-link" data-tab="confession" data-anchor="ch15-6" href="#">&rarr; Chapter 15.6</a></td></tr>
       <tr><td>settings.local.json</td><td>Repo-level settings override that is NOT checked into git. For personal credentials and local-only config.<a class="gloss-link" data-tab="confession" data-anchor="ch15-6" href="#">&rarr; Chapter 15.6</a></td></tr>
+      <tr><td>Shell script</td><td>A text file containing commands that a command-line interpreter executes. On Unix/macOS, these are bash or sh scripts (no file extension or <code>.sh</code>). On Windows, the equivalent is a batch file (<code>.bat</code> or <code>.cmd</code>) or a PowerShell script (<code>.ps1</code>). Claude Code plugins use shell scripts for hooks. Cross-platform plugins often use a polyglot wrapper &mdash; a single file that works as both a batch file and a bash script. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Building a Plugin</a></td></tr>
       <tr><td>Skill</td><td>A SKILL.md instruction file in <code>.claude/skills/</code>. Loaded into context when relevant. Not a running process &mdash; a document that informs behavior.<a class="gloss-link" data-tab="confession" data-anchor="ch4" href="#">&rarr; Chapter V</a></td></tr>
       <tr><td>Slash Command</td><td>A custom command defined as a file in <code>.claude/commands/</code>. Typing <code>/foo</code> loads the prompt from that file.<a class="gloss-link" data-tab="confession" data-anchor="ch5" href="#">&rarr; Chapter VI</a></td></tr>
       <tr><td>SOLID</td><td><strong>Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion.</strong> Five design principles for maintainable object-oriented code. Useful guidelines, not commandments.<a class="gloss-link" data-tab="practitioner" data-anchor="practitioner" href="#">&rarr; Practitioner's Guide</a></td></tr>
@@ -3707,6 +4244,7 @@ else if (platform == "codex") { doZ() }</code></pre>
         <strong>4. (security credential)</strong> A string used to prove identity to an API &mdash; a Personal Access Token (PAT), API key, or JWT. This meaning is completely separate from the other three.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">&rarr; Pricing page</a></td></tr>
       <tr><td>UAC</td><td><strong>User Account Control.</strong> Windows security feature that prompts before elevated actions. Claude Code's permission model works similarly.<a class="gloss-link" data-tab="confession" data-anchor="ch15-5" href="#">&rarr; Chapter 15.5</a></td></tr>
       <tr><td>URI / URL</td><td><strong>Uniform Resource Identifier / Locator.</strong> A web address. <code>https://github.com/srives/AIManifesto</code> is a URL.</td></tr>
+      <tr><td>TypeScript</td><td>A superset of JavaScript that adds static type checking. Files end in <code>.ts</code> instead of <code>.js</code>. Catches type errors at compile time rather than at runtime. Used heavily in modern web development and many Claude Code plugins. Like JavaScript with guardrails.</td></tr>
       <tr><td>Usage (Anthropic term)</td><td><em>Anthropic's term</em> with two unrelated meanings depending on context: (a) how many messages you've sent in the rolling 5-hour window (subscription limits), OR (b) tokens consumed through the API. Plain terms: Messages (subscription) or Tokens (API).</td></tr>
       <tr><td>Usage limits (Anthropic term)</td><td><em>Anthropic's term</em> for how many messages you can send in a 5-hour rolling window before Claude slows down or stops. Separate from token pricing. Plain term: Message budget.</td></tr>
       <tr><td>UTF-8</td><td><strong>Unicode Transformation Format (8-bit).</strong> The standard text encoding. Supports all languages and emoji. What your files should be saved as.</td></tr>
@@ -3886,6 +4424,20 @@ const glossaryTerms = {
   'Pull Request': 'A request to merge your branch into main. Others review your changes before they\'re accepted.',
   'Clone': 'Downloading a copy of a git repository to your local machine to work with.',
   'Dependency': 'A package or library your project relies on. Managed by npm (JavaScript), pip (Python), or NuGet (.NET).',
+  'Plugin': 'A program installed into Claude Code that provides slash commands, skills, hooks, and/or agents. Dormant between sessions, wakes up at session start. Different from MCP servers.',
+  'Meta-skill': 'A regular skill (SKILL.md file) whose job is to list all other available skills in a plugin and tell Claude when to use each one. Auto-injected at session start. Structurally identical to any other skill — just the table of contents.',
+  'TypeScript': 'A superset of JavaScript that adds static type checking. Files end in .ts instead of .js. Used heavily in modern web development and many Claude Code plugins.',
+  'YAML': 'YAML Ain\'t Markup Language. A human-readable data format using indentation instead of braces. Used for skill frontmatter (the --- delimited header in SKILL.md files) and some config files.',
+  'Frontmatter': 'A metadata block at the top of a markdown file, delimited by --- lines. Contains key-value pairs like name and description. Used in skills and slash commands so Claude Code can discover and describe them.',
+  'Slash command': 'A user-typed command starting with / (like /start-work or /commit). Defined as a markdown file in a plugin\'s commands/ directory. When you type it, Claude reads the file contents as a prompt.',
+  'settings.json': 'Claude Code\'s configuration file. Your personal one lives at ~/.claude/settings.json. Project-level ones live at .claude/settings.json inside a repo. Controls permissions, allowed tools, and MCP server config.',
+  'keytar': 'A Node.js library for securely storing credentials in your operating system\'s native keychain (Windows Credential Manager, macOS Keychain, Linux Secret Service). Used by apps to store API tokens without exposing them in plain text.',
+  'Marketplace': 'A distribution system for Claude Code plugins. Plugin authors publish to a marketplace (a GitHub repo); users install with /plugin marketplace add org/repo followed by /plugin install.',
+  'JIRA': 'A project management and issue tracking tool by Atlassian. Teams track bugs, stories, and tasks as tickets (e.g., PROJ-12345). Has a REST API and CLI tools for automation.',
+  'TypeScript': 'A superset of JavaScript that adds static type checking. Files end in .ts. Used in modern web development and many Claude Code plugins.',
+  'Frontmatter': 'A metadata block at the top of a markdown file, delimited by --- lines. Contains key-value pairs like name and description. Used in skills and slash commands.',
+  'keytar': 'A Node.js library for securely storing credentials in your OS native keychain (Windows Credential Manager, macOS Keychain). Apps use it to store API tokens without exposing them in plain text.',
+  'Shell script': 'A text file of commands run by a command-line interpreter. On Unix/macOS: bash scripts (.sh). On Windows: batch files (.bat or .cmd) or PowerShell scripts (.ps1).',
 };
 
 // Build a sorted array (longest terms first to avoid partial matches)
@@ -3900,7 +4452,7 @@ function wrapTermsInNode(textNode) {
 
   // Build a regex alternation from all terms (escaped, word-boundary matched)
   const pattern = termList.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  const re = new RegExp('\\b(' + pattern + ')\\b', 'g');
+  const re = new RegExp('\\b(' + pattern + ')\\b', 'gi');
 
   if (!re.test(text)) return;
   re.lastIndex = 0;

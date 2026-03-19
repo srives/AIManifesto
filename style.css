@@ -355,6 +355,50 @@ tr.anthropic-row td { color: var(--text-primary); }
   margin-bottom: 0.85rem;
 }
 
+/* === Making a Plugin page === */
+#makeplugin h2 {
+  margin-bottom: 0.5rem;
+}
+#makeplugin h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin: 2.5rem 0 0.75rem;
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+#makeplugin h3:first-of-type {
+  border-top: none;
+  margin-top: 1.5rem;
+  padding-top: 0;
+}
+#makeplugin pre {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0.75rem 0 1.25rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+#makeplugin p {
+  margin-bottom: 0.9rem;
+}
+#makeplugin ol > li, #makeplugin ul > li {
+  margin-bottom: 0.6rem;
+}
+#makeplugin ol > li > ul {
+  margin-top: 0.4rem;
+}
+#makeplugin strong {
+  color: var(--text-primary);
+}
+#makeplugin .compare-table td:first-child {
+  white-space: normal;
+}
+
 /* === Sequence Diagram === */
 .seq-diagram {
   font-family: var(--font-mono);
@@ -761,6 +805,26 @@ tr.anthropic-row td { color: var(--text-primary); }
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--accent-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.insight {
+  background: rgba(255, 255, 255, 0.06);
+  border-left: 3px solid #e6edf3;
+  padding: 0.85rem 1.1rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.92rem;
+}
+
+.insight::before {
+  content: 'Insight';
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #e6edf3;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.35rem;

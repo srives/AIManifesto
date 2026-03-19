@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuiz('shorter', shorterQuestions);
   initQuiz('larger', largerQuestions);
   initQuiz('bonusquiz', bonusQuestions);
+  initQuiz('pluginquiz', pluginQuestions);
 });
 
 // === Tab Navigation ===
@@ -64,6 +65,13 @@ function initTabs() {
         goToAnchor(a.dataset.tab, a.dataset.anchor);
       });
     }
+  });
+
+  document.querySelectorAll('.tab-btn-inline').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      switchTab(a.dataset.tab);
+    });
   });
 
   if (hamburger && drawer) {
@@ -1982,5 +1990,208 @@ const bonusQuestions = [
     ],
     answer: 1,
     explanation: "<strong>Universal personal preferences.</strong> This file applies to every session on your machine, across all repos. Things like 'always use TypeScript strict mode' or 'I prefer concise responses' or 'never add emoji' belong here. Project-specific rules go in the repo's CLAUDE.md."
+  }
+];
+// =====================================================
+// PLUGIN-BUILDER QUIZ - 15 questions
+// =====================================================
+const pluginQuestions = [
+  {
+    question: "What is a Claude Code plugin?",
+    choices: [
+      "A compiled binary that extends Claude's neural network",
+      "A program (typically TypeScript/shell scripts) that gives Claude custom slash commands, skills, and hooks",
+      "A REST API server that Claude calls over HTTP",
+      "A browser extension that modifies Claude's web interface"
+    ],
+    answer: 1,
+    explanation: "<strong>A program that gives Claude custom slash commands, skills, and hooks.</strong> Plugins are installed into your local Claude Code environment. They're typically written as markdown files (for skills and commands) and shell scripts (for hooks), not compiled binaries or API servers."
+  },
+  {
+    question: "How does Claude 'know' what a plugin can do? What serves as the contract?",
+    choices: [
+      "A compiled interface definition (like a .d.ts or .proto file)",
+      "A JSON schema that maps function signatures to API endpoints",
+      "Natural language — a meta-skill markdown file injected into the session context at startup",
+      "Claude automatically scans the plugin directory and infers capabilities from file names"
+    ],
+    answer: 2,
+    explanation: "<strong>Natural language instructions injected at session start.</strong> The plugin's SessionStart hook injects a 'meta-skill' — a markdown document listing every available skill and when to use each one. Claude reads it like a system prompt. There's no schema, no function signature, no compiled binding. Just instructions that Claude interprets at runtime."
+  },
+  {
+    question: "When a plugin tells Claude to run 'acli.exe jira workitem view PROJ-12345', where does that command execute?",
+    choices: [
+      "On Anthropic's GPU servers in the data center",
+      "In a sandboxed container in the cloud",
+      "On your local machine, where Claude Code is running",
+      "On Atlassian's JIRA servers directly"
+    ],
+    answer: 2,
+    explanation: "<strong>On your local machine.</strong> Claude's model generates text on Anthropic's servers, but Claude Code runs locally. When Claude decides to run a command, it executes on YOUR computer. The command output is then sent back as context for Claude's next response. This is why your JIRA tokens never reach Anthropic's servers."
+  },
+  {
+    question: "Do JIRA API tokens get sent to Anthropic's data center when a plugin queries JIRA?",
+    choices: [
+      "Yes — Claude needs the token to authenticate with JIRA's API",
+      "Yes — but they're encrypted end-to-end so Anthropic can't read them",
+      "No — the CLI command runs locally and the token goes directly from your machine to Atlassian's servers",
+      "No — JIRA uses OAuth so no tokens are needed"
+    ],
+    answer: 2,
+    explanation: "<strong>No — tokens never leave your machine.</strong> The acli command executes locally using credentials stored in your local config. The API token travels directly from your machine to Atlassian's servers. Claude only sees the JSON output that comes back. Anthropic's data center never handles your credentials."
+  },
+  {
+    question: "What is the difference between a plugin and an MCP server?",
+    choices: [
+      "They're the same thing with different names",
+      "Plugins provide slash commands, skills, and hooks; MCP servers expose tools (function calls) via a separate long-running process",
+      "MCP servers are for local development; plugins are for production",
+      "Plugins run in the cloud; MCP servers run locally"
+    ],
+    answer: 1,
+    explanation: "<strong>Different capabilities and architecture.</strong> Plugins provide slash commands, skills, hooks, and agents — they're best for workflows and multi-step processes. MCP servers expose tools (function calls) as a separate long-running process — they're best for exposing APIs as callable tools. Both run locally."
+  },
+  {
+    question: "What file must every Claude Code plugin contain?",
+    choices: [
+      "package.json",
+      "index.ts",
+      ".claude-plugin/plugin.json",
+      "manifest.xml"
+    ],
+    answer: 2,
+    explanation: "<strong>.claude-plugin/plugin.json</strong> — This manifest file declares the plugin's name, version, description, author, and other metadata. It's how Claude Code identifies and registers the plugin. Unlike Node.js packages, plugins don't require a package.json."
+  },
+  {
+    question: "What does a SessionStart hook do?",
+    choices: [
+      "Compiles the plugin's TypeScript code",
+      "Authenticates the user with Anthropic's API",
+      "Runs a command that injects context (like available skills) into every new Claude session",
+      "Starts a background JIRA polling process"
+    ],
+    answer: 2,
+    explanation: "<strong>Injects context into every new session.</strong> The SessionStart hook fires on startup, resume, clear, and compact events. It typically reads a meta-skill file and outputs JSON that Claude Code picks up as additional session context. This is how Claude learns about the plugin's capabilities at the start of every conversation."
+  },
+  {
+    question: "In a plugin, what is a 'skill'?",
+    choices: [
+      "A compiled function that Claude can call directly",
+      "A markdown file (SKILL.md) with YAML frontmatter that teaches Claude how to perform a specific task",
+      "A REST endpoint registered with Claude's tool system",
+      "A pre-trained model fine-tuned for a specific domain"
+    ],
+    answer: 1,
+    explanation: "<strong>A markdown file that teaches Claude how to perform a task.</strong> Skills live in <code>skills/*/SKILL.md</code> with YAML frontmatter (name and description). The content is natural language instructions — which CLI tools to use, what fields to check, what to do when things fail. Claude reads the skill at runtime and follows the instructions."
+  },
+  {
+    question: "What is the relationship between a slash command and a skill?",
+    choices: [
+      "They're the same thing",
+      "Commands are compiled code; skills are documentation",
+      "Commands are user-facing entry points that delegate to skills which contain the actual logic",
+      "Skills invoke commands, not the other way around"
+    ],
+    answer: 2,
+    explanation: "<strong>Commands are entry points that delegate to skills.</strong> A slash command (like <code>/start-work</code>) is a markdown file that tells Claude what sequence of actions to take. It typically invokes one or more skills to do the actual work. The command says 'what to do'; the skill says 'how to do it.'"
+  },
+  {
+    question: "Why does the plugin use a polyglot wrapper file (run-hook.cmd) for hooks?",
+    choices: [
+      "To support both Python and JavaScript runtimes",
+      "To work on both Windows (cmd.exe) and Unix (bash) without separate hook files",
+      "To encrypt the hook script for security",
+      "To allow hooks to run in parallel across multiple shells"
+    ],
+    answer: 1,
+    explanation: "<strong>Cross-platform compatibility.</strong> The polyglot wrapper is a single file that works as both a Windows batch file and a bash script. Windows cmd.exe sees the <code>:</code> character as a label and runs the batch portion (which finds bash and delegates). Bash sees <code>:</code> as a no-op and skips to the Unix portion at the bottom."
+  },
+  {
+    question: "How does skill discovery work in a plugin?",
+    choices: [
+      "Claude scans the filesystem at startup looking for SKILL.md files",
+      "Skills are registered in a central config file that Claude reads",
+      "A skills-core.js module recursively finds SKILL.md files and extracts their YAML frontmatter (name, description)",
+      "Skills must be manually listed in plugin.json"
+    ],
+    answer: 2,
+    explanation: "<strong>A discovery module finds SKILL.md files.</strong> The <code>lib/skills-core.js</code> module recursively walks the skills directory, finds every <code>SKILL.md</code> file, and extracts the name and description from YAML frontmatter. Personal skills in <code>~/.claude/skills/</code> can shadow plugin skills, letting teams override behavior without forking."
+  },
+  {
+    question: "What does 'disable-model-invocation: true' mean in a slash command's frontmatter?",
+    choices: [
+      "The command can't use Claude's API",
+      "Claude cannot invoke this command on its own — only a human user can type it",
+      "The command runs without any AI processing",
+      "The command is disabled and won't work"
+    ],
+    answer: 1,
+    explanation: "<strong>Only humans can invoke it.</strong> This prevents Claude from autonomously triggering the command. The user must explicitly type the slash command (like <code>/start-work PROJ-12345</code>). This is a safety measure — you don't want Claude deciding on its own to start work on a ticket or transition its status."
+  },
+  {
+    question: "In the plugin architecture, what is a 'meta-skill'?",
+    choices: [
+      "A skill that generates other skills automatically",
+      "A skill that lists all other available skills and tells Claude when to use each one",
+      "A skill that handles plugin installation and updates",
+      "A skill that monitors Claude's performance metrics"
+    ],
+    answer: 1,
+    explanation: "<strong>A skill that lists all other skills.</strong> The meta-skill (typically called something like <code>using-my-plugin</code>) is injected at session start. It contains a table of every available skill with 'when to invoke' guidance. This is how Claude knows the full menu of capabilities — it reads the meta-skill like a table of contents."
+  },
+  {
+    question: "How does a host app (like an Electron app) securely launch Claude sessions with JIRA context?",
+    choices: [
+      "It passes the JIRA API token as a command-line argument to Claude",
+      "It embeds JIRA credentials in the session's system prompt",
+      "It passes only the ticket key; the plugin handles JIRA authentication separately using locally-stored credentials",
+      "It proxies all JIRA requests through Anthropic's API"
+    ],
+    answer: 2,
+    explanation: "<strong>Only the ticket key gets passed.</strong> The host app launches Claude with something like <code>/my-plugin:start-work PROJ-12345</code>. Claude only sees the ticket key. The plugin's skill instructions tell Claude to run a local CLI command (like acli) that has its own stored credentials. Credentials are never passed through Claude or exposed to the renderer."
+  },
+  {
+    question: "What is the correct way to install a Claude Code plugin from a marketplace?",
+    choices: [
+      "npm install -g @claude/my-plugin",
+      "Download the .zip and extract to ~/.claude/plugins/",
+      "/plugin marketplace add org/repo, then /plugin install plugin-name@plugin-name",
+      "Add the plugin URL to settings.json under 'mcpServers'"
+    ],
+    answer: 2,
+    explanation: "<strong>Use the /plugin commands.</strong> First register the marketplace source with <code>/plugin marketplace add org/repo</code>, then install with <code>/plugin install plugin-name@plugin-name</code>. The plugin gets downloaded to <code>~/.claude/plugins/cache/</code>. This is separate from MCP server configuration in settings.json and separate from npm."
+  },
+  {
+    question: "Is a 'meta-skill' a different kind of thing from a regular skill?",
+    choices: [
+      "Yes — it uses a different file format and invocation mechanism",
+      "Yes — it runs at a higher privilege level than normal skills",
+      "No — it's a regular SKILL.md file whose special job is listing all other skills; 'meta-skill' is just community jargon",
+      "No — 'meta-skill' is Anthropic's official term for the plugin entry point"
+    ],
+    answer: 2,
+    explanation: "<strong>No — it's a regular skill with a special job.</strong> A meta-skill is structurally identical to any other SKILL.md file — same format, same directory layout, same invocation mechanism. It just happens to be the one that gets auto-injected at session start to serve as the table of contents. 'Meta-skill' is not an official Anthropic term — it's plugin-community jargon."
+  },
+  {
+    question: "Between sessions, what is the state of an installed plugin?",
+    choices: [
+      "Live — a background process keeps running to watch for events",
+      "Dormant — just files on disk, no process running, Anthropic's servers have no awareness of it",
+      "Cached — Anthropic's servers store a copy so it's ready for the next session",
+      "Standby — the plugin maintains a persistent connection to Claude's API"
+    ],
+    answer: 1,
+    explanation: "<strong>Dormant.</strong> Between sessions, a plugin is just files sitting on your local disk at <code>~/.claude/plugins/cache/</code>. No process is running, no memory is consumed, and Anthropic's servers have zero awareness it exists. It wakes up automatically when a session starts via the SessionStart hook."
+  },
+  {
+    question: "A slash command has 'disable-model-invocation: true', but it delegates to a skill. Can Claude invoke that skill on its own?",
+    choices: [
+      "No — the flag blocks both the command and any skill it delegates to",
+      "No — skills inherit the invocation restrictions of commands that use them",
+      "Yes — the flag only restricts the command; the underlying skill can still be invoked by Claude freely",
+      "Yes — but only if the user has previously typed the command at least once in the session"
+    ],
+    answer: 2,
+    explanation: "<strong>Yes — skills are always available to Claude.</strong> The <code>disable-model-invocation: true</code> flag only restricts the <em>command</em> (the front door). The skill it delegates to (the toolbox inside) remains freely invocable. This two-tier system lets plugin authors require human initiation for dangerous entry points while still letting Claude work autonomously within a workflow once it's started."
   }
 ];
