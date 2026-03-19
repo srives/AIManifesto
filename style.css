@@ -872,9 +872,35 @@ tr.anthropic-row td { color: var(--text-primary); }
 
 /* === Glossary Tooltips === */
 .tt {
-  border-bottom: 1px dashed var(--text-muted);
   cursor: help;
   text-decoration: none;
+}
+body.show-gloss-underlines .tt {
+  border-bottom: 1px dashed var(--text-muted);
+}
+
+/* Gloss toggle checkbox in hamburger drawer */
+.drawer-divider {
+  border-top: 1px solid var(--border);
+  margin: 0.4rem 0;
+}
+.gloss-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+}
+.gloss-toggle-label:hover {
+  color: var(--text-primary);
+}
+.gloss-toggle-label input {
+  cursor: pointer;
+  accent-color: var(--accent-blue);
 }
 
 #tt-popup {

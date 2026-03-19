@@ -74,6 +74,23 @@ function initTabs() {
     });
   });
 
+  const glossPopupToggle = document.getElementById('gloss-popup-toggle');
+  if (glossPopupToggle) {
+    document.body.classList.add('show-gloss-popups');
+    glossPopupToggle.addEventListener('change', () => {
+      document.body.classList.toggle('show-gloss-popups', glossPopupToggle.checked);
+    });
+    glossPopupToggle.closest('label').addEventListener('click', e => e.stopPropagation());
+  }
+
+  const glossToggle = document.getElementById('gloss-underline-toggle');
+  if (glossToggle) {
+    glossToggle.addEventListener('change', () => {
+      document.body.classList.toggle('show-gloss-underlines', glossToggle.checked);
+    });
+    glossToggle.closest('label').addEventListener('click', e => e.stopPropagation());
+  }
+
   if (hamburger && drawer) {
     hamburger.addEventListener('click', e => {
       e.stopPropagation();

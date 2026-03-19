@@ -40,6 +40,9 @@
           <button class="tab-btn" data-tab="demystify">Confusing Terms</button>
           <button class="tab-btn" data-tab="glossary">Glossary</button>
           <button class="tab-btn" data-tab="about">About</button>
+          <div class="drawer-divider"></div>
+          <label class="gloss-toggle-label"><input type="checkbox" id="gloss-popup-toggle" checked> Show Glossary Pop-ups</label>
+          <label class="gloss-toggle-label"><input type="checkbox" id="gloss-underline-toggle"> Underline Glosses</label>
         </div>
       </div>
       <div class="header-text">
@@ -4521,6 +4524,7 @@ function initTooltips() {
 
   // Show tooltip on hover
   document.addEventListener('mouseover', e => {
+    if (!document.body.classList.contains('show-gloss-popups')) return;
     const tt = e.target.closest('.tt');
     if (!tt) return;
     termEl.textContent = tt.dataset.term;
