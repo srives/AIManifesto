@@ -872,7 +872,7 @@ tr.anthropic-row td { color: var(--text-primary); }
 
 /* === Glossary Tooltips === */
 .tt {
-  cursor: help;
+  cursor: pointer;
   text-decoration: none;
 }
 body.show-gloss-underlines .tt {

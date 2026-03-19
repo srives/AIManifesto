@@ -4100,6 +4100,7 @@ else if (platform == "codex") { doZ() }</code></pre>
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
       <tr><td>Aider</td><td>An open-source, Python-based AI coding assistant that runs in the terminal. Works with multiple AI models. Predates Claude Code and has a loyal following among developers who prefer open-source tools.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
+      <tr><td>acli / acli.exe</td><td>The Atlassian CLI — a command-line tool for interacting with JIRA and other Atlassian products. More token-efficient than calling the JIRA REST API directly. Claude Code plugins use it to look up tickets, transition statuses, assign issues, and update custom fields. The <code>.exe</code> version is the Windows executable. Configured once with your server URL, email, and API token via <code>acli.exe jira --server ... --save-config</code>. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Building a Plugin</a></td></tr>
       <tr><td>Agent / Subagent</td><td>A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back. Like a child process.</td></tr>
       <tr><td>Allowlist</td><td>A list of pre-approved tools/commands in settings.json. Claude won't ask permission for allowlisted actions.<a class="gloss-link" data-tab="confession" data-anchor="ch15-5" href="#">&rarr; Chapter 15.5</a></td></tr>
       <tr><td>API</td><td><strong>Application Programming Interface.</strong> A defined way for programs to talk to each other. Think of it as a drive-through window: you send a request in a standard format, the system processes it, and sends back a response. Claude's API lets software applications send prompts to Claude and receive responses &mdash; programmatically, without a human typing.<a class="gloss-link" data-tab="pricing" data-anchor="pricing" href="#">&rarr; Pricing page</a></td></tr>
@@ -4428,6 +4429,8 @@ const glossaryTerms = {
   'Pull Request': 'A request to merge your branch into main. Others review your changes before they\'re accepted.',
   'Clone': 'Downloading a copy of a git repository to your local machine to work with.',
   'Dependency': 'A package or library your project relies on. Managed by npm (JavaScript), pip (Python), or NuGet (.NET).',
+  'acli': 'The Atlassian CLI — a command-line tool for interacting with JIRA. More token-efficient than REST API calls. Used in Claude Code plugins to look up tickets, transition statuses, and update fields.',
+  'acli.exe': 'The Windows executable of the Atlassian CLI. Used in Claude Code plugins to interact with JIRA from Windows machines.',
   'Plugin': 'A program installed into Claude Code that provides slash commands, skills, hooks, and/or agents. Dormant between sessions, wakes up at session start. Different from MCP servers.',
   'Meta-skill': 'A regular skill (SKILL.md file) whose job is to list all other available skills in a plugin and tell Claude when to use each one. Auto-injected at session start. Structurally identical to any other skill — just the table of contents.',
   'TypeScript': 'A superset of JavaScript that adds static type checking. Files end in .ts instead of .js. Used heavily in modern web development and many Claude Code plugins.',
@@ -4449,7 +4452,7 @@ const glossaryTerms = {
 const termList = Object.keys(glossaryTerms).sort((a, b) => b.length - a.length);
 
 // Tags to skip when walking the DOM
-const SKIP_TAGS = new Set(['CODE','PRE','ABBR','SCRIPT','STYLE','TH','TD','H1','H2','H3','H4','H5','H6','BUTTON','A']);
+const SKIP_TAGS = new Set(['PRE','ABBR','SCRIPT','STYLE','TH','TD','H1','H2','H3','H4','H5','H6','BUTTON','A']);
 
 function wrapTermsInNode(textNode) {
   const text = textNode.nodeValue;
@@ -4546,6 +4549,26 @@ function initTooltips() {
   document.addEventListener('mouseout', e => {
     if (!e.target.closest('.tt')) return;
     popup.style.display = 'none';
+  });
+
+  // Click a glossary term to jump to its glossary entry
+  document.addEventListener('click', e => {
+    const tt = e.target.closest('.tt');
+    if (!tt) return;
+    const term = tt.dataset.term;
+    switchTab('glossary');
+    // Find the matching first-column cell (case-insensitive)
+    const cells = document.querySelectorAll('#glossary tbody td:first-child');
+    for (const cell of cells) {
+      if (cell.textContent.trim().toLowerCase() === term.toLowerCase()) {
+        cell.closest('tr').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Brief highlight
+        const row = cell.closest('tr');
+        row.style.background = 'rgba(88, 166, 255, 0.2)';
+        setTimeout(() => row.style.background = '', 1500);
+        break;
+      }
+    }
   });
 }
 
