@@ -3339,6 +3339,10 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
 
     <p>Then you start the loop again for the next feature.</p>
 
+    <div class="insight"><strong>Plan Mode is the "Instruct" step made formal.</strong> Press <code>Shift+Tab</code> before coding and Claude describes its entire approach — files it will touch, functions it will write, decisions it will make — before writing a single line. You approve or redirect before anything changes. This is the loop's first gate, enforced by the tool rather than by willpower.</div>
+
+    <div class="insight"><strong>Session forking is the "different AI reviews it" step without leaving Claude.</strong> Press <code>Ctrl+\</code> to fork your current session — the new session inherits the full conversation history but runs independently. Point the fork at your code and ask it to review. Two Claude perspectives on the same code, with full context, in seconds.</div>
+
     <div class="analogy">Like a factory production line with quality checkpoints. Raw materials (your prompt) enter at one end. Each station (code, test, review, fix) adds value and catches defects. Nothing ships until it passes every station. The loop isn't bureaucracy &mdash; it's what lets you keep the factory running at speed without producing junk.</div>
 
     <div class="analogy-human">Like a content approval workflow. A writer drafts, an editor reviews, legal clears it, the brand team checks it, then it publishes. Each gate catches something the previous one missed. You wouldn't skip legal review just because the editor already approved it. The AI code loop is that approval workflow — each step is a different kind of check, and skipping steps is how things go wrong at scale.</div>
@@ -3367,6 +3371,8 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
 
     <h3>Write Broad Tests, Not Narrow Ones</h3>
     <p>When you find a bug, don't write a test that checks one specific line. Write a test that scans the <strong>entire codebase</strong> for the pattern that caused the bug. If a missing null check crashed one function, scan every function for the same missing check. AI makes the same mistake in many places at once &mdash; your test should catch all of them.</p>
+
+    <div class="insight"><strong>Claude's built-in Grep tool is the mechanical implementation of this.</strong> You don't need to shell out to a script — Claude has a native Grep tool that scans any path with a regex pattern in one call. When you find a bug, tell Claude: "Use the Grep tool to scan the entire codebase for this pattern and list every file that has it." That's the broad sweep, done in seconds, without leaving the session.</div>
   </div>
 
   <!-- === Section 3: Architecture === -->
@@ -3378,6 +3384,8 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
 
     <h3>Separation of Concerns</h3>
     <p>Put related code in related directories. Menus go in <code>ui/</code>. Database access goes in <code>data/</code>. Session management goes in <code>session/</code>. This isn't perfectionism &mdash; it's how you find things six months from now, and how AI finds things when its context window fills up.</p>
+
+    <div class="insight"><strong>Subdirectory CLAUDE.md files enforce namespace rules automatically.</strong> Place a CLAUDE.md inside <code>ui/</code> that says "this directory contains only rendering and display code — no business logic, no data access." Claude picks it up when working in that directory. The architecture becomes self-documenting and self-enforcing — the rules travel with the code, not just the project root.</div>
 
     <div class="real-world">Create a <strong>PostToolUse hook</strong> that checks namespace placement after every file write. A simple script reads the file path and the first function definition — if a function named <code>Show-*</code> or <code>Render-*</code> was written outside <code>ui/</code>, or a function named <code>Get-All*Sessions</code> was written outside <code>session/</code>, the hook warns immediately. Enforcing directory conventions via hook means AI can't quietly put code in the wrong place without you finding out.</div>
 
@@ -3393,6 +3401,8 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
     </ul>
 
     <div class="analogy">Like keeping a clean workshop. If you let tools pile up wherever they're last used, you'll buy duplicates because you can't find the one you already have. Organized tools mean you grab the right one every time. AI is the apprentice who buys a new wrench for every job instead of checking the toolbox.</div>
+
+    <div class="insight"><strong>A skill can encode the "check before writing" rule as a mandatory step.</strong> Create a SKILL.md called <code>reuse-first</code> that instructs Claude to search for existing helpers before writing any utility function — listing what it found before proceeding. When your meta-skill says to invoke it before implementation work, the check becomes part of the workflow rather than advice Claude can quietly skip.</div>
 
     <div class="analogy-human">Like a shared drive that no one organizes. After six months you have seventeen versions of the proposal template because everyone made their own copy instead of finding the existing one. AI has exactly this problem — it will create a new "summarize meeting notes" function every time you ask, rather than reusing the one it wrote last week. Your job is to be the person who says "we already have a template for that."</div>
 
@@ -3433,6 +3443,8 @@ else if (platform == "codex") { doZ() }</code></pre>
     <h2>Cross-AI Code Review</h2>
 
     <p>Never let the AI that wrote the code be the only one that reviews it. This is like letting the student grade their own exam.</p>
+
+    <div class="insight"><strong>The Agent tool with <code>isolation: "worktree"</code> automates this step.</strong> Dispatch a subagent to review the changed files — it gets an isolated copy of the repo, reads the code fresh with no memory of writing it, and reports findings back. No manual copy-paste to a second tool. No re-explaining context. A genuinely independent perspective, triggered with one tool call.</div>
 
     <h3>The Process</h3>
     <ol>
@@ -3475,6 +3487,8 @@ else if (platform == "codex") { doZ() }</code></pre>
     <p>Use external lint tools for your language (ESLint, PSScriptAnalyzer, pylint, etc.). Run them on every change. They catch categories of bugs that neither you nor AI will notice during review.</p>
 
     <div class="real-world">Create a <strong>PostToolUse hook</strong> that runs your linter automatically after every file edit. For JavaScript: <code>npx eslint $FILE --max-warnings 0</code>. For PowerShell: <code>Invoke-ScriptAnalyzer $FILE</code>. The output appears in the terminal immediately after each edit. Claude sees the lint output and can fix violations in the next turn — without you having to manually invoke the linter or paste results back. The loop tightens from minutes to seconds.</div>
+
+    <div class="insight"><strong>PreToolUse hooks can block a file write before it happens.</strong> The real-world card above shows a hook that warns after a write. A PreToolUse hook is stronger — it runs before Claude writes the file and can return a non-zero exit code to abort the operation entirely. The file never gets written until it passes the check. For critical constraints (no credentials in source, no code outside its designated namespace), PreToolUse is the hard stop; PostToolUse is the warning.</div>
   </div>
 
   <!-- === Section 6: Documentation === -->
@@ -3543,10 +3557,18 @@ else if (platform == "codex") { doZ() }</code></pre>
     <h3>AI Forgets Across Sessions</h3>
     <p>Every new session starts fresh. AI doesn't remember your architecture decisions, naming conventions, or past mistakes unless you write them down. CLAUDE.md, memory files, and code comments are how knowledge persists. Without them, you'll re-explain the same things session after session.</p>
 
+    <div class="insight"><strong>Auto memory can capture hard-won facts without you having to ask.</strong> Claude Code has an auto memory feature — it writes memory files about things it discovers during the session, automatically, without prompting. If Claude figures out a subtle quirk of your API or why a particular function can't be refactored, it can write that to memory before you think to ask. Pair this with CLAUDE.md rules (what to do) and you cover both directions: the rules you write in, and the knowledge Claude writes out.</div>
+
     <div class="real-world">Use <strong>memory files</strong> (<code>~/.claude/projects/*/memory/</code>) for knowledge that doesn't belong in CLAUDE.md but needs to persist. CLAUDE.md is for rules and constraints. Memory files are for richer context: "The authentication module was rewritten in v8.2 because the old session token format didn't comply with the new security policy. The old format is still present in legacy data — do not assume all tokens are the new format." Create a <strong>slash command</strong> called <code>/remember</code> that instructs Claude to write a new memory file capturing what was just learned. Over time, these files become a project knowledge base that survives indefinitely across sessions.</div>
 
     <h3>AI Makes Consistent Mistakes</h3>
     <p>When AI makes a mistake in one place, it has probably made the same mistake everywhere. Don't just fix the instance &mdash; search the entire codebase for the pattern. Write a test that catches the pattern globally. This is the single most effective quality practice for AI-generated code.</p>
+
+    <div class="insight"><strong>Memory files are where you record the pattern so it never happens again.</strong> After finding a systematic mistake, write a memory file: what the mistake was, what triggered it, what the correct pattern is, and which files were affected. Future sessions load that memory and know the trap in advance. The mistake becomes institutional knowledge instead of a recurring surprise.</div>
+
+    <div class="insight"><strong>CLAUDE.md is where you turn the pattern into a rule.</strong> Memory files explain context. CLAUDE.md enforces behavior. After a systematic bug, add a rule: "Never use X approach — it causes Y. Always use Z instead." Claude reads CLAUDE.md at the start of every session, so the rule is active before the first line of code is written. The pattern can't recur if the rule is loaded before work begins.</div>
+
+    <div class="insight"><strong>A PostToolUse hook can catch a recurring error class automatically.</strong> If a systematic mistake has a detectable signature — a function call, a missing check, a specific code pattern — write a hook that greps for it after every file edit. When the hook fires, it prints the warning immediately in the terminal, before the next prompt. Claude sees the output and can address it in context. The catch goes from "found during review hours later" to "caught in the same turn it was written."</div>
   </div>
 
   <!-- === Section 9: The Prediction === -->
