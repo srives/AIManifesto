@@ -989,30 +989,19 @@ Ask me for the component name and path before starting.</code></pre>
       </ol>
       <p>Your laptop contributes essentially nothing to the computation — just tokenizing your text and the network connection.</p>
 
-      <h3>The Full Journey — One Idea, Five Names</h3>
-      <p>This is why the terminology feels like a moving target. It's the same underlying thing measured at a different stage:</p>
-      <table class="compare-table">
-        <thead><tr><th>Stage</th><th>What it's called</th><th>What it actually is</th></tr></thead>
-        <tbody>
-          <tr><td>You type text</td><td>Characters</td><td>Letters, spaces, punctuation on your screen</td></tr>
-          <tr><td>Text is split up</td><td>Tokens</td><td>~4-character chunks, the unit Claude processes and bills</td></tr>
-          <tr><td>Tokens flow to Anthropic</td><td>HTTPS request</td><td>Your tokens sent over the internet to a data center</td></tr>
-          <tr><td>Model processes them</td><td>KV cache</td><td>GPU memory storing attention data for each token</td></tr>
-          <tr><td>How much fits</td><td>Context window</td><td>The total KV cache capacity (200K or 1M tokens)</td></tr>
-          <tr><td>Teaching metric</td><td>Awareness (pages)</td><td>Context window expressed in human-readable page counts</td></tr>
-        </tbody>
-      </table>
-      <p>Same idea. Six names. One journey from your keyboard to a GPU in a data center.</p>
-
       <h3>What "200K Tokens" Means Physically — The Math</h3>
-      <p>Each token in the context window requires memory in the <strong>KV cache</strong> — a GPU memory structure storing attention computation vectors (Key and Value vectors) for every token at every model layer. Here is the actual calculation for a Claude-class model:</p>
+      <p>Each token in a long context contributes to memory use in the <strong>KV cache</strong> — an internal memory structure used by transformer-style models to track attention state across prior tokens during generation.</p>
+      <p>A rough KV-cache estimate for a model in this general class is:</p>
+      <p style="margin-left:1.5rem;font-family:monospace">KV cache per token &asymp; 2 &times; layers &times; KV_heads &times; head_dim &times; bytes_per_element</p>
+      <p>A reasonable middle-of-the-road teaching estimate is about <strong>0.5 MB per token</strong>, though the real number can vary significantly by architecture and serving design. A broad rough range based on publicly measured architectures is ~64 KB to ~0.5 MB per token — modern GQA models (Llama 3-class) sit toward the low end; older full multi-head attention models sit toward the high end.</p>
+      <p>That implies:</p>
       <ul>
-        <li><strong>KV cache per token: a reasonable middle estimate is ~0.5 MB</strong> (range: 0.3–2.5 MB depending on model design). Modern GQA models are at the low end; older full-head models at the high end. Formula: 2 × layers × KV_heads × head_dim × bytes_per_element</li>
-        <li><strong>200K tokens ≈ 100 GB</strong> at the 0.5 MB median (range: ~60–500 GB)</li>
-        <li><strong>1M tokens ≈ 500 GB</strong> at the 0.5 MB median (range: ~300 GB–2.5 TB)</li>
+        <li><strong>200K tokens &asymp; ~100 GB</strong> at the midpoint</li>
+        <li><strong>1M tokens &asymp; ~500 GB</strong> at the midpoint</li>
       </ul>
-      <p>A reasonable middle-of-the-road estimate: <strong>1 token ≈ 0.5 MB of server GPU VRAM</strong>. That means 200K tokens costs around 100 GB, and 1M tokens around 500 GB — though the real number varies significantly by model design (range: 0.3–2.5 MB/token). Either way, a Pro-plan session consumes more GPU memory than most servers hold in total RAM. This is not a software feature. It is a real infrastructure cost.</p>
-      <p>A single large-context Claude session may consume more GPU memory than most consumer graphics cards hold in total. This is why large context windows require massive GPU clusters and why they cost more to run.</p>
+      <p>Again, those are rough estimates, not universal constants.</p>
+      <p>The key point is simple: large context windows are a real infrastructure cost. The raw text itself is tiny. What takes memory is the model&rsquo;s internal mathematical state for handling that text.</p>
+      <p>A very large hosted context may require more accelerator memory than a consumer graphics card has in total, and can be substantial even by server standards. That is one major reason large-context AI is expensive to provide.</p>
 
       <h3>Why This Matters to You</h3>
       <ul>
@@ -2430,7 +2419,7 @@ if __name__ == "__main__":
       <tr>
         <td><strong>"Context window" / "tokens"</strong> — what they physically are</td>
         <td>Something on your laptop, like RAM or disk storage</td>
-        <td>The same idea travels through six names: Characters → Tokens → HTTPS request → KV cache → Context window → Awareness (pages). It starts on your keyboard and ends in GPU VRAM on Anthropic's servers. Your laptop contributes nothing except sending text over the internet. The math: <strong>1 token ≈ ~0.5 MB of GPU VRAM</strong> (median estimate; range 0.3–2.5 MB). 200K tokens ≈ 100 GB. 1M tokens ≈ 500 GB. Real number varies by model design. A single Pro session can consume more GPU memory than 10 gaming PCs combined.</td>
+        <td>The same idea travels through six names: Characters → Tokens → HTTPS request → KV cache → Context window → Awareness (pages). It starts on your keyboard and ends in GPU VRAM on Anthropic's servers. Your laptop contributes nothing except sending text over the internet. The math: <strong>1 token ≈ ~0.5 MB of GPU VRAM</strong> (rough midpoint; empirically measured range ~64 KB–0.5 MB depending on architecture). 200K tokens ≈ ~100 GB. 1M tokens ≈ ~500 GB at the midpoint. Real number varies significantly by model design.</td>
         <td>AI industry — each name is technically correct at its layer, but nobody explains the journey. "Tokens" sounds like a billing unit. "Context window" sounds like a software setting. Neither hints that you're reserving terabytes of server GPU memory. <a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">→ Chapter 15 (advanced box)</a></td>
       </tr>
     </tbody>
@@ -3563,7 +3552,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>.jsonl (JSON Lines)</td><td>A file format where each line is a separate, complete JSON object. Claude Code stores session history in .jsonl files &mdash; one event per line, making them easy to read one record at a time without loading the whole file.</td></tr>
       <tr><td>JWT</td><td><strong>JSON Web Token.</strong> A compact token format for authentication. Sometimes used by MCP servers or APIs for auth.</td></tr>
       <tr><td>KV</td><td>Key-Value. In AI: the &ldquo;Key-Value&rdquo; cache &mdash; a GPU memory structure that stores attention computations for every token in the context window. The K and V stand for Key and Value vectors &mdash; internal mathematical representations the model needs to &ldquo;remember&rdquo; what it has read. For every token, at every model layer, two vectors are stored. This is what the context window physically occupies on Anthropic's servers.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">&rarr; Chapter 15 (Context Window)</a></td></tr>
-      <tr><td>KV Cache</td><td>The GPU memory structure where every token's attention data is stored during a conversation. Grows linearly with context size. Median estimate: ~0.5 MB per token (range 0.3&ndash;2.5 MB by model design). 200K tokens &asymp; 100 GB. 1M tokens &asymp; 500 GB. Bigger context windows are not a software feature &mdash; they reflect real infrastructure cost.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">&rarr; Chapter 15 (Context Window)</a></td></tr>
+      <tr><td>KV Cache</td><td>The GPU memory structure where every token's attention data is stored during a conversation. Grows linearly with context size. Rough estimate: ~64 KB to ~0.5 MB per token depending on architecture (modern GQA models at the low end, older full multi-head attention models toward the high end). 200K tokens &asymp; 100 GB. 1M tokens &asymp; 500 GB. Bigger context windows are not a software feature &mdash; they reflect real infrastructure cost.<a class="gloss-link" data-tab="confession" data-anchor="ch11" href="#">&rarr; Chapter 15 (Context Window)</a></td></tr>
       <tr><td>KV heads</td><td>The number of Key-Value head pairs in a model. In full multi-head attention: KV heads = total heads. In GQA models: KV heads is much smaller (e.g. 8 vs 64 total). KV heads directly determine KV cache size per token. The correct KV cache formula is: 2 &times; layers &times; KV_heads &times; head_dim &times; bytes &mdash; not total heads.</td></tr>
       <tr><td>Lint / Linter</td><td>A tool that checks code for style violations, potential bugs, and anti-patterns. ESLint (JavaScript), PSScriptAnalyzer (PowerShell).</td></tr>
       <tr><td>LLM</td><td><strong>Large Language Model.</strong> The AI model that powers Claude, GPT, Gemini, etc. Trained on massive text datasets to understand and generate language and code.</td></tr>
