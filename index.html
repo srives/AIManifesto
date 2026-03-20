@@ -93,6 +93,7 @@
       <li><a href="#ch7">Agents (Subagents)</a></li>
       <li><a href="#ch7b">Running Multiple Background Prompts</a></li>
       <li><a href="#ch8">Plans</a></li>
+      <li><a href="#ch8b">Context Compaction</a></li>
       <li><a href="#ch9">Memory (mini-CLAUDE.md files)</a></li>
       <li><a href="#ch9b">Documentation as Dormant Memory</a></li>
       <li><a href="#ch10">Plugins (<code>/plugin install</code>)</a></li>
@@ -478,10 +479,27 @@
     <div class="analogy-human">Like a job aid or quick reference card pinned above a desk. A call center agent has a laminated card that says "if the customer says X, respond with Y." It doesn't do anything on its own — the agent reads it and adjusts their response. A UX designer has a style guide they consult when making design decisions. A skill is that reference card — Claude reads it before acting, not instead of acting.</div>
 
     <h3>Where Skills Live</h3>
+    <p>There are three kinds of skills, and they live in three different places:</p>
     <ul>
-      <li><strong>Personal skills</strong> &mdash; <code>C:\Users\YourName\.claude\skills\</code> (available in all your repos, never in git)</li>
-      <li><strong>Project skills</strong> &mdash; <code>C:\repos\MyProject\.claude\skills\</code> (project-specific, can be committed to git and shared with team)</li>
+      <li><strong>Personal skills</strong> &mdash; <code>C:\Users\YourName\.claude\skills\</code> — available in every project on your machine, never committed to git. These are yours. You write them, you own them.</li>
+      <li><strong>Project skills</strong> &mdash; <code>C:\repos\MyProject\.claude\skills\</code> — specific to one repo, can be committed to git and shared with the team.</li>
+      <li><strong>Plugin skills</strong> &mdash; <code>C:\Users\YourName\.claude\plugins\cache\[plugin-name]\[plugin-name]\[version]\skills\</code> — bundled inside an installed plugin. You didn't write them; the plugin author did. They arrive automatically when you run <code>/plugin install</code>.</li>
     </ul>
+
+    <div class="confusion">&ldquo;Skill&rdquo; means a single instruction document you write; &ldquo;plugin&rdquo; means an installed package that can bundle many skills together; &ldquo;plugin skill&rdquo; means a skill that arrived via a plugin rather than one you wrote &mdash; three terms for things that look identical on disk but come from completely different places.</div>
+
+    <div class="aha"><strong>Plugin skills are the same SKILL.md files as personal skills.</strong> Exact same format, exact same structure — a folder with a <code>SKILL.md</code> file inside it. The only difference is where the folder lives on disk. A plugin skill for <code>create-plans</code> looks identical to a personal skill for <code>create-plans</code>. Claude Code finds both by walking known skill directories.</div>
+
+    <h3>Which Skill Wins? The Precedence Order</h3>
+    <p>If you have a personal skill and a plugin skill with the same name, Claude Code follows this precedence — highest priority first:</p>
+    <ol>
+      <li><strong>Personal skills</strong> (<code>C:\Users\YourName\.claude\skills\</code>) — always win</li>
+      <li><strong>Project skills</strong> (<code>C:\repos\MyProject\.claude\skills\</code>) — win over plugins</li>
+      <li><strong>Plugin skills</strong> — used only if no personal or project skill has the same name</li>
+    </ol>
+    <p>This means you can override any plugin skill by creating a personal skill with the same name. You get the plugin's behavior by default, and your version when you want it — without forking or modifying the plugin itself.</p>
+
+    <div class="insight"><strong>Plugin skills are installed, not written.</strong> You don't create them — you get them as part of a plugin package. When you run <code>/plugin install taches-cc-resources</code>, Claude Code downloads the plugin to <code>C:\Users\YourName\.claude\plugins\cache\</code> and all the plugin's skills become available automatically. If the plugin is updated, its skills update. If the plugin is uninstalled, its skills disappear. Your personal and project skills are unaffected either way.</div>
 
     <h3>How Skills Get Loaded — You Are Always the Trigger</h3>
     <p>Skills do <strong>not</strong> load automatically. Claude does not scan your skills directory before every response and decide which ones apply. There is no background skill-matching. Skills are dormant — they sit in the folder doing nothing until you cause them to load.</p>
@@ -685,9 +703,50 @@ Ask me for the component name and path before starting.</code></pre>
     <p>This gives you the plan as a <strong>persistent artifact</strong> — on disk, in git, survives compaction and session end. You can review it, edit it, share it with your team, feed it back into a future session, or refer to it mid-execution if something goes wrong. A plan that only exists in the conversation is gone after the first <code>/compact</code>. A plan in a <code>.md</code> file is there forever.</p>
   </div>
 
+  <!-- ==================== CHAPTER 8b (Compaction) ==================== -->
+  <div class="chapter" id="ch8b">
+    <div class="chapter-number">Chapter 11</div>
+    <h2>Context Compaction — What Gets Lost and Why It Motivates Memory</h2>
+
+    <p>Every session has a finite context window — a limit on how much can be held in the active session at once. This limit is not a software setting. It is a hardware constraint: every token in your session occupies space in the GPU VRAM on Anthropic's servers, and that memory is finite and expensive. When you buy a Claude plan, you are buying time on that GPU memory. As a session runs, conversation history, file reads, and tool output accumulate in that VRAM until something has to give. That something is space, and that giving is compaction.</p>
+
+    <p><strong>Compaction is not deletion.</strong> Claude summarizes the older parts of the conversation to make room for new material. The detail is reduced but the gist is preserved — a thick folder of notes compressed into a single summary page. What you lose is precision. What survives is the broad shape of what happened. For the full mechanics and how to use hints to control what survives, see <a class="gloss-link" data-tab="confession" data-anchor="ch15-4" href="#">Chapter 15.4: /compact</a>.</p>
+
+    <h3>What Survives Compaction</h3>
+    <ul>
+      <li><strong>CLAUDE.md</strong> — always reloaded from disk at the start of every session and after compaction. It is not stored in conversation history; it comes from the file. It cannot be compacted away. This is its most important property.</li>
+      <li><strong>Files on disk</strong> — anything written to a file (plans, documentation, changelogs, code) is permanent. Compaction only affects the conversation. The file is untouched. See the Plans chapter: a plan written to <code>PLAN.md</code> survives compaction; a plan that only exists in the conversation does not. <a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">→ Chapter 10 (Plans)</a></li>
+      <li><strong>Plugin meta-skills</strong> — the SessionStart hook re-injects the meta-skill at startup, resume, clear, and <code>/compact</code>. It comes back automatically.</li>
+    </ul>
+
+    <h3>What Gets Lost</h3>
+    <ul>
+      <li><strong>Skills you loaded during the session</strong> — invoking a skill puts its content into conversation history. When that history gets compacted, the skill's instructions are summarized or dropped. Claude silently stops following them. No error. No warning. You just notice Claude is no longer behaving as instructed. Re-invoke the skill after compacting. <a class="gloss-link" data-tab="confession" data-anchor="ch15-4" href="#">→ Chapter 15.4: Skills and Compaction</a></li>
+      <li><strong>Plugin skills</strong> — same behavior as personal skills. A plugin skill invoked during a session lives in conversation history and is vulnerable to compaction. Unlike the meta-skill, individual plugin skills do not get re-injected automatically. Re-invoke after compacting.</li>
+      <li><strong>Documentation loaded into context</strong> — if you read a file into the session (README, architecture doc, etc.), that read lives in conversation history. After compaction it may be summarized away. The file on disk is fine; load it again if you need it. <a class="gloss-link" data-tab="confession" data-anchor="ch9b" href="#">→ Chapter 12 (Documentation as Dormant Memory)</a></li>
+      <li><strong>Specific details buried in long tool output</strong> — file reads, search results, test output. The broad findings survive in summary; the exact line numbers and specific values may not. This is why compaction hints exist: <code>/compact focus on the payment bug — root cause is checkout.js line 142</code> tells Claude what precision must survive the compression.</li>
+    </ul>
+
+    <h3>Plugin Skills Are More Compact-Resilient Than CLAUDE.md</h3>
+    <p>This surprises people. CLAUDE.md is always in context — always consuming tokens, always at risk of being part of what gets summarized. Plugin skills are loaded on demand — they only enter context when invoked, and can be reloaded by invoking them again. The meta-skill is the exception: it re-injects automatically via the SessionStart hook on every compact, clear, and resume. So:</p>
+    <ul>
+      <li>CLAUDE.md: always present, always reloads from file after compaction ✓</li>
+      <li>Plugin meta-skill: re-injected automatically by hook after compaction ✓</li>
+      <li>Individual plugin skills: must be manually re-invoked after compaction ✗</li>
+      <li>Personal skills: must be manually re-invoked after compaction ✗</li>
+    </ul>
+
+    <h3>The Implication: Why Memory Exists</h3>
+    <p>Compaction is why memory files exist. If CLAUDE.md is for rules ("always do X") and skills are for on-demand workflows, there is still a gap: <strong>facts discovered during a session</strong>. When Claude figures out that a particular API returns null on Sundays, or that the authentication module was rewritten in v8 for compliance reasons, that knowledge lives only in conversation history — and compaction will eventually blur or lose it.</p>
+
+    <p>Memory files solve this. Claude writes them during the session, they persist on disk, they reload automatically next session like CLAUDE.md. They are the answer to "how do I preserve what Claude learned, not just what I told it?" The next chapter covers them in detail.</p>
+
+    <div class="analogy">Like a whiteboard session that gets photographed before it's erased. Compaction is the erasure — unavoidable, eventually. Memory files are the photograph. CLAUDE.md is the printed process document pinned on the wall that was never on the whiteboard to begin with.</div>
+  </div>
+
   <!-- ==================== CHAPTER 9 ==================== -->
   <div class="chapter" id="ch9">
-    <div class="chapter-number">Chapter 11</div>
+    <div class="chapter-number">Chapter 12</div>
     <h2>Memory (mini-CLAUDE.md files)</h2>
 
     <p>Memory files are persistent notes stored in your personal Claude folder, inside a per-project subdirectory. Think of them as <strong>tiny auto-written CLAUDE.md entries</strong> — they load automatically every session, affect every prompt, and cost input tokens every message, just like CLAUDE.md. The difference is that Claude writes them itself (rather than you writing them), and they store discovered facts rather than rules.</p>
@@ -733,7 +792,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 9B: DOCUMENTATION ==================== -->
   <div class="chapter" id="ch9b">
-    <div class="chapter-number">Chapter 12</div>
+    <div class="chapter-number">Chapter 13</div>
     <h2>Documentation as Dormant Memory</h2>
 
     <p>Memory files and CLAUDE.md are always wired in — they load every session, cost tokens every message, and are specific to Claude. There is another kind of persistent knowledge that costs nothing at rest, survives any AI platform, and can be shared with your whole team: <strong>documentation</strong>.</p>
@@ -789,7 +848,7 @@ Ask me for the component name and path before starting.</code></pre>
   <!-- ==================== CHAPTER 10 ==================== -->
   <!-- ==================== CHAPTER 13: PLUGINS ==================== -->
   <div class="chapter" id="ch10">
-    <div class="chapter-number">Chapter 13</div>
+    <div class="chapter-number">Chapter 14</div>
     <h2>Plugins (<code>/plugin install</code>)</h2>
 
     <p>A <strong>Claude Code Plugin</strong> is an installable package — a bundle that can contain slash commands, subagents, hooks, and MCP configs (see <a class="gloss-link" data-tab="confession" data-anchor="ch10b" href="#">MCP Config</a> below). One <code>/plugin install</code> command sets all of it up at once.</p>
@@ -853,7 +912,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 13B: MCP SERVERS ==================== -->
   <div class="chapter" id="ch10b">
-    <div class="chapter-number">Chapter 14</div>
+    <div class="chapter-number">Chapter 15</div>
     <h2>MCP Config (Model Context Protocol)</h2>
 
     <div class="real-talk"><strong>"MCP server" is a misnomer — Anthropic's own term, used consistently in their docs, but technically misleading.</strong> Here is what actually happens: Claude Code launches a <em>program</em> as a child process. That program listens for JSON-RPC messages on its stdin, executes tool calls, and writes results back on stdout. It is a local process acting as a tool dispatcher — not a server in any meaningful sense of that word. There is no port. There is no network. There is no deployment. It starts when your Claude Code session starts and stops when the session ends. Calling it a "server" is like calling a calculator a "computation server." The word stuck because the underlying protocol (MCP) borrowed server/client terminology from web architecture, even though the actual implementation is just two programs talking through pipes on your own machine. We use "MCP server" throughout because that is what every doc, tutorial, and developer uses — but now you know what it actually is.</div>
@@ -949,7 +1008,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 11 ==================== -->
   <div class="chapter" id="ch11">
-    <div class="chapter-number">Chapter 15</div>
+    <div class="chapter-number">Chapter 16</div>
     <h2>The Context Window</h2>
 
     <p>The context window is the total amount of text (measured in tokens) that Claude can "see" at once during a conversation. Everything &mdash; every message, every file read, every CLAUDE.md instruction, every skill, every tool result &mdash; occupies tokens in this finite window.</p>
@@ -1070,7 +1129,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 12 ==================== -->
   <div class="chapter" id="ch12">
-    <div class="chapter-number">Chapter 16</div>
+    <div class="chapter-number">Chapter 17</div>
     <h2>The File System Layout</h2>
 
     <p>Everything in Claude Code's architecture maps to a file in a predictable location. There is no registry, no database, no opaque binary format. Once you know the directory structure, you can inspect, edit, backup, or debug anything with a text editor.</p>
@@ -1126,7 +1185,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 13 ==================== -->
   <div class="chapter" id="ch13">
-    <div class="chapter-number">Chapter 17</div>
+    <div class="chapter-number">Chapter 18</div>
     <h2>Scope and Distribution</h2>
 
     <p>Every piece of Claude Code configuration has a scope (who it affects) and a distribution method (how it spreads). Understanding this prevents "where do I put this?" confusion.</p>
@@ -1175,7 +1234,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 14 ==================== -->
   <div class="chapter" id="ch14">
-    <div class="chapter-number">Chapter 18</div>
+    <div class="chapter-number">Chapter 19</div>
     <h2>The Prompt Engineering Trap</h2>
 
     <p>You know how to prompt. You've been prompting AI tools for months or years. You can write a prompt that gets Claude to produce good code. So why does any of this architecture matter?</p>
@@ -1210,7 +1269,7 @@ Ask me for the component name and path before starting.</code></pre>
 
   <!-- ==================== CHAPTER 15 ==================== -->
   <div class="chapter" id="ch15">
-    <div class="chapter-number">Chapter 19</div>
+    <div class="chapter-number">Chapter 20</div>
     <h2>Bonus Features</h2>
     <p>These are real Claude Code features that don't fit neatly into the earlier chapters but are essential for power users.</p>
   </div>
@@ -3062,10 +3121,16 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
         <td>"Task" is used two completely different ways in Claude Code. (1) <strong>Todo item</strong> — an entry in the built-in todo tracker (the "Task Tool"), something to be done, marked in-progress, or completed. (2) <strong>Subagent process</strong> — an independent Claude subprocess launched via the Agent/Task tool to do work in parallel. A subagent (meaning 2) can create todo items (meaning 1), which means you can have a task managing tasks. The word "todo" is sometimes used to mean only the first sense, but "task" is used for both with no consistent distinction in the docs.</td>
         <td>Anthropic — same word chosen for two separate features with no disambiguation</td>
       </tr>
+      <tr>
+        <td><strong>"Skill" vs "Plugin" vs "Plugin skill"</strong> — three overlapping terms</td>
+        <td>A clear hierarchy where each term means something distinct</td>
+        <td>A <strong>skill</strong> is a single SKILL.md instruction document you write and drop in <code>.claude\skills\</code>. A <strong>plugin</strong> is an installed package (via <code>/plugin install</code>) that can contain skills, commands, hooks, and agents — a whole workflow system. A <strong>plugin skill</strong> is a skill that came bundled inside a plugin rather than one you wrote yourself. The confusion: skills and plugin skills are identical on disk (same SKILL.md format, same folder structure) — the only difference is where they live. And the word "plugin" in everyday speech means "a small add-on," which is also what a skill is, making the two concepts sound interchangeable when they aren't. A skill is one document. A plugin is a deployable package that may contain many skills.</td>
+        <td>Anthropic — "skill" used for both a standalone concept and a component inside a plugin, with no visual or structural distinction between them</td>
+      </tr>
     </tbody>
   </table>
 
-  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 26 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~4 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;">Count: 27 documented confusions. Attribution: ~13 to Anthropic (purple rows), ~7 to the broader AI/software industry, ~4 to evolving product definitions. This list will grow — the AI tooling space moves faster than its documentation.</p>
 
 </section>
 

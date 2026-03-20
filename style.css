@@ -810,6 +810,31 @@ tr.anthropic-row td { color: var(--text-primary); }
   margin-bottom: 0.35rem;
 }
 
+/* Confusion card — rainbow gradient stripe */
+.confusion {
+  background:
+    linear-gradient(to bottom, #f85149, #d29922, #3fb950, #39d2c0, #58a6ff, #bc8cff) left / 3px 100% no-repeat,
+    rgba(188, 140, 255, 0.04);
+  padding: 0.85rem 1.1rem 0.85rem 1.25rem;
+  margin: 1rem 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.92rem;
+}
+
+.confusion::before {
+  content: 'Possibly Confusing';
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #f85149, #d29922, #3fb950, #39d2c0, #58a6ff, #bc8cff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
 .insight {
   background: rgba(255, 255, 255, 0.06);
   border-left: 3px solid #e6edf3;
