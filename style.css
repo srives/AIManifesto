@@ -356,6 +356,42 @@ tr.anthropic-row td { color: var(--text-primary); }
 }
 
 /* === Making a Plugin page === */
+/* Case Study page */
+#casestudy h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin: 2.5rem 0 0.75rem;
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+#casestudy h3:first-of-type {
+  border-top: none;
+  margin-top: 1rem;
+  padding-top: 0;
+}
+#casestudy pre {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+#casestudy p {
+  margin-bottom: 0.9rem;
+}
+#casestudy-version-table td {
+  text-align: left;
+}
+#casestudy ul > li {
+  margin-bottom: 0.5rem;
+}
+
 #makeplugin h2 {
   margin-bottom: 0.5rem;
 }
