@@ -355,6 +355,115 @@ tr.anthropic-row td { color: var(--text-primary); }
   margin-bottom: 0.85rem;
 }
 
+/* === CLAUDE.md Wizard === */
+.wizard-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+.wizard-container h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: 0.25rem;
+}
+.wizard-container > p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+.wizard-field {
+  margin-bottom: 1rem;
+}
+.wizard-field label, .wizard-toggle-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.3rem;
+}
+.wizard-field input[type="text"],
+.wizard-field select {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+}
+.wizard-field input[type="text"]:focus,
+.wizard-field select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+.wizard-field input::placeholder { color: var(--text-muted); }
+.wizard-toggle {
+  margin-bottom: 1rem;
+}
+.wizard-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
+.wizard-toggle-label input[type="checkbox"] {
+  accent-color: var(--accent-blue);
+  cursor: pointer;
+}
+.wizard-sub {
+  display: none;
+  margin-top: 0.75rem;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--border);
+}
+.wizard-sub.open { display: block; }
+.wizard-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.wizard-row input { flex: 1; }
+.wizard-row span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.wizard-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.25rem 0;
+}
+.wizard-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+.wizard-btn {
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.wizard-btn:hover { opacity: 0.85; }
+.wizard-btn-claude {
+  background: var(--accent-orange);
+  color: #000;
+}
+.wizard-btn-codex {
+  background: var(--accent-blue);
+  color: #000;
+}
+
 /* === Making a Plugin page === */
 /* Case Study page */
 #casestudy h3 {

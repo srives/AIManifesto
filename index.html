@@ -4603,7 +4603,116 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <p>The v9 arc was not a mistake. It built a product that can grow without collapsing. The mistake was not having the architecture from the start.</p>
 
   <h3 id="anchor-day1prompt">The Day-1 Prompt</h3>
-  <p>Below is a templatized architectural prompt — the kind you would place in a <code>CLAUDE.md</code> before the first line of code. It was derived by working backwards from the v9 arc: every rule addresses a specific class of bug or refactoring cost that actually occurred. Fill in the <code>&lt;placeholders&gt;</code> for your own project. These are not style preferences. They are the receipt, written in advance.</p>
+  <p>This is a template CLAUDE.md — a complete architectural ruleset you would paste at the start of your project, before the first line of code. Every rule comes from something that actually broke in production. Fill in your project details below and download a ready-to-use file.</p>
+
+  <div class="wizard-container" id="claude-wizard">
+    <h4>Generate Your Day-1 File</h4>
+    <p>Fill in what applies. Leave anything blank to keep the &lt;placeholder&gt; — you can fill it manually later.</p>
+
+    <div class="wizard-field">
+      <label>Product name</label>
+      <input type="text" id="w-product" placeholder="MyApp">
+    </div>
+    <div class="wizard-field">
+      <label>One-sentence description of what it does</label>
+      <input type="text" id="w-desc" placeholder="manages sessions for multiple AI coding tools">
+    </div>
+
+    <hr class="wizard-divider">
+
+    <div class="wizard-toggle">
+      <label class="wizard-toggle-label"><input type="checkbox" id="w-has-variants"> My product supports multiple variants of something that will grow (platforms, providers, file formats, themes&hellip;)</label>
+      <div class="wizard-sub" id="w-variants-sub">
+        <div class="wizard-field">
+          <label>What do you call this dimension? (singular lowercase)</label>
+          <input type="text" id="w-variant" placeholder="platform">
+        </div>
+        <div class="wizard-field">
+          <label>Example variants (comma-separated)</label>
+          <input type="text" id="w-variant-examples" placeholder="Claude Code, Codex, Copilot">
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-toggle">
+      <label class="wizard-toggle-label"><input type="checkbox" id="w-has-external"> My product directly modifies state in an external system (a terminal, a database, an API&hellip;)</label>
+      <div class="wizard-sub" id="w-external-sub">
+        <div class="wizard-field">
+          <label>External system name</label>
+          <input type="text" id="w-external-system" placeholder="Windows Terminal">
+        </div>
+        <div class="wizard-field">
+          <label>What state does it modify?</label>
+          <input type="text" id="w-external-state" placeholder="terminal profiles and settings">
+        </div>
+      </div>
+    </div>
+
+    <hr class="wizard-divider">
+
+    <div class="wizard-field">
+      <label>Key entity — the main thing your product tracks or manages (singular)</label>
+      <input type="text" id="w-entity" placeholder="session">
+    </div>
+    <div class="wizard-field">
+      <label>Entity display name precedence: A &gt; B &gt; fallback</label>
+      <div class="wizard-row">
+        <input type="text" id="w-source-a" placeholder="userTitle">
+        <span>&gt;</span>
+        <input type="text" id="w-source-b" placeholder="storedName">
+        <span>&gt;</span>
+        <input type="text" id="w-fallback" placeholder="(unnamed)">
+      </div>
+    </div>
+
+    <div class="wizard-field">
+      <label>Key operation — the main multi-step thing your product does</label>
+      <input type="text" id="w-key-op" placeholder="session launch">
+    </div>
+
+    <hr class="wizard-divider">
+
+    <div class="wizard-toggle">
+      <label class="wizard-toggle-label"><input type="checkbox" id="w-multi-product"> My codebase produces more than one shipping artifact</label>
+      <div class="wizard-sub" id="w-multiproduct-sub">
+        <div class="wizard-field">
+          <label>Primary product filename</label>
+          <input type="text" id="w-product1" placeholder="MyApp.exe">
+        </div>
+        <div class="wizard-field">
+          <label>Secondary product filename</label>
+          <input type="text" id="w-product2" placeholder="MyAppMaintenance.exe">
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-field">
+      <label>Programming language / tech stack (optional)</label>
+      <select id="w-language">
+        <option value="">— not decided yet —</option>
+        <option>JavaScript / TypeScript</option>
+        <option>Python</option>
+        <option>C# / .NET</option>
+        <option>Go</option>
+        <option>Rust</option>
+        <option>PowerShell</option>
+        <option>Java</option>
+        <option>Ruby</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="wizard-field">
+      <label>Minimum runtime constraint (optional — e.g., "Python 3.8", "Node 18", "PowerShell 5.1")</label>
+      <input type="text" id="w-runtime" placeholder="leave blank if not yet decided">
+    </div>
+
+    <div class="wizard-buttons">
+      <button class="wizard-btn wizard-btn-claude" onclick="downloadWizardFile('claude')">&#8595; Download CLAUDE.md</button>
+      <button class="wizard-btn wizard-btn-codex" onclick="downloadWizardFile('agents')">&#8595; Download AGENTS.md (Codex)</button>
+    </div>
+  </div>
+
+  <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.5rem;">&#8595; Full template for reference — fill the &lt;placeholders&gt; manually if you prefer:</p>
 
 <pre><code>You are building &lt;YourProduct&gt; -- &lt;one sentence description of what it does&gt;.
 Before writing any code, the following architectural rules are non-negotiable. Every

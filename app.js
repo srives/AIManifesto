@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuiz('larger', largerQuestions);
   initQuiz('bonusquiz', bonusQuestions);
   initQuiz('pluginquiz', pluginQuestions);
+  initWizard();
 });
 
 // === Tab Navigation ===
@@ -2212,3 +2213,272 @@ const pluginQuestions = [
     explanation: "<strong>Yes — skills are always available to Claude.</strong> The <code>disable-model-invocation: true</code> flag only restricts the <em>command</em> (the front door). The skill it delegates to (the toolbox inside) remains freely invocable. This two-tier system lets plugin authors require human initiation for dangerous entry points while still letting Claude work autonomously within a workflow once it's started."
   }
 ];
+
+// === CLAUDE.md / AGENTS.md Wizard ===
+
+function initWizard() {
+  const toggles = [
+    ['w-has-variants',  'w-variants-sub'],
+    ['w-has-external',  'w-external-sub'],
+    ['w-multi-product', 'w-multiproduct-sub']
+  ];
+  toggles.forEach(([cbId, subId]) => {
+    const cb  = document.getElementById(cbId);
+    const sub = document.getElementById(subId);
+    if (cb && sub) {
+      cb.addEventListener('change', () => sub.classList.toggle('open', cb.checked));
+    }
+  });
+}
+
+function wVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function wChecked(id) {
+  const el = document.getElementById(id);
+  return el ? el.checked : false;
+}
+
+function generateContent(isAgents) {
+  const product     = wVal('w-product')          || '<YourProduct>';
+  const desc        = wVal('w-desc')             || '<one sentence description>';
+  const hasVariants = wChecked('w-has-variants');
+  const variant     = wVal('w-variant')          || '<variant>';
+  const variantDim  = variant.toUpperCase();
+  const variantPlural = variant.endsWith('s') ? variant : variant + 's';
+  const variantEx   = wVal('w-variant-examples') || 'Provider A, Provider B';
+  const hasExternal = wChecked('w-has-external');
+  const extSys      = wVal('w-external-system')  || '<EXTERNAL SYSTEM>';
+  const extState    = wVal('w-external-state')   || '<external system state>';
+  const entity      = wVal('w-entity')           || '<entity>';
+  const entityUp    = entity.toUpperCase();
+  const srcA        = wVal('w-source-a')         || '<source A>';
+  const srcB        = wVal('w-source-b')         || '<source B>';
+  const fallback    = wVal('w-fallback')         || '<fallback>';
+  const keyOp       = wVal('w-key-op')           || '<key operation>';
+  const keyOpUp     = keyOp.toUpperCase();
+  const hasMulti    = wChecked('w-multi-product');
+  const prod1       = wVal('w-product1')         || '<primary product>';
+  const prod2       = wVal('w-product2')         || '<secondary product>';
+  const runtime     = wVal('w-runtime');
+  const language    = wVal('w-language');
+
+  let rn = 1;
+  const R = () => rn++;
+  const parts = [];
+
+  const opening = isAgents
+    ? 'You are the Codex CLI agent working on ' + product + ' -- ' + desc + '.\n' +
+      'This file is AGENTS.md -- it is loaded automatically by Codex CLI at session start.\n' +
+      'Place it at your project root. For subdirectory-specific rules, add AGENTS.md files in subdirectories.'
+    : 'You are building ' + product + ' -- ' + desc + '.';
+
+  parts.push(opening + '\nBefore writing any code, the following architectural rules are non-negotiable. Every\ndecision you make must be consistent with them. When in doubt, ask before deviating.');
+
+  if (hasVariants) {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': ' + variantDim + ' REGISTRY IS THE ONLY SOURCE OF TRUTH FOR ' + variantDim + ' BEHAVIOR\n\n' +
+      'All ' + variant + '-specific values live in a single central registry structure in one file.\n' +
+      'No other file may hardcode a ' + variant + ' name, identifier, or behavior as a literal.\n' +
+      'When you need ' + variant + '-specific behavior, read it from the registry.\n' +
+      'When adding a new ' + variant + ', add one registry entry. Zero other files change.\n\n' +
+      'Current ' + variantPlural + ': ' + variantEx + '.\n\n' +
+      'This rule exists because ' + variantPlural + ' will be added continuously. If ' + variant + ' logic\n' +
+      'is scattered, every new ' + variant + ' is a surgery. If it is in the registry, every new\n' +
+      variant + ' is a data entry.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': ALL READS AND WRITES TO OWNED DATA GO THROUGH CANONICAL HELPERS\n\n' +
+      product + ' owns its data files. Every read goes through a safe read helper.\n' +
+      'Every write goes through an atomic write helper that writes to a temp file and renames\n' +
+      'atomically, so a crash mid-write cannot corrupt data.\n\n' +
+      'Never read or write owned data files directly anywhere else in the codebase.\n' +
+      'External data owned by other systems may use raw reads, but any writes to external\n' +
+      'config must still use an atomic write helper. Document the reason at each raw-read site.');
+  }
+
+  if (hasExternal) {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': ALL MUTATIONS TO ' + extSys.toUpperCase() + ' GO THROUGH A SERVICE LAYER\n\n' +
+      'Any operation that modifies ' + extState + ' must call a function in the\n' +
+      extSys + ' service layer. No file outside that layer may read or write\n' +
+      extState + ' directly.\n\n' +
+      'The service layer must wrap mutations in a transaction: read current state, make the\n' +
+      'change in memory, write atomically, validate the result. On any exception, restore the\n' +
+      'backup. This is not optional even for simple changes. Silent corruption is invisible\n' +
+      'until users hit it.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': ' + entityUp + ' IDENTITY HAS ONE CANONICAL PRECEDENCE ORDER, ENFORCED IN ONE PLACE\n\n' +
+      entity + ' display name resolution:\n' +
+      '  ' + srcA + '  >  ' + srcB + '  >  ' + fallback + '\n\n' +
+      'These rules are implemented in exactly one function each. All display code, all repair\n' +
+      'code, and all rename code calls those functions. No file infers ' + entity + ' identity\n' +
+      'through its own logic. When this rule is violated, ' + entity + ' shows the wrong name or\n' +
+      'links to the wrong record.');
+  }
+
+  {
+    const n = R();
+    const regNote = hasVariants ? ', ' + variant + ' registry' : '';
+    parts.push('---\n\nRULE ' + n + ': SOURCE CODE IS ORGANIZED INTO NAMESPACES. EACH NAMESPACE OWNS ITS CONCERNS.\n\n' +
+      '  src/core/        -- global state, persistence helpers' + regNote + '\n' +
+      '  src/<domain A>/  -- <domain A> lifecycle operations\n' +
+      '  src/<domain B>/  -- <domain B> operations\n' +
+      '  src/ui/          -- rendering, display, navigation\n' +
+      '  src/integration/ -- external service clients\n' +
+      '  src/testing/     -- all test code (never included in production builds)\n\n' +
+      'A file in one namespace must not implement another namespace\'s logic.\n' +
+      'Cross-namespace dependencies create phantom coupling: changes in one area break\n' +
+      'unrelated areas silently.\n\n' +
+      'If a function\'s home is not obvious, it belongs in core/ as a shared helper.');
+  }
+
+  if (hasMulti) {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': THE BUILD SYSTEM IS MULTI-PRODUCT FROM DAY ONE\n\n' +
+      'Two products are built from this codebase: ' + prod1 + ' (the main tool) and\n' +
+      prod2 + ' (the companion utility). Each has a manifest listing the source files\n' +
+      'to include in order.\n\n' +
+      'When you add a source file: update all manifests or document why it belongs to only one.\n' +
+      'When you move a function: check every manifest.\n' +
+      'When you add a shared helper: include it in all manifests that need it.\n\n' +
+      'Failing to maintain manifests silently breaks one product while the other works.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': EVERY BUG FIX IS PRECEDED BY A FAILING TEST\n\n' +
+      'Before fixing any bug: write a test that reproduces it and fails. Then fix the bug.\n' +
+      'Then confirm the test passes. The test is not optional.\n\n' +
+      'Bugs fixed without tests return. A test that explicitly reproduces a bug is\n' +
+      'documentation that the bug was real, proof that the fix is correct, and insurance\n' +
+      'that the fix stays correct.\n\n' +
+      'Use string-literal test identifiers, not sequential numbers. Sequential numbers\n' +
+      'require renumbering when tests are inserted. String literals survive reordering.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': EVERY FUNCTION THAT CREATES ARTIFACTS MUST CLEAN THEM UP ON FAILURE\n\n' +
+      'If a function creates any persistent artifact -- a record, a config entry, an external\n' +
+      'system object -- and anything goes wrong before the function completes, all created\n' +
+      'artifacts must be removed in the catch block before rethrowing.\n\n' +
+      'Track artifact creation with boolean flags:\n' +
+      '  artifactCreated = false\n' +
+      '  ... create artifact ...\n' +
+      '  artifactCreated = true\n' +
+      '  ... on exception ...\n' +
+      '  if (artifactCreated) { remove artifact }\n\n' +
+      'Artifacts left behind by failed operations accumulate silently and confuse users.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': EXTRACT SHARED HELPERS AT THE SECOND INSTANCE, NOT THE THIRD\n\n' +
+      'The first time you write a pattern inline, that is acceptable. The second time you\n' +
+      'write the same pattern in a different file, extract it into a shared helper first.\n' +
+      'Do not wait for three instances.\n\n' +
+      'When duplication reaches three or four instances, the fix requires touching every\n' +
+      'instance. When caught at two, the fix is cheap.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': NO EMPTY CATCH BLOCKS. NO SWALLOWED EXCEPTIONS.\n\n' +
+      'Every catch block must either:\n' +
+      '  a) Log the exception to a debug/error log, or\n' +
+      '  b) Re-throw after performing cleanup, or\n' +
+      '  c) Return a structured error result that the caller checks\n\n' +
+      'An empty catch is a bug. Swallowed exceptions cause functions to return success when\n' +
+      'they have failed and users to see wrong state with no indication of what went wrong.');
+  }
+
+  if (runtime) {
+    const n = R();
+    const langNote = language ? ' (' + language + ')' : '';
+    parts.push('---\n\nRULE ' + n + ': RUNTIME COMPATIBILITY IS A HARD CONSTRAINT, NOT AN AFTERTHOUGHT\n\n' +
+      'This tool runs on the user\'s machine' + langNote + '. Target runtime: ' + runtime + '.\n' +
+      'Do not use language features or library calls that require a newer runtime.\n' +
+      'New syntax that silently degrades on older runtimes is the hardest class of bug\n' +
+      'to diagnose. Test on ' + runtime + ' before considering any code complete.');
+  }
+
+  {
+    const n = R();
+    const step1 = hasVariants
+      ? '  1. Resolve ' + variant + ' and configuration from registry'
+      : '  1. Resolve configuration';
+    parts.push('---\n\nRULE ' + n + ': THE ' + keyOpUp + ' LIFECYCLE HAS ONE CANONICAL SEQUENCE\n\n' +
+      'Every path that triggers ' + keyOp + ' follows the same sequence of shared steps:\n' +
+      step1 + '\n' +
+      '  2. Resolve or generate ' + entity + ' identity\n' +
+      '  3. Create or acquire required resources\n' +
+      '  4. Execute the operation\n' +
+      '  5. Confirm and record the result\n' +
+      '  6. On any exception: release/remove all resources acquired in steps 3-4\n\n' +
+      'These steps are implemented as shared helper functions called by all entry paths.\n' +
+      'No entry path owns its own version. When steps are implemented multiple times, each\n' +
+      'copy drifts. When one copy gets a fix, the others do not.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': COMMENTS DESCRIBE CURRENT TRUTH, NOT HISTORY OR INVENTORY\n\n' +
+      'File headers must contain: File, Namespace, Purpose, and optional Notes.\n' +
+      'File headers describe ownership and invariants -- not a list of every function.\n' +
+      'Function inventories in file headers are forbidden. They go stale immediately and\n' +
+      'mislead both humans and AI about what the file actually does.\n\n' +
+      'When a refactor changes a file\'s responsibility, update the file header in the same\n' +
+      'commit. Not later. Not in a cleanup pass. In the same commit.\n\n' +
+      'Use function-level documentation blocks for detailed behavior. File headers describe\n' +
+      'boundaries. Function blocks describe contracts. Neither does the other\'s job.\n\n' +
+      'Comments must describe current truth, not historical intent. If a comment describes\n' +
+      'something that was true in an earlier version but is not true now, delete it.\n' +
+      'History belongs in git log and CHANGELOG -- not in source files.\n\n' +
+      'A stale comment is worse than no comment. It will mislead the next developer -- and\n' +
+      'it will mislead your AI, which reads comments as instructions.');
+  }
+
+  parts.push('---\n\nWHY THESE RULES EXIST\n\n' +
+    'Every rule above addresses a specific class of production bug or refactoring cost\n' +
+    'that compounds over time. None are style preferences. Each rule was written because\n' +
+    'something broke in production without it.\n\n' +
+    'These rules do not slow development. They slow the first implementation of each\n' +
+    'pattern by a few minutes. They prevent the class of incident where a single missing\n' +
+    'cleanup call costs two engineering weeks to diagnose six months later.\n\n' +
+    'Hold to them from the first commit.');
+
+  const totalRules = rn - 1;
+  const langLine    = language ? '\n# Language: ' + language : '';
+  const runtimeLine = runtime  ? '\n# Runtime:  ' + runtime  : '';
+  const fileHeader  =
+    '# ' + product + ' -- Day-1 Architectural Rules (' + totalRules + ' rules)\n' +
+    '# Generated by The Claude Code AI Manifesto\n' +
+    '# https://srives.github.io/AIManifesto/\n' +
+    '# File: ' + (isAgents ? 'AGENTS.md' : 'CLAUDE.md') + langLine + runtimeLine + '\n' +
+    '# Fill in any remaining <placeholders> before use\n\n';
+
+  return fileHeader + parts.join('\n\n');
+}
+
+function downloadWizardFile(type) {
+  const isAgents = (type === 'agents');
+  const content  = generateContent(isAgents);
+  const filename = isAgents ? 'AGENTS.md' : 'CLAUDE.md';
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
