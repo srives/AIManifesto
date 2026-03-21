@@ -393,6 +393,8 @@
 
     <div class="aha"><strong>CLAUDE.md is not unique to Claude.</strong> Codex uses a file called <code>AGENT.md</code> in the same way — loaded at session start, same purpose, same format. If you have a well-crafted CLAUDE.md, you can copy it to <code>AGENT.md</code> and Codex will pick it up. Your architecture decisions, coding rules, and anti-patterns travel with you to a different AI tool with zero extra work.</div>
 
+    <div class="aha"><strong>Need a ready-made CLAUDE.md?</strong> The Case Studies section has a 13-rule architectural template derived from a real production project, with a wizard that generates a customized file for your project in seconds. Works for Codex too — it produces <code>AGENTS.md</code>. <a class="tab-btn-inline" data-tab="casestudy" data-anchor="anchor-day1prompt" href="#">Generate Your Day-1 File &rarr;</a></div>
+
     <div class="real-world"><strong>Prevent Code Drift</strong> — CLAUDE.md rules are only as good as the comments that reinforce them. Two practical resources:
       <ul style="margin-top:0.5rem;">
         <li><a class="tab-btn-inline" data-tab="comments" href="#">Code Commenting Practices to Reduce Drift</a> — how to write comments that stay true across refactors, and what rules to add to CLAUDE.md to prevent comment drift from the start</li>
@@ -3581,12 +3583,16 @@ else if (platform == "codex") { doZ() }</code></pre>
       <li><strong>Code comments</strong> &mdash; Not obvious-what comments ("increment counter"). Hard-won-fact comments ("Do NOT use KeyAvailable in a processing loop &mdash; it blocks on spurious events"). These survive across sessions because they're in the code.</li>
     </ul>
 
+    <div class="real-world"><strong>Code comments can also be a liability.</strong> Stale comments — ones that described what the code did before the last refactor — mislead your AI exactly as much as they mislead humans. AI reads comments as instructions. If a file header says a function lives here and it was moved three versions ago, AI will generate code in the wrong place. There is a right way to write comments so they stay true across refactors. <a class="tab-btn-inline" data-tab="comments" href="#">Code Commenting Practices to Reduce Drift &rarr;</a></div>
+
     <h3>CLAUDE.md as Institutional Memory</h3>
     <p>Every painful debugging session should end with an update to CLAUDE.md. If you spent 2 hours figuring out that a particular API silently returns null on Sundays, write it down. AI will encounter the same trap in a future session. CLAUDE.md prevents your AI from repeating your mistakes.</p>
 
     <div class="analogy">Like a pilot's checklist built from crash investigations. Every rule in the checklist exists because someone got hurt. CLAUDE.md is your project's crash investigation record. It doesn't just tell AI what to do &mdash; it tells AI what NOT to do, and why.</div>
 
     <div class="analogy-human">Like a "lessons learned" document at the end of a project. Every PM knows these should be written but nobody reads them. CLAUDE.md is the version that actually gets read — because AI reads it before every session. If your last project burned three days because of a miscommunication about scope, write that rule down. The next AI session won't repeat the mistake.</div>
+
+    <div class="aha"><strong>Don't start from scratch.</strong> The Case Studies section includes a complete 13-rule Day-1 architectural template — derived from a real production project — with a wizard that generates a customized <code>CLAUDE.md</code> or <code>AGENTS.md</code> for your project. Fill in your product name, variant dimension, key entity, and runtime, and download a ready-to-use file. <a class="tab-btn-inline" data-tab="casestudy" data-anchor="anchor-day1prompt" href="#">The Day-1 Prompt &rarr;</a></div>
 
     <h3>Let AI Document Your Work</h3>
     <p>After completing a feature, tell AI to update the changelog and product analysis. Reading AI's description of what you just built is surprisingly useful &mdash; it gives you an outsider's perspective on your own creation. Inconsistencies and gaps become visible when someone else describes your work back to you.</p>
