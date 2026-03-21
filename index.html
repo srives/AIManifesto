@@ -392,6 +392,13 @@
     <div class="gotcha"><strong>Rules files do not solve the token cost problem.</strong> Every rules file that loads still costs tokens on every message, just like CLAUDE.md. Splitting one long CLAUDE.md into several rules files keeps your repo tidy, but the total token cost is the same. If you want to reduce token overhead, move content to skills — not to rules files.</div>
 
     <div class="aha"><strong>CLAUDE.md is not unique to Claude.</strong> Codex uses a file called <code>AGENT.md</code> in the same way — loaded at session start, same purpose, same format. If you have a well-crafted CLAUDE.md, you can copy it to <code>AGENT.md</code> and Codex will pick it up. Your architecture decisions, coding rules, and anti-patterns travel with you to a different AI tool with zero extra work.</div>
+
+    <div class="real-world"><strong>Prevent Code Drift</strong> — CLAUDE.md rules are only as good as the comments that reinforce them. Two practical resources:
+      <ul style="margin-top:0.5rem;">
+        <li><a class="tab-btn-inline" data-tab="comments" href="#">Code Commenting Practices to Reduce Drift</a> — how to write comments that stay true across refactors, and what rules to add to CLAUDE.md to prevent comment drift from the start</li>
+        <li><a class="tab-btn-inline" data-tab="casestudy" data-anchor="anchor-day1prompt" href="#">A CLAUDE.md Example: The Day-1 Prompt</a> — a real 12-rule architectural prompt derived from a production project, written as a literal CLAUDE.md entry</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ==================== CHAPTER 3 ==================== -->
@@ -4398,6 +4405,100 @@ else if (platform == "codex") { doZ() }</code></pre>
   </div>
 </section>
 
+<section id="comments" class="tab-panel">
+
+  <h2>Code Commenting Practices to Reduce Drift</h2>
+  <p>Comments lie. Not intentionally — they were true when written. But refactors move functions, responsibilities shift, and the comments stay behind describing a structure that no longer exists. The result is <strong>code drift</strong>: the gap between what comments say the code does and what the code actually does.</p>
+
+  <p>AI makes this worse before it makes it better. AI reads comments as instructions. If a file header says "Contains: session launch, fork handling, profile creation" but the refactor moved two of those elsewhere, AI will confidently generate code in the wrong place — because the comment said so.</p>
+
+  <h3>Why Drift Happens</h3>
+  <p>The drift in a real production project happened for predictable reasons:</p>
+  <ul>
+    <li><strong>Top-of-file comments were too detailed</strong> — full function inventories that became stale the moment any function moved</li>
+    <li><strong>Refactors moved functions without updating headers</strong> — the fix was done but the documentation wasn't</li>
+    <li><strong>File headers were used as mini changelogs</strong> — describing history instead of current responsibility</li>
+    <li><strong>No rule for what a file header should contain</strong> — so every developer used their own format</li>
+    <li><strong>Function-level and file-level docs overlapped badly</strong> — the same information was in two places, and they fell out of sync</li>
+  </ul>
+
+  <div class="real-talk"><strong>The main bug was not "people forgot to update comments." It was "the comment style encouraged drift."</strong> When a file header promises to list every function, it will always be wrong. When a file header states what the file owns and what its invariants are, it stays true across refactors.</div>
+
+  <h3>The Fix: Contract-Oriented File Headers</h3>
+  <p>Replace function inventories with stable contract-style headers. The right format for any file is:</p>
+  <ul>
+    <li><strong>File</strong> — the file name</li>
+    <li><strong>Namespace</strong> — which architectural boundary it belongs to</li>
+    <li><strong>Purpose</strong> — what this file <em>owns</em> (not what functions it contains)</li>
+    <li><strong>Notes</strong> (optional) — critical invariants that anyone touching this file must know</li>
+  </ul>
+
+  <p>This format is searchable, durable, and meaningful to both humans and AI. It survives refactors because it describes <em>ownership</em>, not <em>contents</em>. Contents change. Ownership changes far less often.</p>
+
+  <h3>Example: Before and After</h3>
+  <p><strong>Before (inventory style — drifts immediately):</strong></p>
+<pre><code># src/session/launch.ps1
+# Contains: New-Session, Fork-Session, Continue-Session, Resolve-Background,
+#           Get-GitBranch, Prompt-GitIdentity, Create-WTProfile, Write-PendingMapping</code></pre>
+
+  <p><strong>After (contract style — stays true):</strong></p>
+<pre><code># File:      src/session/launch.ps1
+# Namespace: session
+# Purpose:   Session lifecycle entry points — new, fork, and continue paths.
+#            All paths call shared helpers in session/lifecycle.ps1 for artifact
+#            creation. No platform logic here — read from PlatformRegistry.
+# Notes:     INVARIANT: Every path that creates a WT profile must clean it up
+#            in the catch block. Track with $profileCreated flag.</code></pre>
+
+  <p>The second version will still be accurate after you move three functions out of the file. The first won't.</p>
+
+  <h3>Function-Level Comments</h3>
+  <p>Detailed behavior belongs on functions, not file headers. Use your language's native documentation block:</p>
+<pre><code># PowerShell example
+function New-Session {
+    &lt;#
+    .SYNOPSIS
+        Starts a new Claude Code session in Windows Terminal.
+    .PARAMETER Platform
+        Platform key from PlatformRegistry (e.g. 'claude', 'codex').
+    .NOTES
+        Creates a WT profile and pending mapping. Both are cleaned up
+        on failure in the catch block — see $profileCreated flag pattern.
+    #&gt;</code></pre>
+
+  <p>This way: the file header describes the boundary. The function comment describes the contract. Neither tries to do the other's job.</p>
+
+  <h3>Rules to Add to CLAUDE.md</h3>
+  <p>Add these to your CLAUDE.md to prevent drift from the start. AI will enforce them with every subsequent code generation:</p>
+<pre><code>## Comment Standards
+
+File headers must contain: File, Namespace, Purpose, and optional Notes.
+File headers describe ownership and invariants — not a list of every function.
+Function inventories in file headers are forbidden unless the file is under 50 lines and stable.
+
+When a refactor changes a file's responsibility, update the file header in the same commit.
+When you split a file, both new files get fresh headers that reflect their new, narrower ownership.
+
+Use function .SYNOPSIS blocks (or language-equivalent) for detailed behavior documentation.
+File headers describe boundaries. Function blocks describe contracts.
+
+Comments must describe current truth, not historical intent.
+If a comment describes something that was true in v3 but isn't in v7, delete it.
+History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
+
+  <div class="aha"><strong>This is what code drift actually costs.</strong> In one production project, stale headers in core, session, ui, and wt files were contributing to refactor confusion — AI was generating code in the wrong namespace because the comments said that namespace still owned functions it hadn't owned since an earlier version. The comment cleanup pass was not glamorous work. But it directly reduced the cost of every subsequent change. <a class="tab-btn-inline" data-tab="casestudy" href="#">→ See the full case study</a></div>
+
+  <h3>The Short Version</h3>
+  <ul>
+    <li>Keep file headers short and stable — ownership and invariants, not inventories</li>
+    <li>Put detailed behavior on functions, not files</li>
+    <li>Treat header updates as part of any refactor, not optional cleanup</li>
+    <li>Reject comments that describe history instead of current responsibility</li>
+    <li>Encode the rules in CLAUDE.md so AI enforces them automatically</li>
+  </ul>
+
+</section>
+
 <section id="casestudies" class="tab-panel">
 
   <h2>Case Studies</h2>
@@ -4501,7 +4602,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   <p>At v9.9.8, the codebase passed a zero-violation code review against 29 mandatory architectural rules. The test suite had 640+ tests across 30 files, with named validation bundles for CI/CD integration. Adding a new AI platform required zero changes to rendering, dispatch, WT profile management, or image generation &mdash; one registry entry and the platform-specific discovery function. Session lifecycle errors left no orphaned artifacts. Windows Terminal mutations rolled back automatically on failure.</p>
   <p>The v9 arc was not a mistake. It built a product that can grow without collapsing. The mistake was not having the architecture from the start.</p>
 
-  <h3>The Day-1 Prompt</h3>
+  <h3 id="anchor-day1prompt">The Day-1 Prompt</h3>
   <p>Below is the literal architectural prompt &mdash; the kind you would place in a <code>CLAUDE.md</code> before the first line of code. It was derived by working backwards from the v9 arc: every rule addresses a specific class of bug or refactoring cost that actually occurred. These are not style preferences. They are the receipt, written in advance.</p>
 
   <p>After the prompt, a table shows how each rule generalizes beyond PowerShell to any project and any language.</p>
