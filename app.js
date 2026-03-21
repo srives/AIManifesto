@@ -2340,6 +2340,44 @@ function generateContent(isAgents) {
       'If a function\'s home is not obvious, it belongs in core/ as a shared helper.');
   }
 
+  {
+    const n = R();
+    const docsIndex = wVal('w-docs-index') || '<docs-index>';
+    parts.push('---\n\nRULE ' + n + ': THE REPO ROOT STAYS CLEAN\n\n' +
+      'The repo root contains only:\n' +
+      '  - Primary entrypoints and launchers\n' +
+      '  - Primary compiled or stitched artifacts\n' +
+      '  - Canonical instruction and index documents (CLAUDE.md, AGENTS.md, README.md, ' + docsIndex + ')\n' +
+      '  - Major source and support directories\n\n' +
+      'Build machinery belongs in build\\ or equivalent.\n' +
+      'Planning docs, one-off notes, and screenshots do not belong at the root.\n' +
+      'Temporary files placed at the root during development must be cleaned up before commit.');
+  }
+
+  {
+    const n = R();
+    const docsIndex = wVal('w-docs-index') || '<docs-index>';
+    parts.push('---\n\nRULE ' + n + ': DOCUMENTATION HAS DEDICATED NAMESPACES\n\n' +
+      'docs/ is organized into stable subfolders. Every durable document belongs in exactly one:\n' +
+      '  docs/<product-docs>/   -- user-facing docs and release history\n' +
+      '  docs/<planning-docs>/  -- backlog, plans, and future ideas\n' +
+      '  docs/<reference-docs>/ -- architecture, data models, and reference material\n' +
+      '  docs/<process-docs>/   -- AI workflow, review standards, and comment standards\n' +
+      '  docs/<assets>/         -- images and media used by docs\n\n' +
+      'Do not place new documents loose in docs/ without a namespace.\n' +
+      'Any durable new document must be placed in a namespace and linked from ' + docsIndex + '.');
+  }
+
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': NEW TOP-LEVEL DIRECTORIES REQUIRE JUSTIFICATION\n\n' +
+      'Create a new top-level directory only when all three are true:\n' +
+      '  - The content does not fit any existing namespace\n' +
+      '  - It represents a real subsystem or product boundary\n' +
+      '  - Top-level placement improves clarity more than nesting would\n\n' +
+      'Default to using an existing namespace. The burden of proof is on the new directory.');
+  }
+
   if (hasMulti) {
     const n = R();
     parts.push('---\n\nRULE ' + n + ': THE BUILD SYSTEM IS MULTI-PRODUCT FROM DAY ONE\n\n' +

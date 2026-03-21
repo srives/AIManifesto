@@ -4693,6 +4693,11 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
     </div>
 
     <div class="wizard-field">
+      <label>Documentation index filename (the TOC/entry-point for your docs folder)</label>
+      <input type="text" id="w-docs-index" placeholder="TOC.md">
+    </div>
+
+    <div class="wizard-field">
       <label>Programming language / tech stack (optional)</label>
       <select id="w-language">
         <option value="">— not decided yet —</option>
@@ -4793,7 +4798,47 @@ If a function's home is not obvious, it belongs in core/ as a shared helper.
 
 ---
 
-RULE 6: THE BUILD SYSTEM IS MULTI-PRODUCT FROM DAY ONE
+RULE 6: THE REPO ROOT STAYS CLEAN
+
+The repo root contains only:
+  - Primary entrypoints and launchers
+  - Primary compiled or stitched artifacts
+  - Canonical instruction and index documents (CLAUDE.md, AGENTS.md, README.md, &lt;docs-index&gt;)
+  - Major source and support directories
+
+Build machinery belongs in build\ or equivalent.
+Launcher wrappers belong in Install\ or equivalent.
+Planning docs, one-off notes, and screenshots do not belong at the root.
+Temporary files placed at the root during development must be cleaned up before commit.
+
+---
+
+RULE 7: DOCUMENTATION HAS DEDICATED NAMESPACES
+
+docs/ is organized into stable subfolders. Every durable document belongs in exactly one:
+  docs/&lt;product-docs&gt;/   -- user-facing docs and release history
+  docs/&lt;planning-docs&gt;/  -- backlog, plans, and future ideas
+  docs/&lt;reference-docs&gt;/ -- architecture, data models, and reference material
+  docs/&lt;process-docs&gt;/   -- AI workflow, review standards, and comment standards
+  docs/&lt;assets&gt;/         -- images and media used by docs
+
+Do not place new documents loose in docs/ without a namespace.
+Any durable new document must be placed in a namespace and linked from &lt;docs-index&gt;.
+
+---
+
+RULE 8: NEW TOP-LEVEL DIRECTORIES REQUIRE JUSTIFICATION
+
+Create a new top-level directory only when all three are true:
+  - The content does not fit any existing namespace
+  - It represents a real subsystem or product boundary
+  - Top-level placement improves clarity more than nesting would
+
+Default to using an existing namespace. The burden of proof is on the new directory.
+
+---
+
+RULE 9: THE BUILD SYSTEM IS MULTI-PRODUCT FROM DAY ONE
 
 If you ship more than one artifact from this codebase, each has a manifest listing
 the source files to include in order.
