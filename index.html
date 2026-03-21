@@ -4720,7 +4720,7 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
 
   <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.5rem;">&#8595; Full template for reference — fill the &lt;placeholders&gt; manually if you prefer:</p>
 
-<pre><code>You are building &lt;YourProduct&gt; -- &lt;one sentence description of what it does&gt;.
+<pre style="max-height:28rem; overflow-y:auto;"><code>You are building &lt;YourProduct&gt; -- &lt;one sentence description of what it does&gt;.
 Before writing any code, the following architectural rules are non-negotiable. Every
 decision you make must be consistent with them. When in doubt, ask before deviating.
 
@@ -4921,28 +4921,6 @@ cleanup call costs two engineering weeks to diagnose six months later.
 
 Hold to them from the first commit.</code></pre>
 
-  <h3>How to Use This Template</h3>
-  <p>Replace every <code>&lt;placeholder&gt;</code> with your project's specifics. The rules scale to any language, any runtime, any external system. The shape is universal — only the nouns change:</p>
-
-  <table class="compare-table">
-    <thead><tr><th>Rule</th><th>Universal Form</th></tr></thead>
-    <tbody>
-      <tr><td>Platform Registry</td><td>All variant behavior for a dimension that will grow lives in one place. No hardcoding.</td></tr>
-      <tr><td>Canonical persistence helpers</td><td>All I/O for owned data goes through one layer. Never raw.</td></tr>
-      <tr><td>Service layer for external mutations</td><td>External system state is owned by one module. No direct writes from elsewhere.</td></tr>
-      <tr><td>Identity precedence in one place</td><td>Any rule with a priority order is implemented once and called everywhere.</td></tr>
-      <tr><td>Namespace ownership</td><td>Each concern has a home. Cross-namespace dependencies are explicit and minimal.</td></tr>
-      <tr><td>Multi-product build discipline</td><td>If you ship more than one artifact, maintain all manifests on every change.</td></tr>
-      <tr><td>Test before fix</td><td>Red-green is not a style. It is the only way bugs stay fixed.</td></tr>
-      <tr><td>Artifact cleanup on failure</td><td>Anything created must be destroyable. Track creation. Clean up on catch.</td></tr>
-      <tr><td>Extract at second instance</td><td>The third instance is always expensive. The second is cheap.</td></tr>
-      <tr><td>No silent failures</td><td>Every caught exception is either logged, rethrown, or returned as a result.</td></tr>
-      <tr><td>Runtime compatibility is fixed</td><td>Know your minimum runtime. Never assume the latest.</td></tr>
-      <tr><td>Canonical lifecycle sequence</td><td>Any multi-step operation with side effects has one implementation, not N.</td></tr>
-      <tr><td>Comments describe current truth</td><td>File headers state ownership and invariants. Function blocks state contracts. No inventories. No history. Stale comments mislead AI as much as they mislead humans.</td></tr>
-    </tbody>
-  </table>
-  <p>The specific technology changes. The rules do not. Fill in the placeholders and this prompt becomes your project's CLAUDE.md on day 1.</p>
 
 </section>
 
