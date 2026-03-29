@@ -4517,7 +4517,7 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
     </div>
     <div class="starthere-card">
       <div class="starthere-who"><a class="tab-btn-inline" data-tab="casestudy2" href="#">Engineering with AI: From Concept to Product</a></div>
-      <div class="starthere-path">Coming soon.</div>
+      <div class="starthere-path">Building a reMarkable-to-AI screen design pipeline from scratch &mdash; and documenting every architecture decision before writing a line of code.</div>
     </div>
   </div>
 
@@ -4526,7 +4526,90 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
 <section id="casestudy2" class="tab-panel">
 
   <h2>Engineering with AI: From Concept to Product</h2>
-  <p style="color:var(--text-muted)"><em>Coming soon.</em></p>
+  <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:2rem;"><em>Building from the ground up with AI in mind &mdash; and documenting every step of the way</em></p>
+
+  <h3>The Idea</h3>
+  <p>The product: a tool that lets you draw your UI on a reMarkable tablet &mdash; screens, block diagrams, workflow sketches &mdash; and then feed those drawings directly into an AI so it can generate screen layout designs. The specific use case was building out <strong>SessionForge</strong> with hand-drawn screen designs as the AI's input.</p>
+  <p>The insight that makes this worth a case study is not the product itself. It is the discipline of how it was started. Everything in this story was done before a single line of production code was written.</p>
+
+  <div class="aha"><strong>This is how Case Study 1 should have started.</strong> The first case study documents what it costs to skip architecture on day 1 &mdash; 403,000 lines and months of retrofit. This case study documents what it looks like to not skip it. <a class="tab-btn-inline" data-tab="casestudy" href="#">Read Case Study 1 &rarr;</a></div>
+
+  <h3>Pitfall Avoided: Turning Concept Into Product Too Fast</h3>
+  <p>AI could already have a working product built by the time you finish writing this document. That is the trap. You double the time to the first exciting demo, and that takes willpower to accept. But it pays off in every subsequent week.</p>
+  <p>Vibe coding is a strong pull. It is a dopamine hit. It makes you want to have something running <em>tonight</em>. The pattern in Case Study 1 is exactly this &mdash; a Saturday morning of pure velocity that built up a debt that took months to pay down.</p>
+
+  <div class="analogy-human">If you cannot contain yourself and absolutely have to see the product come to life tonight, at minimum: narrate what the product is to the AI first, and capture the idea in a document. Do that before you write a single line of code. The idea must exist outside your head before it exists in the codebase.</div>
+
+  <h3>AI Virtue #1: Patience</h3>
+  <p>Patience is not waiting. It is choosing a slower path now to walk a faster path later. The steps below are all "slow" in the sense that none of them produce a running product. They all produce something more durable: a shared understanding between you and the AI of exactly what you are building and why.</p>
+
+  <h3>The Process, Step by Step</h3>
+
+  <h4>1. GitHub Repo — Early</h4>
+  <p>Don't talk about it. Do it. Before architecture docs, before POC, before any serious thinking &mdash; create the repo. Every decision made after this point is recorded somewhere. This is not optional.</p>
+
+  <h4>2. Narrate the Idea in a Document</h4>
+  <p>Write down what the product is. Not code &mdash; prose. Describe it the way you would describe it to a colleague over lunch. In this case: "I want to draw screens on my reMarkable, photograph or export them, and feed those drawings into Claude so it can produce screen layout designs I can start coding from." That is the idea. Write it down before anything else.</p>
+  <p>This step is the design process. The act of writing forces you to make decisions you would otherwise defer. Vague ideas become concrete questions. Concrete questions reveal scope. Scope reveals what you actually need to build.</p>
+
+  <h4>3. POC &mdash; Small Vibe Coding to Prove the Idea Works</h4>
+  <p>At this stage, and only at this stage, vibe coding is appropriate. Write the smallest possible amount of code to answer one question: <em>does this actually work?</em> In this case: can Claude receive a tablet drawing and produce a useful screen layout? If yes, proceed. If no, pivot now before you have written a design document for a product that does not work.</p>
+  <p>The POC is not production code. It is a disposable experiment. Treat it that way.</p>
+
+  <h4>4. Draw Your Screens and Block Diagrams</h4>
+  <p>Before writing a single technical requirement, draw every screen. This discipline comes from a long-standing principle: <strong>designing from the screens drives every other decision.</strong> If the screen design is iterative, you will discover interfaces. You will find data that needs to move between screens. You will find menus and flows you did not know you needed.</p>
+  <p>Draw on paper if you have to. Then photograph or export and feed them into the AI. You are not just documenting &mdash; you are doing design work in the medium that AI can consume.</p>
+
+  <h4>5. Write the Full Technical Design Document</h4>
+  <p>This step is critical. Document every layer of the system:</p>
+  <ul>
+    <li>How many types of menus exist? What is in each one? Can they share a generic menu system?</li>
+    <li>How many screens are there? What data does each screen take as input and produce as output?</li>
+    <li>What is the physical path from tablet drawing to AI consumption? Every hop documented.</li>
+  </ul>
+  <p>Writing this document is not overhead. It is architecture. Everything that would otherwise be decided ad-hoc during coding is decided here, where decisions are cheap and reversible.</p>
+
+  <h4>6. Multiple AIs Consume the Design and Compete on Architecture</h4>
+  <p>Feed the design document to more than one AI and ask each for an architecture plan. Then have them go back and forth until you reach a consensus. This is <strong>competitive planning</strong>: two AIs producing proposals, critiquing each other's work, and converging on something better than either would have produced alone.</p>
+  <p>A practical note: ask each AI which of the two is better suited to <em>implement</em> a given component, and which is better suited to <em>review</em> it. They will give you honest answers, and those answers are useful.</p>
+
+  <h4>7. Bootstrap from Your Prior Work</h4>
+  <p>Have the AI consume your <code>CLAUDE.md</code> and <code>AGENTS.md</code> from previous projects, and update them to become this project's founding documents. This is a critical step. It takes your engineering discoveries from prior work &mdash; every rule that came from something that actually broke &mdash; and puts this project on a good footing before a line of code is written.</p>
+  <p>You are not starting from scratch. You are transferring institutional knowledge.</p>
+
+  <h4>8. AI Designs the Directory Structure</h4>
+  <p>Before any code moves anywhere, have the AI propose a directory structure for both docs and code. Then have a second AI critique it. Directory structure is not a detail &mdash; it determines how the project grows. A poor structure that gets committed early becomes a migration cost later.</p>
+
+  <h4>9. Design for Scale: Local vs. Cloud</h4>
+  <p>Have the AI model both paths: a local-server architecture and a cloud-hosted architecture. This is not about picking one today. It is about making sure the design is not accidentally incompatible with the path you will want later. Decisions made here are cheap. The same decisions made at v5 cost retrofits.</p>
+
+  <h4>10. Move POC Code Into the Proper Structure</h4>
+  <p>Now, and only now, the POC code moves from its throwaway location into the real directory structure. The AI does the move. The move is mechanical &mdash; the structure was designed in step 8. Nothing is rewritten yet. The goal is to have working code in the right place before any new features are added.</p>
+
+  <h4>11. Testing Plan, Tests, and a Test Launcher &mdash; Before Features</h4>
+  <p>Have both AIs come to a testing plan together. Then have them write the tests. Then have them write a test launcher so that tests run automatically with every change.</p>
+  <p><strong>Insist on red-green testing from this point forward.</strong> Every step of the way. Every new feature must come with new tests. This is not optional. Case Study 1 documents what it costs when test infrastructure is added after the fact. Do not repeat that.</p>
+
+  <h4>12. Implement One Small Feature, Test, Check In</h4>
+  <p>Now you are ready to build. Take the smallest complete feature from the master plan. Implement it. Run the tests. Check in. Repeat.</p>
+  <p>The velocity from here feels slower than pure vibe coding. But it compounds. Features land without breaking previous features. The AI has a shared understanding of the architecture. Additions fit because the structure was designed to accept them.</p>
+
+  <h3>What This Avoids</h3>
+  <p>Case Study 1 is the counter-example. Every step above corresponds to something that was skipped there and had to be paid for in v9:</p>
+
+  <table class="compare-table">
+    <thead><tr><th>Skipped in Case Study 1</th><th>Paid for in v9</th><th>Done upfront here</th></tr></thead>
+    <tbody>
+      <tr><td>No registry-driven architecture</td><td>Scattered variant logic across 7 files</td><td>Steps 6–8: AI designs architecture before code</td></tr>
+      <tr><td>No canonical helpers</td><td>Duplicated logic in every entry path</td><td>Step 8: structure designed for shared utilities</td></tr>
+      <tr><td>No atomic writes</td><td>Silent data corruption on crash</td><td>Step 5: design doc captures all I/O contracts</td></tr>
+      <tr><td>No test infrastructure</td><td>False-passing tests, latent bugs</td><td>Step 11: testing plan before first feature</td></tr>
+      <tr><td>No directory structure plan</td><td>POC code scattered permanently</td><td>Steps 8–10: structure designed and enforced first</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The One-Sentence Version</h3>
+  <p style="font-size:1.1rem;"><strong>Do all the design work first, let the AI do it with you, and then build &mdash; because the AI will build exactly what you designed, and if you did not design it, the AI will invent it.</strong></p>
 
 </section>
 
@@ -4966,6 +5049,36 @@ cleanup call costs two engineering weeks to diagnose six months later.
 
 Hold to them from the first commit.</code></pre>
 
+
+</section>
+
+<section id="testing-ai" class="tab-panel">
+
+  <h2>Tests Are the Exoskeleton</h2>
+  <p style="font-size:1.05rem; color:var(--text-secondary);"><em>The single most important observation about AI-developed software.</em></p>
+
+  <p>Tests aren't quality hygiene in this context — they're the only thing that gives the AI memory of what the system is supposed to do.</p>
+
+  <p>A human developer carries architectural intent in their head. When they change module A, they remember module B depends on it. An AI has no such memory between sessions. It only knows what it can see — and in a codebase of 44,000 lines, it can't see everything. Tests are the exoskeleton that holds the shape of the system while the AI works inside it.</p>
+
+  <div class="real-talk">
+    <strong>Without tests:</strong>
+    <ul style="margin-top:0.5rem;">
+      <li>Every session starts from scratch conceptually</li>
+      <li>Fixes break prior fixes invisibly</li>
+      <li>The AI confidently builds forward on a crumbling foundation</li>
+      <li>"Done" means "compiles and looks right" — not "works correctly"</li>
+    </ul>
+  </div>
+
+  <p>A codebase at 11% test coverage has no exoskeleton. Each change may be correct in isolation and wrong in the system. There's no way to know.</p>
+
+  <p>SessionForge's 800+ tests catching 400+ bugs isn't just a quality metric — it's proof that the bugs existed and would have shipped without the tests. That's not a hypothetical benefit. That's 400 production failures that didn't happen.</p>
+
+  <h3>Tests That Know What the Architecture Is</h3>
+  <p>The corollary worth noting: the best test architecture is itself <em>registry-aware</em>. Static analysis tests scan for hardcoding violations — meaning the tests don't just verify output, they enforce architectural contracts. When the AI tries to shortcut the registry pattern, a test fails. The discipline is self-reinforcing in a way that no amount of code review can replicate.</p>
+
+  <div class="insight">There is a ceiling a codebase will never reach without foundational test coverage: not just tests, but tests that know what the architecture is supposed to be. Tests that check whether the AI followed the rules, not just whether the output looks right.</div>
 
 </section>
 
