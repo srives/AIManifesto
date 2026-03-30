@@ -4611,6 +4611,128 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <h3>The One-Sentence Version</h3>
   <p style="font-size:1.1rem;"><strong>Do all the design work first, let the AI do it with you, and then build &mdash; because the AI will build exactly what you designed, and if you did not design it, the AI will invent it.</strong></p>
 
+  <h3 id="anchor-codereview">Code Review Methodology: The Hostile Review</h3>
+  <p>Once your product is being built, features are landing, and tests are passing &mdash; how do you know the code is actually correct? Passing tests and successful builds are <em>evidence</em>, not <em>proof</em>. This is where a rigorous, AI-driven code review process becomes essential.</p>
+  <p>The methodology below is called a <strong>hostile code review</strong>. The word "hostile" is deliberate. You are not asking the AI to summarize what the code does. You are telling it to assume there are bugs and hunt for them. This is the difference between a review that confirms your expectations and a review that challenges them.</p>
+
+  <div class="aha"><strong>A review that only finds style issues is not a review.</strong> If your AI code review comes back with "consider renaming this variable" and nothing else, you have not done a review &mdash; you have done a spell check. A real review traces data flow, catches null paths, and finds the bugs that tests missed.</div>
+
+  <h4>The Structure of a Hostile Review Prompt</h4>
+  <p>A hostile review prompt has five parts, each serving a distinct purpose. Skip any one of them and the AI will fill the gap with generic advice instead of real findings.</p>
+
+  <p><strong>1. Mindset.</strong> Tell the AI to assume there are bugs. Tell it not to waste time on style, naming, or refactoring unless they hide a real defect. Tell it to be skeptical of passing tests. This sets the tone for the entire review.</p>
+
+  <p><strong>2. Scope.</strong> Define exactly which slice of the codebase to review. Name the feature, the files, and the boundaries. If you do not scope the review, the AI will wander into unrelated code and dilute its findings with irrelevant observations.</p>
+
+  <p><strong>3. Known Incompletes.</strong> Tell the AI what is deliberately unfinished. Without this, half the findings will be "this feature is not complete" &mdash; which you already know. The rule is: do NOT report these as bugs <em>unless the current code incorrectly pretends they are complete</em>.</p>
+
+  <p><strong>4. Trace Paths.</strong> Tell the AI exactly what to trace. A code review that reads files in isolation misses wiring bugs. The AI must follow the full path: UI event &rarr; handler &rarr; HTTP request &rarr; controller &rarr; service &rarr; data layer &rarr; response. Every hop. Every assumption.</p>
+
+  <p><strong>5. Output Format.</strong> Require structured output: findings ordered by severity, each with a file/line reference, a description of the actual failure mode, and an explicit confidence level. Require a separate section for residual risks and test gaps. If there are no findings, require the AI to say exactly "No findings" &mdash; no padding, no summaries of what the code does.</p>
+
+  <h4>Sample Prompt: Hostile Code Review</h4>
+  <p>Below is a real prompt used to review a feature slice in a production codebase. It follows all five parts of the structure above. You can adapt this template to any feature in any codebase.</p>
+
+  <div class="code-container">
+    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.querySelector('pre').innerText)">Copy</button>
+    <pre><code>You are doing a hostile code review of the current [feature] slice.
+
+Mindset:
+- Assume there are bugs.
+- Hunt for correctness issues, regressions, bad assumptions,
+  broken wiring, hidden runtime failures, invalid semantics,
+  missing guards, and missing tests.
+- Be skeptical of passing tests and successful builds.
+  They are evidence, not proof.
+- Do not waste time on style, naming, or refactoring
+  unless they hide a real defect.
+- Do not review unrelated repo churn. Stay on the [feature]
+  slice only.
+
+Scope:
+Review only the current [feature] work:
+- [component 1]
+- [component 2]
+- [component 3]
+- tests added for this slice
+
+Known incomplete by design (do NOT report as bugs unless
+the current code incorrectly pretends they are complete):
+- [known incomplete item 1]
+- [known incomplete item 2]
+- [known incomplete item 3]
+
+Files to inspect at minimum:
+- [path/to/file1]
+- [path/to/file2]
+- [path/to/file3]
+
+Context files to compare against:
+- [path/to/spec_or_design_doc]
+- [path/to/sample_data]
+
+You must manually trace the full path:
+1. UI event -&gt; handler -&gt; HTTP request shape
+2. Controller action -&gt; service call -&gt; response
+3. Service method -&gt; data builder -&gt; output shape
+4. Data source -&gt; field mapping -&gt; fallback behavior
+5. Tests -&gt; what is covered vs. what is not
+
+You must actively look for:
+- endpoint/route mismatches
+- wrong HTTP verb or response type assumptions
+- null-path runtime exceptions
+- invalid output shape relative to spec/samples
+- unsafe assumptions about data always existing
+- UI errors when server returns error responses
+- cases where malformed input slips through
+- missing tests for real failure paths
+
+Run these commands:
+- [test command for this slice]
+- [build command]
+
+If useful, inspect relevant diffs and current file contents,
+but do not modify code.
+
+Output format:
+1. Findings
+- Findings first, ordered by severity.
+- Each finding must include:
+  - severity: Critical / High / Medium / Low
+  - a one-line title
+  - exact file and line reference
+  - why it is a real bug/risk now
+  - the concrete failure mode or reproduction path
+- If you are unsure, say so explicitly and explain
+  what evidence would confirm it.
+
+2. Residual Risks
+- Only risks that are real and current.
+- Separate these from confirmed findings.
+
+3. Test Gaps
+- Only high-value missing tests for this slice.
+
+Rules:
+- If there are no findings, say exactly "No findings."
+- Do not pad the answer with summaries of what the code does.
+- Do not recommend future roadmap work unless it exposes
+  a current defect.
+- Do not confuse "unfinished by design" with "broken now."
+- Be strict.</code></pre>
+  </div>
+
+  <h4>Why This Works</h4>
+  <p>This prompt structure works because it eliminates the three failure modes of AI code review:</p>
+  <ul>
+    <li><strong>Vague scope</strong> &mdash; "review my code" produces a book report. Named files and traced paths produce findings.</li>
+    <li><strong>False positives from known incompletes</strong> &mdash; without the "known incomplete" section, half the findings are things you already know. This wastes your time and trains you to ignore the review.</li>
+    <li><strong>Unstructured output</strong> &mdash; a wall of prose buries the critical finding on page 3. Severity-ordered, file-referenced findings let you act immediately.</li>
+  </ul>
+
+  <div class="analogy-human">Run a hostile review after every feature lands, before you merge. The five minutes it takes to write the prompt will save you the hours it takes to debug the bug it would have caught.</div>
+
 </section>
 
 <section id="casestudy" class="tab-panel">
