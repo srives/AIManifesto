@@ -5109,6 +5109,21 @@ Use this to judge whether your plan is strong enough before execution.
 
 ---
 
+## Unplanned Work
+
+This document works without a plan file. For bug fixes, one-off tasks,
+or any work where you don't have a formal plan, substitute the bug
+description or task description for [PLAN_FILE_PATH] and skip the
+"confirm plan matches code" step -- everything else applies. The
+preflight still forces you to find the owner, callers, blast radius,
+tests, and data shape before coding. The implementation, validation,
+and self-review phases are identical. Use the Template section with:
+
+  Task: fix &lt;description&gt;
+  No plan file. Use RUN_PLAN.md methodology.
+
+---
+
 ## Why This Exists
 
 AI sessions executing plans fail in repeatable ways:
@@ -5124,6 +5139,34 @@ AI sessions executing plans fail in repeatable ways:
 Every phase in this template exists to block one or more of those
 failure modes.</code></pre>
     </div>
+  </div>
+
+  <!-- Part 4: Unplanned Work -->
+  <div class="chapter">
+    <div class="chapter-number">IV</div>
+    <h2>Using RUN_PLAN.md for Unplanned Work</h2>
+
+    <p>RUN_PLAN.md is not only for formal implementation plans. It works equally well for bug fixes, one-off tasks, and any work where a plan was never written. The key insight: <strong>the value is in the preflight and validation discipline, not in the plan file itself.</strong></p>
+
+    <h3>The Substitution</h3>
+    <p>When there is no plan file, substitute a plain-language description of the task:</p>
+    <ul>
+      <li><strong>Instead of:</strong> <code>Execute the plan in PLAN_FINAL.md</code></li>
+      <li><strong>Use:</strong> <code>Task: fix [description]. No plan file. Use RUN_PLAN.md methodology.</code></li>
+    </ul>
+    <p>Skip only the "confirm plan matches code" step from Phase 0 &mdash; that step is the one that requires a plan document to compare against. Everything else is identical: find the owner and seam, map the blast radius, identify the test surface, build a risk map, implement one bounded change at a time, validate, self-review.</p>
+
+    <div class="insight"><strong>The preflight catches more bugs than the fix does.</strong> When you force the AI to name the owner, list every caller, and build a risk map before touching a line of code, it routinely discovers that the bug is not where it appeared to be &mdash; or that the obvious fix would break a caller that was never mentioned. The plan document is an input to Phase 0, not the point of Phase 0. Without a plan, Phase 0 is still doing its job.</div>
+
+    <h3>When Unplanned Work Is Actually Riskier</h3>
+    <p>Counterintuitively, unplanned work often benefits <em>more</em> from the RUN_PLAN.md discipline than planned work does. A formal plan was written with the codebase in mind and has already been reviewed. An unplanned bug fix is improvised &mdash; the scope is unclear, the blast radius is unknown, and there is pressure to move fast. That is exactly when the preflight step earns its keep.</p>
+
+    <div class="real-world">Create a slash command called <code>/fix</code> in <code>.claude/commands/fix.md</code> with the contents: <em>"We are fixing a bug. Before touching any file: restate the bug, find the owner and seam, list every caller of any function you will change, identify the test surface, and build a risk map. Then implement the smallest correct change. Validate with targeted tests and a build. Self-review for silent failures, data shape drift, and test gaps. Do not commit without explicit instruction."</em> One command loads the full discipline for any unplanned fix &mdash; no template to remember, no steps to skip.</div>
+
+    <h3>The Completion Report Still Applies</h3>
+    <p>Even for a small bug fix, the completion report matters. "What changed, in what file, callers verified, tests run, build status, what remains unvalidated" is not bureaucracy &mdash; it is the record that lets you (or a reviewer) judge whether the fix is actually safe to ship. Without it, you are trusting the AI's confidence, not its evidence.</p>
+
+    <div class="analogy-human">Like an emergency maintenance procedure at a power plant. The written procedure exists for planned shutdowns. But when the emergency happens at 2 AM, the crew still follows the checklist &mdash; they do not improvise because there is no time. The checklist is fastest when the pressure is highest, because improvisation under pressure is where catastrophic mistakes happen. RUN_PLAN.md is that checklist for unplanned AI work.</div>
   </div>
 
 </section>
