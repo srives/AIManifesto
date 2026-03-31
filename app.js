@@ -2506,6 +2506,22 @@ function generateContent(isAgents) {
   return fileHeader + parts.join('\n\n');
 }
 
+function downloadRunPlan() {
+  const el = document.getElementById('runplan-content');
+  let content = el ? el.textContent : '';
+  // Restore HTML entities that were escaped for display
+  content = content.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'RUN_PLAN.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function downloadWizardFile(type) {
   const isAgents = (type === 'agents');
   const content  = generateContent(isAgents);

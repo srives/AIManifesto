@@ -81,6 +81,8 @@
 
   <div class="time-estimate">Estimated reading time: 60-75 minutes</div>
 
+  <div class="real-talk"><strong>This guide is Claude-centric &mdash; but Codex is a rising luminary in the CLI sky.</strong> As of early 2026, OpenAI Codex is emerging as an equally capable and often superior companion to Claude Code for many implementation tasks. This site documents Claude Code because that is where deep experience lives, but the practices here apply broadly. Before you commit fully to one tool, try both on a real task. The winner might surprise you. <a class="tab-btn-inline" data-tab="compare" href="#">See the Other AI CLIs comparison &rarr;</a></div>
+
   <div class="toc">
     <h3>Chapters</h3>
     <ol>
@@ -3418,6 +3420,8 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
 
     <div class="insight"><strong>Plan Mode is the "Instruct" step made formal.</strong> Press <code>Shift+Tab</code> before coding and Claude describes its entire approach — files it will touch, functions it will write, decisions it will make — before writing a single line. You approve or redirect before anything changes. This is the loop's first gate, enforced by the tool rather than by willpower.</div>
 
+    <div class="aha"><strong>Plans are only as good as how you execute them.</strong> Writing a solid plan is step one. Handing it to an AI with the right execution discipline is step two &mdash; and most developers skip step two entirely. A structured execution prompt tells the AI to read the actual code before touching anything, find every caller, map the blast radius, and prove its work. Without it, the AI codes from the plan document instead of the repo, and patches the wrong seam. <a class="tab-btn-inline" data-tab="runplan" href="#">How to Run a Plan &rarr;</a></div>
+
     <div class="insight"><strong>Session forking is the "different AI reviews it" step without leaving Claude.</strong> Press <code>Ctrl+\</code> to fork your current session — the new session inherits the full conversation history but runs independently. Point the fork at your code and ask it to review. Two Claude perspectives on the same code, with full context, in seconds.</div>
 
     <div class="analogy">Like a factory production line with quality checkpoints. Raw materials (your prompt) enter at one end. Each station (code, test, review, fix) adds value and catches defects. Nothing ships until it passes every station. The loop isn't bureaucracy &mdash; it's what lets you keep the factory running at speed without producing junk.</div>
@@ -4519,6 +4523,10 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
       <div class="starthere-who"><a class="tab-btn-inline" data-tab="casestudy2" href="#">Engineering with AI: From Concept to Product</a></div>
       <div class="starthere-path">Building a reMarkable-to-AI screen design pipeline from scratch &mdash; and documenting every architecture decision before writing a line of code.</div>
     </div>
+    <div class="starthere-card">
+      <div class="starthere-who"><a class="tab-btn-inline" data-tab="runplan" href="#">How to Run a Plan</a></div>
+      <div class="starthere-path">The dual-AI planning process &mdash; competitive planning, critique, and convergence &mdash; plus the execution-control prompt that prevents the seven failure modes that kill AI implementations.</div>
+    </div>
   </div>
 
 </section>
@@ -4529,7 +4537,7 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:2rem;"><em>Building from the ground up with AI in mind &mdash; and documenting every step of the way</em></p>
 
   <h3>The Idea</h3>
-  <p>The product: a tool that lets you draw your UI on a reMarkable tablet &mdash; screens, block diagrams, workflow sketches &mdash; and then feed those drawings directly into an AI so it can generate screen layout designs. The specific use case was building a new product from scratch with hand-drawn screen designs as the AI's input.</p>
+  <p>Every AI project starts out with an idea. I have a new idea for a product, and I wanted to use it as a case study of avoiding all the errors I made in the first case study. Here is my idea: a tool that lets you draw your UI on a reMarkable tablet &mdash; screens, block diagrams, workflow sketches &mdash; and then feed those drawings directly into an AI so it can generate screen layout designs. The specific use case was building a new product from scratch with hand-drawn screen designs as the AI's input.</p>
   <p>The insight that makes this worth a case study is not the product itself. It is the discipline of how it was started. Everything in this story was done before a single line of production code was written.</p>
 
   <div class="aha"><strong>This is how Case Study 1 should have started.</strong> The first case study documents what it costs to skip architecture on day 1 &mdash; 403,000 lines and months of retrofit. This case study documents what it looks like to not skip it. <a class="tab-btn-inline" data-tab="casestudy" href="#">Read Case Study 1 &rarr;</a></div>
@@ -4572,6 +4580,10 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <h4>6. Multiple AIs Consume the Design and Compete on Architecture</h4>
   <p>Feed the design document to more than one AI and ask each for an architecture plan. Then have them go back and forth until you reach a consensus. This is <strong>competitive planning</strong>: two AIs producing proposals, critiquing each other's work, and converging on something better than either would have produced alone.</p>
   <p>A practical note: ask each AI which of the two is better suited to <em>implement</em> a given component, and which is better suited to <em>review</em> it. They will give you honest answers, and those answers are useful.</p>
+
+  <div class="aha"><strong>There is a structured process for this.</strong> Competitive planning &mdash; where two AIs propose, critique, and converge on a final architecture &mdash; is powerful, but only if you also know how to hand that final plan to an AI for disciplined execution. The execution step is where plans most often go wrong. <a class="tab-btn-inline" data-tab="runplan" href="#">How to Run a Plan &rarr;</a></div>
+
+  <div class="real-talk"><strong>As of March 2026: Codex is winning the implementation round more often than not.</strong> When the competitive planning process produces a final architecture plan and it is time to execute, Codex has been the better implementer in the majority of real-world tests. Claude tends to plan better; Codex tends to execute more precisely. This is not a permanent verdict &mdash; model capabilities shift quickly &mdash; but it is today's experience. When you reach Step 12, seriously consider handing the final plan to Codex rather than Claude.</div>
 
   <h4>7. Bootstrap from Your Prior Work</h4>
   <p>Have the AI consume your <code>CLAUDE.md</code> and <code>AGENTS.md</code> from previous projects, and update them to become this project's founding documents. This is a critical step. It takes your engineering discoveries from prior work &mdash; every rule that came from something that actually broke &mdash; and puts this project on a good footing before a line of code is written.</p>
@@ -4732,6 +4744,387 @@ Rules:
   </ul>
 
   <div class="analogy-human">Run a hostile review after every feature lands, before you merge. The five minutes it takes to write the prompt will save you the hours it takes to debug the bug it would have caught.</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: HOW TO RUN A PLAN                        -->
+<!-- ============================================ -->
+<section id="runplan" class="tab-panel">
+
+  <h2>How to Run a Plan</h2>
+  <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:2rem;"><em>From competitive planning through disciplined execution &mdash; a repeatable process that works</em></p>
+
+  <div class="aha"><strong>A plan without an execution protocol is a wish list.</strong> Most developers write a good plan and then hand it to an AI with "implement this." The AI immediately starts coding from the document instead of the repo, patches the wrong seam, misses callers, and skips validation. The result looks done until it breaks in production. This page documents the two-phase process: how to build a better plan using two AIs, and how to execute it without drifting.</div>
+
+  <!-- Part 1: Dual-AI Planning -->
+  <div class="chapter">
+    <div class="chapter-number">I</div>
+    <h2>Phase 1: Competitive Planning with Two AIs</h2>
+
+    <p>The insight behind competitive planning is simple: two independent perspectives on the same problem produce a better plan than one. When you describe the same problem to two different AIs, their proposals will diverge on assumptions, trade-offs, and architecture choices &mdash; and those divergences tell you exactly where the hard decisions are.</p>
+
+    <h3>Step 1: Describe the Problem Independently to Both AIs</h3>
+    <p>Write one problem statement &mdash; a clear, scoped description of what you need to build or change. Feed it to both AIs in separate sessions, with no other context. Do not show either AI what the other said. You are looking for two independent proposals, not a collaboration.</p>
+    <p>Keep your problem statement concrete: what is the goal, what are the constraints, what must not change. Vague inputs produce vague plans.</p>
+
+    <div class="insight"><strong>Both sessions should read your CLAUDE.md / AGENTS.md first.</strong> Your architectural rules and hard-won constraints should inform both plans from the start. Include them in the prompt or reference them explicitly. A plan that ignores your existing architecture is a rewrite in disguise.</div>
+
+    <h3>Step 2: Each AI Produces a Plan</h3>
+    <p>Ask each AI to write a structured implementation plan: phases, files to touch, functions to create or modify, test strategy, risks. The output should be specific enough that another AI could execute it without guessing. Have each AI write its plan to a file: <code>PLAN_A.md</code> and <code>PLAN_B.md</code>.</p>
+
+    <h3>Step 3: Each AI Critiques the Other's Plan</h3>
+    <p>Now cross-pollinate. Show AI A the plan that AI B produced. Show AI B the plan that AI A produced. Ask each to:</p>
+    <ul>
+      <li>Identify assumptions the other plan made that may be wrong</li>
+      <li>Point out risks the other plan missed</li>
+      <li>Note where their approach differs and why theirs is better (or worse)</li>
+      <li>Produce a revised plan that incorporates what was right in both</li>
+    </ul>
+    <p>Save each revised plan: <code>PLAN_A2.md</code> and <code>PLAN_B2.md</code>.</p>
+
+    <div class="analogy">Like two architects reviewing each other's blueprints before construction starts. Neither blueprint is the final design. Both architects come back with a better version after seeing where the other made assumptions they did not. The building that gets built is better than either original proposal.</div>
+
+    <h3>Step 4: Merge into a Final Plan</h3>
+    <p>Pick one AI to do the merge. Hand it both <code>PLAN_A2.md</code> and <code>PLAN_B2.md</code> and ask it to produce <code>PLAN_FINAL.md</code> &mdash; a single, definitive plan that incorporates the best elements of both second-round proposals and resolves any remaining conflicts.</p>
+    <p>The AI doing the merge should be the one whose second-round plan was stronger overall. Trust your judgment here &mdash; you read both plans.</p>
+
+    <div class="real-talk"><strong>As of March 2026: Codex is winning the implementation round more often than not.</strong> When the competitive planning process produces a final architecture plan and it is time to execute, Codex has been the better implementer in the majority of real-world tests. Claude tends to plan and reason more broadly; Codex tends to execute with more precision and fewer side excursions. This is not a permanent verdict &mdash; model capabilities shift quickly &mdash; but it is today's experience. When you reach execution, seriously consider handing the final plan to Codex rather than Claude.</div>
+  </div>
+
+  <!-- Part 2: Executing the Plan -->
+  <div class="chapter">
+    <div class="chapter-number">II</div>
+    <h2>Phase 2: Executing the Plan with Engineering Rigor</h2>
+
+    <p>Writing a good plan is half the work. The other half is handing it to an AI with an execution protocol that prevents the failure modes that kill AI implementations. Without a protocol, even a great plan gets ruined by an AI that codes from the document instead of the codebase.</p>
+
+    <h3>The Failure Modes of Unstructured Plan Execution</h3>
+    <p>AI sessions executing plans fail in repeatable ways:</p>
+    <ol>
+      <li><strong>Plan is stale.</strong> The plan names a function that moved or changed shape since the plan was written. The AI patches the wrong seam and never notices.</li>
+      <li><strong>Blast radius missed.</strong> The plan names the function but not its callers. The AI changes the contract and leaves every caller broken.</li>
+      <li><strong>Helper duplication.</strong> The AI creates a new helper instead of using the one that already exists. The codebase now has two versions of the same logic.</li>
+      <li><strong>Data shape corruption.</strong> The AI mutates a data structure by rebuilding a subset of its fields, silently dropping everything else.</li>
+      <li><strong>Rubber-stamp tests.</strong> When a test fails, the AI changes the test to match the new (wrong) output instead of fixing the code.</li>
+      <li><strong>No proof.</strong> The AI declares "done" without running tests or a build. Nothing was actually validated.</li>
+    </ol>
+
+    <p>The RUN_PLAN.md template below is an execution-control prompt that forces the AI to address each of these failure modes before writing a single line of code.</p>
+
+    <h3>How to Use It</h3>
+    <ol>
+      <li>Copy <code>RUN_PLAN.md</code> into your repository (adapt the project-specific sections).</li>
+      <li>At the start of your execution session, hand the AI both the plan file and <code>RUN_PLAN.md</code>.</li>
+      <li>Tell the AI: <code>Read RUN_PLAN.md, then execute [PLAN_FINAL.md]</code>.</li>
+      <li>Require the AI to complete Phase 0 (Preflight) and write its findings before touching any code.</li>
+      <li>Review the preflight. If the AI has found that the plan is stale or the blast radius is larger than expected, adjust the plan before proceeding.</li>
+    </ol>
+
+    <div class="insight"><strong>Require a preflight report before implementation on any risky change.</strong> For routine work, you can let the AI proceed after a brief Phase 0 summary. For anything that touches shared data, external contracts, or critical paths, require a full written preflight before a single file is edited. The report makes the AI's assumptions visible &mdash; and reviewable &mdash; before the blast radius is activated.</div>
+  </div>
+
+  <!-- Part 3: The Template -->
+  <div class="chapter">
+    <div class="chapter-number">III</div>
+    <h2>The RUN_PLAN.md Template</h2>
+
+    <p>Below is a generic RUN_PLAN.md you can copy into your project and adapt. The project-specific sections (file paths, build commands, architecture boundaries) are clearly marked for replacement. Everything else applies universally.</p>
+
+    <p><button class="wizard-btn wizard-btn-claude" onclick="downloadRunPlan()" style="margin-bottom:1rem;">&#8595; Download RUN_PLAN.md</button></p>
+
+    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:1rem 0;">
+      <div style="background:var(--bg-tertiary);padding:0.5rem 1rem;font-size:0.8rem;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);">RUN_PLAN.md &mdash; Generic Template</div>
+      <pre id="runplan-content" style="margin:0;padding:1.5rem;max-height:600px;overflow-y:auto;font-size:0.82rem;line-height:1.6;white-space:pre-wrap;"><code># RUN_PLAN.md
+
+Use this prompt when handing an implementation plan to an AI session.
+The plan tells it what to change. This document tells it how to execute
+with engineering rigor.
+
+This is not a creativity prompt. It is an execution-control prompt.
+
+---
+
+## Execution Prompt
+
+```text
+You are executing an implementation plan. Read AGENTS.md (or CLAUDE.md)
+first. These files are law and override anything in the plan that
+conflicts with them.
+
+Then read the plan file: [PLAN_FILE_PATH]
+
+Do not start coding until you complete the preflight below.
+
+Your job is to make the smallest correct change that:
+- still matches the current codebase, not just the plan
+- respects the project's architectural boundaries
+- preserves data and state coherence
+- avoids hidden side effects
+- lands with proof through tests and validation
+
+---
+
+### Phase 0: Preflight (No Code Changes)
+
+Before touching any file, do all of the following:
+
+1. Restate the task precisely.
+   - Requested outcome
+   - Scope (which files, layers, or subsystems)
+   - Non-goals (what you will NOT change)
+   - Assumptions
+
+2. Read the actual source, not summaries.
+   - Read every file the plan names.
+   - Confirm the code still matches the plan.
+   - If a function moved, changed shape, or was already partially fixed,
+     say so before proceeding.
+
+3. Identify the owner and seam.
+   - Name the canonical helper or module that owns the behavior.
+   - Search before writing. If a helper exists, use it.
+   - If no helper exists and the pattern is durable, create it in the
+     correct location before using it.
+
+4. Identify the blast radius.
+   - For every function you will modify, find every caller.
+   - If the contract changes in any way -- parameters, return shape,
+     side effects, or behavior -- all callers are in scope for
+     validation, even if the plan did not mention them.
+
+5. Identify the test surface.
+   - Find existing tests that cover the touched behavior.
+   - If no test exists for a new guardrail or transition, plan to add one.
+   - If an existing test asserts old behavior that the change replaces,
+     plan to update it to the new contract.
+
+6. Build a risk map. Explicitly assess:
+   - Architecture and boundary violations
+   - Data shape and contract drift
+   - Null paths and error propagation
+   - Silent failures (skipped items, swallowed errors)
+   - Test coverage gaps
+
+7. State the execution order before coding.
+   - List the changes in order.
+   - Name the file and function for each.
+   - If the operator asked for preflight-only, stop here and report.
+
+---
+
+### Phase 1: Implement (One Bounded Change At A Time)
+
+For each item in the execution order:
+
+Before editing:
+- Re-read the function you are about to modify.
+- Re-read its callers if you are changing its contract.
+- Re-read the tests that cover it.
+
+While editing:
+- Change the minimum necessary for this item.
+- Preserve existing architectural boundaries.
+- Do not duplicate helpers or create a second version of an existing
+  utility.
+- Do not refactor surrounding code unless it is directly required for
+  correctness.
+- Preserve full object/document shape when mutating data; do not
+  rebuild a subset and silently drop fields.
+
+After each item:
+- State what changed, in what file and function, and what the
+  behavioral difference is.
+- If the contract changed, list the callers and confirm they were
+  updated or verified.
+- Do not move to the next item until this one is internally consistent.
+
+---
+
+### Phase 2: Validate
+
+1. Run the narrowest relevant tests first.
+   - Start with the test file or block closest to the changed behavior.
+   - Then run the broader test suite for the touched module.
+
+2. Run build validation.
+   - [PROJECT-SPECIFIC: insert your build command here]
+   - Do not skip build validation because targeted tests passed.
+
+3. Re-check callers and regressions.
+   - Grep for every modified function and confirm callers are correct.
+   - Confirm no caller is now passing wrong arguments or relying on
+     behavior that changed.
+
+4. State manual validation truthfully.
+   - If behavior crosses environment-dependent boundaries, state exactly
+     what was and was not validated manually.
+
+---
+
+### Phase 3: Self-Review
+
+Before declaring done, review your changes against these defect classes:
+
+1. Architecture drift
+   - Did you bypass a helper or cross a boundary?
+   - Did you put logic in the wrong layer?
+
+2. Data shape and contract drift
+   - Did you create another fallback chain instead of normalizing at
+     the boundary?
+   - Did you strip fields when mutating an object?
+
+3. Error propagation
+   - Can an error escape without proper handling?
+   - Did any catch path introduce a secondary failure?
+
+4. Silent failures
+   - Did you use continue/skip without warning the caller?
+   - Did you return an empty result where an error would be more honest?
+
+5. Test gaps
+   - Did you add or change behavior without a test?
+   - Did you update tests to rubber-stamp new code instead of asserting
+     the real contract?
+
+If you find a real problem in self-review and it is in scope and
+low-risk, fix it before reporting. Otherwise call it out explicitly.
+
+---
+
+### Stop Conditions
+
+Stop and surface the issue instead of improvising if:
+- The plan no longer matches the code in a material way.
+- The correct owner or seam is unclear.
+- The change requires guessing about ownership or contracts.
+- Validation cannot establish that the change is safe.
+- The requested change conflicts with AGENTS.md rules.
+
+When blocked, explain the minimum missing fact or decision needed to
+proceed. Do not hide uncertainty behind confident wording.
+
+---
+
+### Completion Report
+
+When done, provide:
+
+1. Understanding
+   - Requested outcome, scope, non-goals, assumptions
+
+2. Preflight Findings
+   - Current owner/helper/seam
+   - Files and callers in scope
+   - Main risks identified
+
+3. Execution Notes
+   - What changed
+   - Any deviations from the original plan and why
+   - Any callers updated or verified
+
+4. Validation
+   - Exact tests or commands run
+   - Build status
+   - Manual validation performed
+   - What remains unvalidated
+
+5. Residual Risks
+   - Only real remaining risks, not generic caution text
+
+6. Closeout
+   - Is the requested change done?
+   - Is follow-up work needed?
+   - Is the work ready for review?
+
+Do not commit. Report completion and wait for explicit commit instruction.
+```
+
+---
+
+## Short Prompt
+
+Use this when you want a single-paragraph handoff instead of the full
+prompt:
+
+```text
+Execute the implementation plan in [PLAN_FILE_PATH] with engineering
+rigor. Read AGENTS.md (or CLAUDE.md) first. Before writing any code,
+restate the outcome, scope, non-goals, assumptions, owners, seams,
+callers, tests, and risks. Read the actual files the plan names and
+confirm the plan still matches the code. Search before writing. Use
+existing helpers. Preserve architecture and data shape. Implement one
+bounded change at a time. Verify callers after contract changes. Run
+targeted tests, then build validation. Self-review against the defect
+classes. Report changes, validation, and residual risks honestly.
+Do not commit without explicit permission.
+```
+
+---
+
+## Template You Can Hand to an AI
+
+```text
+Task: &lt;one-sentence requested outcome&gt;
+Plan file: [PLAN_FILE_PATH]
+
+Read AGENTS.md (or CLAUDE.md) first.
+
+Before coding, produce:
+1. Understanding -- outcome, scope, non-goals, assumptions
+2. Preflight -- files read, owner/seam, callers, tests, risks
+3. Execution Order -- ordered steps, acceptance criteria, validation plan
+
+Then implement conservatively:
+- search before writing
+- use existing helpers
+- preserve architecture and data shape
+- add or update tests for changed behavior
+
+After implementation, report:
+- what changed, callers verified
+- tests and commands run
+- build status
+- manual validation performed
+- what remains unvalidated
+- residual risks
+```
+
+---
+
+## Engineering Rigor Checklist
+
+Use this to judge whether your plan is strong enough before execution.
+
+| Discipline    | Strong                                              | Weak                                                |
+|---------------|-----------------------------------------------------|-----------------------------------------------------|
+| Objective     | States what must change AND what must not. Defines acceptance criteria. | Mixes bug fix, refactor, and feature into one blur. |
+| Preflight     | AI reads actual files first. Assumes plan may be stale. Forces caller discovery. | Lets AI code from the document without checking the repo. |
+| Architecture  | Names owning module/service. Enforces helper-first reuse. | Says "update whatever is needed."                   |
+| Data/State    | Names data structures and contracts. Treats shape divergence as a defect. | Assumes data is straightforward.                    |
+| Safety        | Maps errors to correct responses. Does not silence failures. | Catches generic errors. Skips items without warning. |
+| Validation    | Targeted tests first, then build. Tests error and multi-item paths. | Says "run tests" without naming what proves correctness. |
+| Reporting     | Concrete, falsifiable. Records what was and was not validated. | Reports success without evidence.                   |
+
+---
+
+## Why This Exists
+
+AI sessions executing plans fail in repeatable ways:
+
+1. The plan is stale and the AI patches the wrong method.
+2. The plan names the function but not the callers -- blast radius missed.
+3. The AI creates a new helper instead of using the one that exists.
+4. The AI rebuilds a subset of fields and silently drops the rest.
+5. The AI updates tests to rubber-stamp new behavior instead of the contract.
+6. The AI fixes the symptom but not the root cause.
+7. The AI says "done" without proving the change.
+
+Every phase in this template exists to block one or more of those
+failure modes.</code></pre>
+    </div>
+  </div>
 
 </section>
 
