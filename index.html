@@ -41,6 +41,7 @@
           <button class="tab-btn" data-tab="glossary">Glossary</button>
           <button class="tab-btn" data-tab="about">About</button>
           <button class="tab-btn" data-tab="casestudies">Case Studies</button>
+          <button class="tab-btn" data-tab="runplan">How to Run a Plan</button>
           <div class="drawer-divider"></div>
           <label class="gloss-toggle-label"><input type="checkbox" id="gloss-popup-toggle" checked> Show Glossary Pop-ups</label>
           <label class="gloss-toggle-label"><input type="checkbox" id="gloss-underline-toggle"> Underline Glosses</label>
@@ -4755,7 +4756,7 @@ Rules:
   <h2>How to Run a Plan</h2>
   <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:2rem;"><em>From competitive planning through disciplined execution &mdash; a repeatable process that works</em></p>
 
-  <div class="aha"><strong>A plan without an execution protocol is a wish list.</strong> Most developers write a good plan and then hand it to an AI with "implement this." The AI immediately starts coding from the document instead of the repo, patches the wrong seam, misses callers, and skips validation. The result looks done until it breaks in production. This page documents the two-phase process: how to build a better plan using two AIs, and how to execute it without drifting.</div>
+  <div class="aha"><strong>A plan without an execution protocol is a wish list.</strong> Most developers write a good plan and then hand it to an AI with "implement this." The AI immediately starts coding from the document instead of the repo, patches the wrong seam, misses callers, and skips validation. The result looks done until it breaks in production. This page documents the full process: how to build a better plan using two AIs, and how to execute it without drifting.</div>
 
   <!-- Part 1: Dual-AI Planning -->
   <div class="chapter">
@@ -4764,32 +4765,48 @@ Rules:
 
     <p>The insight behind competitive planning is simple: two independent perspectives on the same problem produce a better plan than one. When you describe the same problem to two different AIs, their proposals will diverge on assumptions, trade-offs, and architecture choices &mdash; and those divergences tell you exactly where the hard decisions are.</p>
 
-    <h3>Step 1: Describe the Problem Independently to Both AIs</h3>
-    <p>Write one problem statement &mdash; a clear, scoped description of what you need to build or change. Feed it to both AIs in separate sessions, with no other context. Do not show either AI what the other said. You are looking for two independent proposals, not a collaboration.</p>
-    <p>Keep your problem statement concrete: what is the goal, what are the constraints, what must not change. Vague inputs produce vague plans.</p>
+    <!-- Step cards -->
+    <div style="display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;">
 
-    <div class="insight"><strong>Both sessions should read your CLAUDE.md / AGENTS.md first.</strong> Your architectural rules and hard-won constraints should inform both plans from the start. Include them in the prompt or reference them explicitly. A plan that ignores your existing architecture is a rewrite in disguise.</div>
+      <div style="display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.2rem;background:var(--bg-secondary);border-radius:8px;border-left:4px solid var(--accent-blue);">
+        <div style="background:var(--accent-blue);color:#0d1117;font-weight:700;font-size:0.85rem;min-width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">1</div>
+        <div>
+          <strong style="color:var(--text-primary);">Describe the problem independently to both AIs</strong>
+          <p style="margin:0.4rem 0 0;color:var(--text-secondary);font-size:0.92rem;">Write one problem statement &mdash; a clear, scoped description of what you need to build or change. Feed it to both AIs in separate sessions with no shared context. You are looking for two independent proposals, not a collaboration. Keep it concrete: what is the goal, what are the constraints, what must not change.</p>
+        </div>
+      </div>
 
-    <h3>Step 2: Each AI Produces a Plan</h3>
-    <p>Ask each AI to write a structured implementation plan: phases, files to touch, functions to create or modify, test strategy, risks. The output should be specific enough that another AI could execute it without guessing. Have each AI write its plan to a file: <code>PLAN_A.md</code> and <code>PLAN_B.md</code>.</p>
+      <div style="display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.2rem;background:var(--bg-secondary);border-radius:8px;border-left:4px solid var(--accent-blue);">
+        <div style="background:var(--accent-blue);color:#0d1117;font-weight:700;font-size:0.85rem;min-width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">2</div>
+        <div>
+          <strong style="color:var(--text-primary);">Each AI produces a plan</strong>
+          <p style="margin:0.4rem 0 0;color:var(--text-secondary);font-size:0.92rem;">Ask each AI to write a structured implementation plan: phases, files to touch, functions to create or modify, test strategy, risks. The output should be specific enough that another AI could execute it without guessing. Save the results as <code>PLAN_A.md</code> and <code>PLAN_B.md</code>.</p>
+        </div>
+      </div>
 
-    <h3>Step 3: Each AI Critiques the Other's Plan</h3>
-    <p>Now cross-pollinate. Show AI A the plan that AI B produced. Show AI B the plan that AI A produced. Ask each to:</p>
-    <ul>
-      <li>Identify assumptions the other plan made that may be wrong</li>
-      <li>Point out risks the other plan missed</li>
-      <li>Note where their approach differs and why theirs is better (or worse)</li>
-      <li>Produce a revised plan that incorporates what was right in both</li>
-    </ul>
-    <p>Save each revised plan: <code>PLAN_A2.md</code> and <code>PLAN_B2.md</code>.</p>
+      <div style="display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.2rem;background:var(--bg-secondary);border-radius:8px;border-left:4px solid var(--accent-purple);">
+        <div style="background:var(--accent-purple);color:#0d1117;font-weight:700;font-size:0.85rem;min-width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">3</div>
+        <div>
+          <strong style="color:var(--text-primary);">Each AI critiques the other's plan</strong>
+          <p style="margin:0.4rem 0 0;color:var(--text-secondary);font-size:0.92rem;">Cross-pollinate. Show AI A the plan that AI B produced, and vice versa. Ask each to identify wrong assumptions, missed risks, and where their own approach is stronger &mdash; then produce a revised plan incorporating what was right in both. Save as <code>PLAN_A2.md</code> and <code>PLAN_B2.md</code>.</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.2rem;background:var(--bg-secondary);border-radius:8px;border-left:4px solid var(--accent-green);">
+        <div style="background:var(--accent-green);color:#0d1117;font-weight:700;font-size:0.85rem;min-width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;">4</div>
+        <div>
+          <strong style="color:var(--text-primary);">Merge into a final plan</strong>
+          <p style="margin:0.4rem 0 0;color:var(--text-secondary);font-size:0.92rem;">Pick one AI to do the merge &mdash; the one whose second-round plan was stronger. Hand it both <code>PLAN_A2.md</code> and <code>PLAN_B2.md</code> and ask it to produce <code>PLAN_FINAL.md</code>: a single, definitive plan that incorporates the best elements of both and resolves any remaining conflicts.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="insight"><strong>Both sessions should read your CLAUDE.md / AGENTS.md first.</strong> Your architectural rules and hard-won constraints should inform both plans from the start. A plan that ignores your existing architecture is a rewrite in disguise.</div>
 
     <div class="analogy">Like two architects reviewing each other's blueprints before construction starts. Neither blueprint is the final design. Both architects come back with a better version after seeing where the other made assumptions they did not. The building that gets built is better than either original proposal.</div>
 
-    <h3>Step 4: Merge into a Final Plan</h3>
-    <p>Pick one AI to do the merge. Hand it both <code>PLAN_A2.md</code> and <code>PLAN_B2.md</code> and ask it to produce <code>PLAN_FINAL.md</code> &mdash; a single, definitive plan that incorporates the best elements of both second-round proposals and resolves any remaining conflicts.</p>
-    <p>The AI doing the merge should be the one whose second-round plan was stronger overall. Trust your judgment here &mdash; you read both plans.</p>
-
-    <div class="real-talk"><strong>As of March 2026: Codex is winning the implementation round more often than not.</strong> When the competitive planning process produces a final architecture plan and it is time to execute, Codex has been the better implementer in the majority of real-world tests. Claude tends to plan and reason more broadly; Codex tends to execute with more precision and fewer side excursions. This is not a permanent verdict &mdash; model capabilities shift quickly &mdash; but it is today's experience. When you reach execution, seriously consider handing the final plan to Codex rather than Claude.</div>
+    <div class="real-talk"><strong>As of March 2026: Codex is winning the implementation round more often than not.</strong> When the competitive planning process produces a final plan and it is time to execute, Codex has been the better implementer in the majority of real-world tests. Claude tends to plan and reason more broadly; Codex tends to execute with more precision and fewer side excursions. This is not a permanent verdict &mdash; model capabilities shift quickly &mdash; but it is today's experience. When you reach execution, seriously consider handing the final plan to Codex rather than Claude.</div>
   </div>
 
   <!-- Part 2: Executing the Plan -->
@@ -4799,27 +4816,61 @@ Rules:
 
     <p>Writing a good plan is half the work. The other half is handing it to an AI with an execution protocol that prevents the failure modes that kill AI implementations. Without a protocol, even a great plan gets ruined by an AI that codes from the document instead of the codebase.</p>
 
-    <h3>The Failure Modes of Unstructured Plan Execution</h3>
-    <p>AI sessions executing plans fail in repeatable ways:</p>
-    <ol>
-      <li><strong>Plan is stale.</strong> The plan names a function that moved or changed shape since the plan was written. The AI patches the wrong seam and never notices.</li>
-      <li><strong>Blast radius missed.</strong> The plan names the function but not its callers. The AI changes the contract and leaves every caller broken.</li>
-      <li><strong>Helper duplication.</strong> The AI creates a new helper instead of using the one that already exists. The codebase now has two versions of the same logic.</li>
-      <li><strong>Data shape corruption.</strong> The AI mutates a data structure by rebuilding a subset of its fields, silently dropping everything else.</li>
-      <li><strong>Rubber-stamp tests.</strong> When a test fails, the AI changes the test to match the new (wrong) output instead of fixing the code.</li>
-      <li><strong>No proof.</strong> The AI declares "done" without running tests or a build. Nothing was actually validated.</li>
-    </ol>
+    <h3 style="color:var(--accent-red);margin-top:1.5rem;">The 6 Failure Modes of Unstructured Plan Execution</h3>
 
-    <p>The RUN_PLAN.md template below is an execution-control prompt that forces the AI to address each of these failure modes before writing a single line of code.</p>
+    <div style="display:flex;flex-direction:column;gap:0.6rem;margin:1rem 0 1.5rem;">
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(248,81,73,0.07);border-radius:6px;border-left:3px solid var(--accent-red);">
+        <span style="color:var(--accent-red);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">1</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;"><strong style="color:var(--text-primary);">Plan is stale.</strong> The plan names a function that moved or changed shape. The AI patches the wrong seam and never notices.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(248,81,73,0.07);border-radius:6px;border-left:3px solid var(--accent-red);">
+        <span style="color:var(--accent-red);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">2</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;"><strong style="color:var(--text-primary);">Blast radius missed.</strong> The plan names the function but not its callers. The AI changes the contract and leaves every caller broken.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(248,81,73,0.07);border-radius:6px;border-left:3px solid var(--accent-red);">
+        <span style="color:var(--accent-red);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">3</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;"><strong style="color:var(--text-primary);">Helper duplication.</strong> The AI creates a new helper instead of using the one that already exists. Now there are two versions of the same logic.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(248,81,73,0.07);border-radius:6px;border-left:3px solid var(--accent-red);">
+        <span style="color:var(--accent-red);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">4</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;"><strong style="color:var(--text-primary);">Data shape corruption.</strong> The AI mutates a data structure by rebuilding a subset of its fields, silently dropping everything else.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(248,81,73,0.07);border-radius:6px;border-left:3px solid var(--accent-red);">
+        <span style="color:var(--accent-red);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">5</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;"><strong style="color:var(--text-primary);">Rubber-stamp tests.</strong> When a test fails, the AI changes the test to match the new (wrong) output instead of fixing the code.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(248,81,73,0.07);border-radius:6px;border-left:3px solid var(--accent-red);">
+        <span style="color:var(--accent-red);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">6</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;"><strong style="color:var(--text-primary);">No proof.</strong> The AI declares "done" without running tests or a build. Nothing was actually validated.</span>
+      </div>
+    </div>
 
-    <h3>How to Use It</h3>
-    <ol>
-      <li>Copy <code>RUN_PLAN.md</code> into your repository (adapt the project-specific sections).</li>
-      <li>At the start of your execution session, hand the AI both the plan file and <code>RUN_PLAN.md</code>.</li>
-      <li>Tell the AI: <code>Read RUN_PLAN.md, then execute [PLAN_FINAL.md]</code>.</li>
-      <li>Require the AI to complete Phase 0 (Preflight) and write its findings before touching any code.</li>
-      <li>Review the preflight. If the AI has found that the plan is stale or the blast radius is larger than expected, adjust the plan before proceeding.</li>
-    </ol>
+    <p>The RUN_PLAN.md template in Chapter III is an execution-control prompt that forces the AI to address each failure mode before writing a single line of code.</p>
+
+    <h3 style="color:var(--accent-green);margin-top:1.5rem;">How to Use It</h3>
+
+    <div style="display:flex;flex-direction:column;gap:0.6rem;margin:1rem 0;">
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(63,185,80,0.07);border-radius:6px;border-left:3px solid var(--accent-green);">
+        <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">1</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;">Copy <code>RUN_PLAN.md</code> into your repository and adapt the project-specific sections (file paths, build commands, architecture boundaries).</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(63,185,80,0.07);border-radius:6px;border-left:3px solid var(--accent-green);">
+        <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">2</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;">At the start of your execution session, hand the AI both the plan file and <code>RUN_PLAN.md</code>.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(63,185,80,0.07);border-radius:6px;border-left:3px solid var(--accent-green);">
+        <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">3</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;">Tell the AI: <code>Read RUN_PLAN.md, then execute PLAN_FINAL.md</code>.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(63,185,80,0.07);border-radius:6px;border-left:3px solid var(--accent-green);">
+        <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">4</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;">Require the AI to complete Phase 0 (Preflight) and write its findings <em>before</em> touching any code.</span>
+      </div>
+      <div style="display:flex;gap:0.9rem;align-items:flex-start;padding:0.75rem 1rem;background:rgba(63,185,80,0.07);border-radius:6px;border-left:3px solid var(--accent-green);">
+        <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">5</span>
+        <span style="color:var(--text-secondary);font-size:0.92rem;">Review the preflight. If the plan is stale or the blast radius is larger than expected, adjust before proceeding.</span>
+      </div>
+    </div>
 
     <div class="insight"><strong>Require a preflight report before implementation on any risky change.</strong> For routine work, you can let the AI proceed after a brief Phase 0 summary. For anything that touches shared data, external contracts, or critical paths, require a full written preflight before a single file is edited. The report makes the AI's assumptions visible &mdash; and reviewable &mdash; before the blast radius is activated.</div>
   </div>
@@ -5148,23 +5199,27 @@ failure modes.</code></pre>
 
     <p>RUN_PLAN.md is not only for formal implementation plans. It works equally well for bug fixes, one-off tasks, and any work where a plan was never written. The key insight: <strong>the value is in the preflight and validation discipline, not in the plan file itself.</strong></p>
 
-    <h3>The Substitution</h3>
-    <p>When there is no plan file, substitute a plain-language description of the task:</p>
-    <ul>
-      <li><strong>Instead of:</strong> <code>Execute the plan in PLAN_FINAL.md</code></li>
-      <li><strong>Use:</strong> <code>Task: fix [description]. No plan file. Use RUN_PLAN.md methodology.</code></li>
-    </ul>
-    <p>Skip only the "confirm plan matches code" step from Phase 0 &mdash; that step is the one that requires a plan document to compare against. Everything else is identical: find the owner and seam, map the blast radius, identify the test surface, build a risk map, implement one bounded change at a time, validate, self-review.</p>
+    <div style="display:flex;gap:1.2rem;align-items:stretch;margin:1.5rem 0;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;padding:1rem 1.2rem;background:rgba(210,153,34,0.08);border-radius:8px;border-left:4px solid var(--accent-orange);">
+        <div style="color:var(--accent-orange);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">Instead of</div>
+        <code style="font-size:0.88rem;">Execute the plan in PLAN_FINAL.md</code>
+      </div>
+      <div style="flex:1;min-width:220px;padding:1rem 1.2rem;background:rgba(63,185,80,0.08);border-radius:8px;border-left:4px solid var(--accent-green);">
+        <div style="color:var(--accent-green);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">Use</div>
+        <code style="font-size:0.88rem;">Task: fix [description].<br>No plan file. Use RUN_PLAN.md methodology.</code>
+      </div>
+    </div>
+
+    <p>Skip only the "confirm plan matches code" step from Phase 0 &mdash; that step requires a plan document to compare against. Everything else is identical: find the owner and seam, map the blast radius, identify the test surface, build a risk map, implement one bounded change at a time, validate, self-review.</p>
 
     <div class="insight"><strong>The preflight catches more bugs than the fix does.</strong> When you force the AI to name the owner, list every caller, and build a risk map before touching a line of code, it routinely discovers that the bug is not where it appeared to be &mdash; or that the obvious fix would break a caller that was never mentioned. The plan document is an input to Phase 0, not the point of Phase 0. Without a plan, Phase 0 is still doing its job.</div>
 
-    <h3>When Unplanned Work Is Actually Riskier</h3>
-    <p>Counterintuitively, unplanned work often benefits <em>more</em> from the RUN_PLAN.md discipline than planned work does. A formal plan was written with the codebase in mind and has already been reviewed. An unplanned bug fix is improvised &mdash; the scope is unclear, the blast radius is unknown, and there is pressure to move fast. That is exactly when the preflight step earns its keep.</p>
+    <div style="padding:1rem 1.2rem;background:rgba(210,153,34,0.07);border-radius:8px;border-left:4px solid var(--accent-orange);margin:1rem 0;">
+      <strong style="color:var(--accent-orange);">Unplanned work is often riskier than planned work</strong>
+      <p style="margin:0.5rem 0 0;color:var(--text-secondary);font-size:0.92rem;">A formal plan was written with the codebase in mind and has been reviewed. An unplanned bug fix is improvised &mdash; the scope is unclear, the blast radius is unknown, and there is pressure to move fast. That is exactly when the preflight step earns its keep.</p>
+    </div>
 
     <div class="real-world">Create a slash command called <code>/fix</code> in <code>.claude/commands/fix.md</code> with the contents: <em>"We are fixing a bug. Before touching any file: restate the bug, find the owner and seam, list every caller of any function you will change, identify the test surface, and build a risk map. Then implement the smallest correct change. Validate with targeted tests and a build. Self-review for silent failures, data shape drift, and test gaps. Do not commit without explicit instruction."</em> One command loads the full discipline for any unplanned fix &mdash; no template to remember, no steps to skip.</div>
-
-    <h3>The Completion Report Still Applies</h3>
-    <p>Even for a small bug fix, the completion report matters. "What changed, in what file, callers verified, tests run, build status, what remains unvalidated" is not bureaucracy &mdash; it is the record that lets you (or a reviewer) judge whether the fix is actually safe to ship. Without it, you are trusting the AI's confidence, not its evidence.</p>
 
     <div class="analogy-human">Like an emergency maintenance procedure at a power plant. The written procedure exists for planned shutdowns. But when the emergency happens at 2 AM, the crew still follows the checklist &mdash; they do not improvise because there is no time. The checklist is fastest when the pressure is highest, because improvisation under pressure is where catastrophic mistakes happen. RUN_PLAN.md is that checklist for unplanned AI work.</div>
   </div>
