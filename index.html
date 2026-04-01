@@ -4518,11 +4518,11 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <div class="starthere-grid">
     <div class="starthere-card">
       <div class="starthere-who"><a class="tab-btn-inline" data-tab="casestudy" href="#">Case Study 1: Bad Start; Coding with AI</a></div>
-      <div class="starthere-path">One Saturday morning, too many AI consoles open, and a tool that grew to 403,000 lines of retrofitted architecture. The cost of skipping engineering on day 1 — documented in commits, line counts, and dollars.</div>
+      <div class="starthere-path">One Saturday morning, too many AI consoles open, and a tool that grew into a codebase of retrofitted architecture. The cost of skipping engineering on day 1 &mdash; documented in commits and dollars.</div>
     </div>
     <div class="starthere-card">
       <div class="starthere-who"><a class="tab-btn-inline" data-tab="casestudy2" href="#">Case Study 2: Retry; Engineering with AI</a></div>
-      <div class="starthere-path">Building a reMarkable-to-AI screen design pipeline from scratch &mdash; and documenting every architecture decision before writing a line of code.</div>
+      <div class="starthere-path">Building a tablet-to-AI screen design pipeline from scratch &mdash; and documenting every architecture decision before writing a line of code.</div>
     </div>
     <div class="starthere-card">
       <div class="starthere-who"><a class="tab-btn-inline" data-tab="runplan" href="#">How to Run a Plan</a></div>
@@ -4538,10 +4538,10 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:2rem;"><em>Building from the ground up with AI in mind &mdash; and documenting every step of the way</em></p>
 
   <h3>The Idea</h3>
-  <p>I want to use the occasion of a new product as a case study for doing AI-engineering &mdash; as opposed to AI-coding (documenting my steps along the way). The product: a tool that lets you draw your UI on a reMarkable tablet &mdash; screens, block diagrams, workflow sketches &mdash; and then feed those drawings directly into an AI so it can generate screen layout designs. The specific use case was building a new product from scratch with hand-drawn screen designs as the AI's input.</p>
+  <p>I want to use the occasion of a new product as a case study for doing AI-engineering &mdash; as opposed to AI-coding (documenting my steps along the way). The product: a tool that lets you draw your UI on a drawing tablet &mdash; screens, block diagrams, workflow sketches &mdash; and then feed those drawings directly into an AI so it can generate screen layout designs. The specific use case was building a new product from scratch with hand-drawn screen designs as the AI's input.</p>
   <p>The insight that makes this worth a case study is not the product itself. It is the discipline of how it was started. Everything in this story was done before a single line of production code was written.</p>
 
-  <div class="aha"><strong>This is how Case Study 1 should have started.</strong> The first case study documents what it costs to skip architecture on day 1 &mdash; 403,000 lines and months of retrofit. This case study documents what it looks like to not skip it. <a class="tab-btn-inline" data-tab="casestudy" href="#">Read Case Study 1 &rarr;</a></div>
+  <div class="aha"><strong>This is how Case Study 1 should have started.</strong> The first case study documents what it costs to skip architecture on day 1 &mdash; scores of change sets and a sustained retrofit effort. This case study documents what it looks like to not skip it. <a class="tab-btn-inline" data-tab="casestudy" href="#">Read Case Study 1 &rarr;</a></div>
 
   <h3>Pitfall Avoided: Turning Concept Into Product Too Fast</h3>
   <p>AI could already have a working product built by the time you finish writing this document. That is the trap. You double the time to the first exciting demo, and that takes willpower to accept. But it pays off in every subsequent week.</p>
@@ -4558,7 +4558,7 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <p>Don't talk about it. Do it. Before architecture docs, before POC, before any serious thinking &mdash; create the repo. Every decision made after this point is recorded somewhere. This is not optional.</p>
 
   <h4>2. Narrate the Idea in a Document</h4>
-  <p>Write down what the product is. Not code &mdash; prose. Describe it the way you would describe it to a colleague over lunch. In this case: "I want to draw screens on my reMarkable, photograph or export them, and feed those drawings into Claude so it can produce screen layout designs I can start coding from." That is the idea. Write it down before anything else.</p>
+  <p>Write down what the product is. Not code &mdash; prose. Describe it the way you would describe it to a colleague over lunch. In this case: "I want to draw screens on my drawing tablet, photograph or export them, and feed those drawings into Claude so it can produce screen layout designs I can start coding from." That is the idea. Write it down before anything else.</p>
   <p>This step is the design process. The act of writing forces you to make decisions you would otherwise defer. Vague ideas become concrete questions. Concrete questions reveal scope. Scope reveals what you actually need to build.</p>
 
   <h4>3. POC &mdash; Small Vibe Coding to Prove the Idea Works</h4>
@@ -5239,28 +5239,28 @@ failure modes.</code></pre>
   <p>The v9 arc was the reckoning. Not a rewrite &mdash; a systematic repair of every pattern that had been done wrong or duplicated across files. It ran from v9.0.0 through v9.9.8, across more than a dozen focused increments, and it cost more lines than all prior development combined.</p>
 
   <h3>The Graph That Started This Conversation</h3>
-  <p>All 98 commits aggregated by major version. Linear scale: 1 block = 10,000 lines. v8.x excludes the obfuscated build artifact (real code investment was 76,438 lines).</p>
+  <p>All 98 commits aggregated by major version. Each block represents a relative change wave. v8.x excludes the obfuscated build artifact.</p>
 
   <table class="compare-table" id="casestudy-version-table">
-    <thead><tr><th>Version</th><th>Commits</th><th>Change Size</th></tr></thead>
+    <thead><tr><th>Version</th><th>Commits</th><th>Relative Change Size</th></tr></thead>
     <tbody>
-      <tr><td>v1.x</td><td>14</td><td><span style="color:#bbb">████</span> <span style="color:#999">35,035</span></td></tr>
-      <tr><td>v2</td><td>13</td><td><span style="color:#bbb">█</span> <span style="color:#999">6,168</span></td></tr>
-      <tr><td>v3.x</td><td>7</td><td><span style="color:#bbb">█</span> <span style="color:#999">11,643</span></td></tr>
-      <tr><td>v4.x</td><td>2</td><td><span style="color:#bbb">█</span> <span style="color:#999">10,772</span></td></tr>
-      <tr><td>v5.x</td><td>7</td><td><span style="color:#bbb">█████████</span> <span style="color:#999">87,034</span></td></tr>
-      <tr><td>v6.x</td><td>2</td><td><span style="color:#bbb">█</span> <span style="color:#999">4,999</span></td></tr>
-      <tr><td>v7.x</td><td>1</td><td><span style="color:#bbb">█</span> <span style="color:#999">12,070</span></td></tr>
-      <tr><td>v8.x</td><td>7</td><td><span style="color:#bbb">████████</span> <span style="color:#999">76,438</span></td></tr>
-      <tr><td><strong>v9.x</strong></td><td><strong>45</strong></td><td><span style="color:var(--accent-red)">████████████████████████████████████████</span> <span style="color:#999">403,423</span></td></tr>
+      <tr><td>v1.x</td><td>14</td><td><span style="color:#bbb">████</span></td></tr>
+      <tr><td>v2</td><td>13</td><td><span style="color:#bbb">█</span></td></tr>
+      <tr><td>v3.x</td><td>7</td><td><span style="color:#bbb">█</span></td></tr>
+      <tr><td>v4.x</td><td>2</td><td><span style="color:#bbb">█</span></td></tr>
+      <tr><td>v5.x</td><td>7</td><td><span style="color:#bbb">█████████</span></td></tr>
+      <tr><td>v6.x</td><td>2</td><td><span style="color:#bbb">█</span></td></tr>
+      <tr><td>v7.x</td><td>1</td><td><span style="color:#bbb">█</span></td></tr>
+      <tr><td>v8.x</td><td>7</td><td><span style="color:#bbb">████████</span></td></tr>
+      <tr><td><strong>v9.x</strong></td><td><strong>45</strong></td><td><span style="color:var(--accent-red)">████████████████████████████████████████</span></td></tr>
     </tbody>
   </table>
-  <p>v9 is not close. 403k lines across 45 commits, against a combined 248k for all prior eras together. That bar is the architecture investment made visible.</p>
+  <p>v9 is not close. Scores of change sets across 45 commits, dwarfing all prior eras combined. That bar is the architecture investment made visible.</p>
 
-  <h3>The 403,000-Line Architecture Tax</h3>
+  <h3>The Architecture Tax</h3>
   <p><strong>Project:</strong> A multi-platform AI session manager for Windows Terminal<br>
   <strong>Language:</strong> PowerShell 5.1<br>
-  <strong>Timeline:</strong> January 2026 &mdash; March 2026 (approximately 10 weekends)<br>
+  <strong>Timeline:</strong> 10 weekends<br>
   <strong>Commits:</strong> 98 total<br>
   <strong>The question this case study answers:</strong> What does it cost when you skip architecture on day 1?</p>
 
@@ -5284,7 +5284,7 @@ failure modes.</code></pre>
   <h3>"A Rewrite Would Have Been Easier"</h3>
   <p>Looking at the graph, that thought is natural. Here is the direct answer.</p>
 
-  <p><strong>What the 403k lines actually contain:</strong> About 120k are tests. A rewrite needs tests too &mdash; written without the knowledge of which edge cases fail in production. About 40k are planning documents. The giant individual commits (v9.5.0 at 124k, v9.7.0 at 102k) are largely refactoring churn: the same lines deleted from one location and added to another. A 10k-line function that moves between files costs 20k in the diff. The real net change is zero.</p>
+  <p><strong>What the v9 change sets actually contain:</strong> A significant portion are tests. A rewrite needs tests too &mdash; written without the knowledge of which edge cases fail in production. Many are planning documents. The largest individual commits are largely refactoring churn: the same lines deleted from one location and added to another. A function that moves between files costs double in the diff. The real net change is zero.</p>
 
   <p><strong>What a rewrite would actually cost:</strong> Five Windows Terminal integration surfaces, each with non-obvious quirks. Five platform data formats reverse-engineered from live data. All discovered knowledge. A rewrite starts from zero. Most importantly: a rewrite is done under the same pressure that created the original architecture problems. The impulse to ship features beats the impulse to do it right. That is exactly what happened in v1 through v8.</p>
 
@@ -5293,7 +5293,7 @@ failure modes.</code></pre>
   <h3>The Actual Cost</h3>
   <p>At standard software engineering rates ($150&ndash;200/hr senior developer), the v9 arc represents:</p>
   <ul>
-    <li>45 commits over approximately 4 days of concentrated work (March 16&ndash;20, 2026)</li>
+    <li>45 commits over a concentrated sprint of focused work</li>
     <li>Estimated real developer hours: 60&ndash;100 hours</li>
     <li>At $175/hr: <strong>$10,500 &mdash; $17,500</strong> to retrofit architecture that cost nothing to establish</li>
   </ul>
@@ -5672,7 +5672,7 @@ Hold to them from the first commit.</code></pre>
 
   <p>Tests aren't quality hygiene in this context — they're the only thing that gives the AI memory of what the system is supposed to do.</p>
 
-  <p>A human developer carries architectural intent in their head. When they change module A, they remember module B depends on it. An AI has no such memory between sessions. It only knows what it can see — and in a codebase of 44,000 lines, it can't see everything. Tests are the exoskeleton that holds the shape of the system while the AI works inside it.</p>
+  <p>A human developer carries architectural intent in their head. When they change module A, they remember module B depends on it. An AI has no such memory between sessions. It only knows what it can see — and in a large codebase, it can't see everything. Tests are the exoskeleton that holds the shape of the system while the AI works inside it.</p>
 
   <div class="real-talk">
     <strong>Without tests:</strong>
