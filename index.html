@@ -4582,7 +4582,16 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <p>Feed the design document to more than one AI and ask each for an architecture plan. Then have them go back and forth until you reach a consensus. This is <strong>competitive planning</strong>: two AIs producing proposals, critiquing each other's work, and converging on something better than either would have produced alone.</p>
   <p>A practical note: ask each AI which of the two is better suited to <em>implement</em> a given component, and which is better suited to <em>review</em> it. They will give you honest answers, and those answers are useful.</p>
 
-  <div class="aha"><strong>There is a structured process for this.</strong> Competitive planning &mdash; where two AIs propose, critique, and converge on a final architecture &mdash; is powerful, but only if you also know how to hand that final plan to an AI for disciplined execution. The execution step is where plans most often go wrong. <a class="tab-btn-inline" data-tab="runplan" href="#">How to Run a Plan &rarr;</a></div>
+  <div class="aha">
+    <strong>There is a structured process for this.</strong> Competitive planning &mdash; where two AIs propose, critique, and converge on a final architecture &mdash; is powerful, but only if you also know how to hand that final plan to an AI for disciplined execution. The execution step is where plans most often go wrong.
+
+    <p style="margin-top:0.75rem;">The tool for this is <strong>RUN_PLAN.md</strong> &mdash; an execution-control prompt you place in your repository alongside the plan. It forces the AI through a mandatory preflight before touching a single file: restate the task, read the actual source (not summaries), find every caller of every function it will change, map the blast radius, identify the test surface, and build a risk map. Only then does it implement &mdash; one bounded change at a time &mdash; followed by targeted tests, a build, and a hostile self-review. It is the difference between an AI that codes from the plan document and one that codes from the codebase.</p>
+
+    <div style="margin-top:0.9rem;padding:0.75rem 1rem;background:rgba(88,166,255,0.12);border-radius:6px;border:1px solid rgba(88,166,255,0.25);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+      <span style="font-size:0.92rem;color:var(--text-primary);">The full process &mdash; competitive planning, dual-AI critique, merging to <code>PLAN_FINAL.md</code>, executing with RUN_PLAN.md, and Ralph Loops for unattended runs &mdash; is documented in one place.</span>
+      <a class="tab-btn-inline" data-tab="runplan" href="#" style="white-space:nowrap;font-weight:700;font-size:0.95rem;border:1px solid var(--accent-blue);padding:0.4rem 0.9rem;border-radius:6px;color:var(--accent-blue);">How to Run a Plan &rarr;</a>
+    </div>
+  </div>
 
   <div class="real-talk"><strong>As of March 2026: Codex is winning the implementation round more often than not.</strong> When the competitive planning process produces a final architecture plan and it is time to execute, Codex has been the better implementer in the majority of real-world tests. Claude tends to plan better; Codex tends to execute more precisely. This is not a permanent verdict &mdash; model capabilities shift quickly &mdash; but it is today's experience. When you reach Step 12, seriously consider handing the final plan to Codex rather than Claude.</div>
 
