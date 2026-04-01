@@ -466,6 +466,20 @@ tr.anthropic-row td { color: var(--text-primary); }
 
 /* === Making a Plugin page === */
 /* Case Study page */
+#casestudy2 h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin: 2rem 0 0.6rem;
+  padding-top: 1.25rem;
+  padding-bottom: 0.4rem;
+  border-top: 1px solid var(--border);
+}
+#casestudy2 h4:first-of-type {
+  border-top: none;
+  margin-top: 1rem;
+  padding-top: 0;
+}
 #casestudy h3 {
   font-size: 1.1rem;
   font-weight: 700;
