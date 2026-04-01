@@ -5224,6 +5224,47 @@ failure modes.</code></pre>
     <div class="analogy-human">Like an emergency maintenance procedure at a power plant. The written procedure exists for planned shutdowns. But when the emergency happens at 2 AM, the crew still follows the checklist &mdash; they do not improvise because there is no time. The checklist is fastest when the pressure is highest, because improvisation under pressure is where catastrophic mistakes happen. RUN_PLAN.md is that checklist for unplanned AI work.</div>
   </div>
 
+  <!-- Part 5: Ralph Loops -->
+  <div class="chapter">
+    <div class="chapter-number">V</div>
+    <h2>Ralph Loops: Autonomous Unattended Execution</h2>
+
+    <p>Everything covered so far assumes a human is in the loop &mdash; reviewing the preflight, approving each phase, reading the completion report. A Ralph Loop removes that assumption. It is a technique for wrapping an AI coding assistant in a bash loop that feeds its own output back into itself, running unattended until a goal is complete.</p>
+
+    <p>The name comes from Geoffrey Huntley, who pioneered the pattern with Claude Code. The loop runs something like this: feed the AI a PRD (product requirements document) or a plan file, let it work, capture the output, feed it back in as the next prompt, repeat until the task list is exhausted or the AI reports completion. No human sitting there approving each step.</p>
+
+    <div style="padding:1rem 1.2rem;background:var(--bg-secondary);border-radius:8px;border-left:4px solid var(--accent-purple);margin:1.5rem 0;">
+      <strong style="color:var(--accent-purple);">What a Ralph Loop looks like</strong>
+      <pre style="margin:0.6rem 0 0;font-size:0.82rem;line-height:1.6;white-space:pre-wrap;background:none;border:none;padding:0;color:var(--text-secondary);">while ! task_complete; do
+  output=$(claude --print "$(cat PROMPT.md)" 2>&amp;1)
+  echo "$output" >> session.log
+  update_prompt "$output"
+done</pre>
+      <p style="margin:0.6rem 0 0;font-size:0.85rem;color:var(--text-muted);">The AI's output on each iteration becomes input for the next. The loop drives itself forward until done.</p>
+    </div>
+
+    <h3>Where Ralph Loops Fit in This Page's Framework</h3>
+    <p>A Ralph Loop is the execution layer taken to its logical extreme. RUN_PLAN.md is the discipline that makes a Ralph Loop safe rather than chaotic. Without it, the loop will happily execute the wrong seam, miss callers, skip tests, and declare completion on each iteration &mdash; with no human noticing until the damage accumulates. With it, each iteration begins with a preflight, implements one bounded change, validates, and reports before the loop feeds the next iteration.</p>
+
+    <div class="insight"><strong>The PRD is the plan file.</strong> In a Ralph Loop, the product requirements document plays the role of <code>PLAN_FINAL.md</code>. It defines the goal. RUN_PLAN.md defines how each iteration of the loop executes toward that goal. Together they turn an unattended loop into something with engineering discipline baked in.</div>
+
+    <h3>When to Use a Ralph Loop</h3>
+    <p>Ralph Loops are most effective when:</p>
+    <ul>
+      <li>The task is well-defined in a PRD and the acceptance criteria are unambiguous</li>
+      <li>The codebase has strong test coverage — tests are the only feedback mechanism when no human is watching</li>
+      <li>The work decomposes into independent steps that each produce a verifiable, committable result</li>
+      <li>You have a build and test command that exits non-zero on failure, giving the loop a clean stop signal</li>
+    </ul>
+
+    <div class="real-talk"><strong>A Ralph Loop on a poorly tested codebase is a confidence machine, not a delivery machine.</strong> It will produce output. The output will look done. Without tests to verify correctness on each iteration, there is no signal distinguishing "working" from "plausible." The loop completes. The code ships. The bugs were always there.</div>
+
+    <h3>The Human's Role in a Ralph Loop</h3>
+    <p>Unattended does not mean unsupervised. The human sets up the loop, writes the PRD with precision, defines the stop condition, and reviews the session log after each run. The loop is an accelerator, not an abdication. Think of it as overnight compilation: you set it going, sleep, and review what it built in the morning &mdash; but you designed what it was supposed to build, and you decide whether it actually did.</p>
+
+    <div class="analogy">Like a factory running overnight. The machines run without operators. But the production engineer designed the jigs, set the tolerances, wrote the quality check at the end of the line, and reviews the morning report. The automation executes the discipline the human encoded. A Ralph Loop is that factory. RUN_PLAN.md is the jig.</div>
+  </div>
+
 </section>
 
 <section id="casestudy" class="tab-panel">
