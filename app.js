@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuiz('bonusquiz', bonusQuestions);
   initQuiz('pluginquiz', pluginQuestions);
   initWizard();
+  handleInitialHash();
 });
 
 // === Tab Navigation ===
@@ -22,6 +23,7 @@ function goToAnchor(tabId, anchorId) {
     const offset = header ? header.getBoundingClientRect().height + 12 : 80;
     const top = el.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    history.replaceState(null, '', '#' + anchorId);
   }, 50);
 }
 
@@ -33,7 +35,45 @@ function switchTab(tabId) {
   const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
   if (btn) btn.classList.add('active');
   const panel = document.getElementById(tabId);
-  if (panel) panel.classList.add('active');
+  if (panel) {
+    panel.classList.add('active');
+    history.pushState(null, '', '#' + tabId);
+  }
+}
+
+function handleInitialHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  const el = document.getElementById(hash);
+  if (!el) return;
+  if (el.classList.contains('tab-panel')) {
+    // Hash is a tab ID — activate it without pushing another history entry
+    const btns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    btns.forEach(b => b.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    const btn = document.querySelector(`.tab-btn[data-tab="${hash}"]`);
+    if (btn) btn.classList.add('active');
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  } else {
+    // Hash is an anchor inside a tab — find the tab and activate it, then scroll
+    const panel = el.closest('.tab-panel');
+    if (!panel) return;
+    const btns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    btns.forEach(b => b.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    const btn = document.querySelector(`.tab-btn[data-tab="${panel.id}"]`);
+    if (btn) btn.classList.add('active');
+    panel.classList.add('active');
+    setTimeout(() => {
+      const header = document.querySelector('.site-header');
+      const offset = header ? header.getBoundingClientRect().height + 12 : 80;
+      const top = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+    }, 50);
+  }
 }
 
 function initTabs() {
@@ -71,7 +111,12 @@ function initTabs() {
   document.querySelectorAll('.tab-btn-inline').forEach(a => {
     a.addEventListener('click', e => {
       e.preventDefault();
-      switchTab(a.dataset.tab);
+      if (a.dataset.anchor) {
+        goToAnchor(a.dataset.tab, a.dataset.anchor);
+      } else {
+        switchTab(a.dataset.tab);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     });
   });
 
