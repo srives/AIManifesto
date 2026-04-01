@@ -1423,3 +1423,40 @@ pre code {
   .path-table td:first-child { white-space: normal; }
   .quiz-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
 }
+
+/* === Tab Link Copy Icon === */
+.tab-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.2rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+  vertical-align: middle;
+}
+.tab-link-icon:hover {
+  color: var(--accent-blue);
+  background: rgba(88, 166, 255, 0.1);
+}
+.tab-link-icon.copied {
+  color: var(--accent-green);
+}
+.tab-link-icon.copied::after {
+  content: 'Copied!';
+  position: absolute;
+  background: var(--bg-tertiary);
+  color: var(--accent-green);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 0.25rem;
+  pointer-events: none;
+}

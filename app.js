@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuiz('bonusquiz', bonusQuestions);
   initQuiz('pluginquiz', pluginQuestions);
   initWizard();
+  initTabLinkIcons();
   handleInitialHash();
 });
 
@@ -39,6 +40,35 @@ function switchTab(tabId) {
     panel.classList.add('active');
     history.pushState(null, '', '#' + tabId);
   }
+}
+
+// === Tab Link Copy Icons ===
+function initTabLinkIcons() {
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    const h2 = panel.querySelector('h2');
+    if (!h2) return;
+    const btn = document.createElement('button');
+    btn.className = 'tab-link-icon';
+    btn.title = 'Copy link to this page';
+    btn.setAttribute('aria-label', 'Copy link to this page');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const url = window.location.origin + window.location.pathname + '#' + panel.id;
+      navigator.clipboard.writeText(url).then(() => {
+        btn.classList.add('copied');
+        btn.title = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.title = 'Copy link to this page';
+        }, 2000);
+      });
+    });
+    h2.style.display = 'flex';
+    h2.style.alignItems = 'center';
+    h2.style.gap = '0.5rem';
+    h2.appendChild(btn);
+  });
 }
 
 function handleInitialHash() {
