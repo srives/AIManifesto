@@ -395,6 +395,12 @@
 
     <div class="aha"><strong>CLAUDE.md is not unique to Claude.</strong> Codex uses a file called <code>AGENT.md</code> in the same way — loaded at session start, same purpose, same format. If you have a well-crafted CLAUDE.md, you can copy it to <code>AGENT.md</code> and Codex will pick it up. Your architecture decisions, coding rules, and anti-patterns travel with you to a different AI tool with zero extra work.</div>
 
+    <h3>Architectural Work: Mandatory Constraint Extraction</h3>
+    <p>For any architectural task involving design docs, refactors, or authority changes, a critical gate exists: <strong>constraint extraction must happen before code is written.</strong></p>
+    <p><strong>The process:</strong> You write constraint extraction to a file (<code>.constraint-extraction.md</code>), the human reviews it for completeness, explicitly approves it, and only then does code writing begin. If code is attempted without approved constraint extraction, the commit is rejected.</p>
+    <p>This is not behavioral self-regulation. It is a structural gate: the human sees the file, reviews it, confirms it is correct, and blocks the next step until it is. This prevents architectural decisions from being embedded in code and discovered in review. Constraints are extracted and approved first.</p>
+    <p><strong>Why this matters:</strong> Architectural work fails when constraints are implicit. Making them explicit before code forces clarity. Code written from unclear constraints requires rework. Code written from approved constraints rarely does. This single gate eliminates an entire class of architectural rework.</p>
+
     <div class="aha"><strong>Need a ready-made CLAUDE.md?</strong> The Case Studies section has a 13-rule architectural template derived from a real production project, with a wizard that generates a customized file for your project in seconds. Works for Codex too — it produces <code>AGENTS.md</code>. <a class="tab-btn-inline" data-tab="casestudy" data-anchor="anchor-day1prompt" href="#">Generate Your Day-1 File &rarr;</a></div>
 
     <div class="real-world"><strong>Prevent Code Drift</strong> — CLAUDE.md rules are only as good as the comments that reinforce them. Two practical resources:
@@ -4525,6 +4531,10 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
       <div class="starthere-path">Building a tablet-to-AI screen design pipeline from scratch &mdash; and documenting every architecture decision before writing a line of code.</div>
     </div>
     <div class="starthere-card">
+      <div class="starthere-who"><a class="tab-btn-inline" data-tab="casestudy3" href="#">Case Study 3: Falling Between the Cracks</a></div>
+      <div class="starthere-path">The engineering terms that will kill you if you are unaware of them. Why boundary violations spread while algorithm bugs stay local, and what they look like when AI writes across them.</div>
+    </div>
+    <div class="starthere-card">
       <div class="starthere-who"><a class="tab-btn-inline" data-tab="runplan" href="#">How to Run a Plan</a></div>
       <div class="starthere-path">The dual-AI planning process &mdash; competitive planning, critique, and convergence &mdash; plus the execution-control prompt that prevents the seven failure modes that kill AI implementations.</div>
     </div>
@@ -4595,6 +4605,13 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
 
   <div class="real-talk"><strong>As of March 2026: Codex is winning the implementation round more often than not.</strong> When the competitive planning process produces a final architecture plan and it is time to execute, Codex has been the better implementer in the majority of real-world tests. Claude tends to plan better; Codex tends to execute more precisely. This is not a permanent verdict &mdash; model capabilities shift quickly &mdash; but it is today's experience. When you reach Step 12, seriously consider handing the final plan to Codex rather than Claude.</div>
 
+  <h4>6b. Extract and Approve Constraints Before Code</h4>
+  <p>Before the AI touches a single line of code, there is a critical gate: <strong>constraint extraction and approval.</strong></p>
+  <p>Have the AI write a <code>.constraint-extraction.md</code> file that extracts every architectural constraint, decision, boundary, and assumption from the final plan. This file is not code. It is the explicit statement of "what must be true for this code to be correct."</p>
+  <p>You review this file. You look for gaps, missing cases, forgotten boundaries. You ask questions. You push back if constraints are unclear. Only when this file is complete and correct do you approve it explicitly.</p>
+  <p><strong>Only after approval does code begin.</strong> If code appears without approved constraint extraction, the commit is rejected and pointed back to the constraint file. This is not optional.</p>
+  <p>Why does this matter? Architectural work fails when constraints are implicit. They get embedded in code, discovered in review, and require rework. Making them explicit first prevents the entire class of architectural rework. Constraints extracted and approved before code almost never surface as bugs later.</p>
+
   <h4>7. Bootstrap from Your Prior Work</h4>
   <p>Have the AI consume your <code>CLAUDE.md</code> and <code>AGENTS.md</code> from previous projects, and update them to become this project's founding documents. This is a critical step. It takes your engineering discoveries from prior work &mdash; every rule that came from something that actually broke &mdash; and puts this project on a good footing before a line of code is written.</p>
   <p>You are not starting from scratch. You are transferring institutional knowledge.</p>
@@ -4617,6 +4634,22 @@ History belongs in git log and CHANGELOG.md — not in source code.</code></pre>
   <h4>12. Implement One Small Feature, Test, Check In</h4>
   <p>Now you are ready to build. Take the smallest complete feature from the master plan. Implement it. Run the tests. Check in. Repeat.</p>
   <p>The velocity from here feels slower than pure vibe coding. But it compounds. Features land without breaking previous features. The AI has a shared understanding of the architecture. Additions fit because the structure was designed to accept them.</p>
+
+  <p><strong>Execute each feature using RUN_PLAN.md as your constraint.</strong> Write a feature-specific plan (e.g., <code>add-user-authentication.md</code>), then hand it to the AI with this command:</p>
+  <div class="code-container">
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('Execute add-user-authentication.md using RUN_PLAN.md as your rule and constraint. Complete Phase 0 preflight first, then implement one bounded change at a time. Run tests after each change.')">Copy</button>
+    <pre><code>Execute add-user-authentication.md using RUN_PLAN.md as your
+rule and constraint. Complete Phase 0 preflight first, then
+implement one bounded change at a time. Run tests after each change.</code></pre>
+  </div>
+
+  <p>After each feature lands, do a hostile code review to catch local bugs, and a tough review using PR_TOUGH.md to catch architectural drift:</p>
+  <div class="code-container">
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('Do a hostile review of add-user-authentication work, then a tough architectural review using PR_TOUGH.md. Output both to PR_AUTH_FINDINGS.md. Block merge if CRITICAL.')">Copy</button>
+    <pre><code>Do a hostile review of add-user-authentication work, then a
+tough architectural review using PR_TOUGH.md. Output both to
+PR_AUTH_FINDINGS.md. Block merge if CRITICAL.</code></pre>
+  </div>
 
   <h3>What This Avoids</h3>
   <p>Case Study 1 is the counter-example. Every step above corresponds to something that was skipped there and had to be paid for in v9:</p>
@@ -4757,6 +4790,210 @@ Rules:
 
   <div class="aha">Run a hostile review after every feature lands, before you merge. The five minutes it takes to write the prompt will save you the hours it takes to debug the bug it would have caught.</div>
 
+  <h3>Architectural Code Review with PR_TOUGH.md</h3>
+  <p>The hostile review above catches bugs in individual features. But code can be locally correct and architecturally wrong: canonical truth split across files, boundaries violated, caches treated as authoritative, old patterns preserved under new names.</p>
+  <p><strong>PR_TOUGH.md</strong> is a framework for catching that class of drift. It defines nine categories of architectural violation specific to your documented architecture, and structures reviews to hunt for them systematically. Copy <code>PR_TOUGH.md</code> from the root of this repository into your project, customize the nine categories to match your architecture, and use it to review changes that touch core boundaries.</p>
+
+  <h4>When to Use PR_TOUGH.md</h4>
+  <p>Use PR_TOUGH.md instead of (or in addition to) hostile review when:</p>
+  <ul>
+    <li>Your commit touches core architectural seams — data storage, canonical authority, namespace boundaries</li>
+    <li>Your commit modifies tests, build manifests, or docs claiming that architectural cleanup is finished</li>
+    <li>Your AI-generated code lands and you need to verify it respects documented boundaries</li>
+    <li>The diff is large enough to risk old architectural assumptions sneaking in under new names</li>
+  </ul>
+
+  <h4>Sample Prompts</h4>
+  <p><strong>For a specific feature review:</strong></p>
+  <div class="code-container">
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('Do an architectural PR review using PR_TOUGH.md as your constraint. Review the current state of the [feature-name] work. Put the output in PR_TOUGH_FINDINGS.md, overwriting if it exists. Start with findings ordered by severity.')">Copy</button>
+    <pre><code>Do an architectural PR review using PR_TOUGH.md as your constraint.
+Review the current state of the [feature-name] work.
+Put the output in PR_TOUGH_FINDINGS.md, overwriting if it exists.
+Start with findings ordered by severity.</code></pre>
+  </div>
+
+  <p><strong>For review immediately after code execution:</strong></p>
+  <div class="code-container">
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('You just executed my-feature.md. Now do a tough review using PR_TOUGH.md. Review [file/directory] for architectural drift against AGENTS.md. Output to PR_FINDINGS.md. If CRITICAL, surface it immediately.')">Copy</button>
+    <pre><code>You just executed my-feature.md. Now do a tough review using PR_TOUGH.md.
+Review [file/directory] for architectural drift against AGENTS.md.
+Output to PR_FINDINGS.md.
+If CRITICAL, surface it immediately.</code></pre>
+  </div>
+
+  <p><strong>For cleanup verification:</strong></p>
+  <div class="code-container">
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('Using PR_TOUGH.md, review whether the cleanup claimed in the commit message actually happened in the code. Check that old patterns are really gone, not just renamed. Output to PR_CLEANUP_VERIFICATION.md.')">Copy</button>
+    <pre><code>Using PR_TOUGH.md, review whether the cleanup claimed in the
+commit message actually happened in the code. Check that old
+patterns are really gone, not just renamed.
+Output to PR_CLEANUP_VERIFICATION.md.</code></pre>
+  </div>
+
+</section>
+
+<section id="casestudy3" class="tab-panel">
+
+  <h2>Falling Between the Cracks: The Engineering Terms That Will Kill You</h2>
+  <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:2rem;"><em>Why boundary violations spread while algorithm bugs stay local, and the five terms that separate muddy architectures from clean ones</em></p>
+
+  <h3>The Real Cost of Long-Lived Codebases</h3>
+  <p>Most software pain is not "the loop was wrong" or "the API call failed." Long-lived codebase suffering is almost always:</p>
+  <ul>
+    <li>Code in the wrong namespace</li>
+    <li>Broken boundaries</li>
+    <li>Muddy contracts</li>
+    <li>Too many entry points for the same behavior</li>
+    <li>No clean handoff between responsibilities</li>
+  </ul>
+  <p><strong>Algorithm bugs are local.</strong> You fix a loop and one feature works. <strong>Boundary bugs spread.</strong> You fix canonical truth in one place and six other places still have the wrong copy. That is why the pain feels sticky.</p>
+
+  <h3>Five Terms That Matter More Than You Think</h3>
+  <p>These are not jargon for its own sake. They are labels for the failure modes that keep costing you time. Understand them and you can prevent entire categories of problems. Ignore them and AI will write code that violates each one, and you will spend months cleaning it up.</p>
+
+  <h4>1. Namespace — Where Code Lives</h4>
+  <p><strong>Definition:</strong> The directory or module where a piece of code belongs. Namespace is about ownership and responsibility, not just file location.</p>
+  <p><strong>Example:</strong> <code>src/session/</code> owns session lifecycle. <code>src/ui/</code> owns rendering. <code>src/wt/</code> owns Windows Terminal integration.</p>
+  <p><strong>The violation:</strong> UI code writing canonical session records. WT code mutating session state directly. Session code doing rendering.</p>
+  <p><strong>Why it matters:</strong> When responsibilities leak across namespaces, you cannot change one part without breaking another. A small refactor becomes an excavation.</p>
+
+  <h4>2. Boundary — Who May Do What</h4>
+  <p><strong>Definition:</strong> The rule about what is allowed to cross between namespaces. A boundary says "this side may call that side, but not vice versa" or "data may flow this direction, but not that one."</p>
+  <p><strong>Example:</strong> UI may call session service. Session service must not call UI. Temporary launch data may not become canonical session state.</p>
+  <p><strong>The violation:</strong> Session code calling back into UI. Temporary state persisting as if it were durable. A boundary that exists in docs but not in code.</p>
+  <p><strong>Why it matters:</strong> Boundaries prevent circular dependencies and make it safe to refactor one side without touching the other. A muddy boundary means you cannot refactor either side without risking silent breakage.</p>
+
+  <h4>3. Contract — What Is Promised at the Boundary</h4>
+  <p><strong>Definition:</strong> The explicit agreement about what will happen when you call a function or cross a boundary. Shape of data, behavior on success and failure, invariants that remain true, side effects that will not happen.</p>
+  <p><strong>Example:</strong> <code>Resolve-Launch</code> returns success only after uniqueness is proven. Launching twice with the same parameters returns the same session key. Canonical records cannot contain temporary fields.</p>
+  <p><strong>The violation:</strong> A function that sometimes writes state, sometimes doesn't, depending on context. Data shapes that change between callers. Success that does not guarantee the promised invariant actually holds.</p>
+  <p><strong>Why it matters:</strong> A broken contract means the caller cannot trust the result. If the contract is ambiguous, tests pass but code breaks in production. If contracts are enforced everywhere, you can reason about the system.</p>
+
+  <h4>4. Entry Point — Where a Flow Starts</h4>
+  <p><strong>Definition:</strong> The specific function or file where a behavior begins. Not just "we handle launches" but "launches begin at <code>Start-ManagedSessionLaunch</code>, and that is the only place where a launch can be initiated."</p>
+  <p><strong>Example:</strong> User launching a session always goes through <code>Start-ManagedSessionLaunch</code>. Platform discovery always goes through <code>Resolve-PlatformSession</code>. Canonical records always created by <code>New-CanonicalRecord</code>.</p>
+  <p><strong>The violation:</strong> Multiple functions that both launch sessions. Three different ways to discover platforms. Canonical records created inline in five places.</p>
+  <p><strong>Why it matters:</strong> If there are multiple entry points, each one becomes a place where assumptions can diverge. One path creates records with field A, another with field B. One path validates, another does not. The more entry points, the more places the contract can break.</p>
+
+  <h4>5. Seam — The Narrow Handoff Where Behavior Can Be Swapped</h4>
+  <p><strong>Definition:</strong> The intentionally narrow place where one responsibility hands off to another, or where behavior can be swapped out, tested in isolation, or refactored without touching anything else.</p>
+  <p><strong>Example:</strong> "Platform-targeted launch resolution" is a seam. The overall launch flow is the same for all platforms. Each platform implements its own targeted query behind the same flow. You can swap the platform query logic without touching the flow.</p>
+  <p><strong>The violation:</strong> The handoff between session behavior and WT transport is not cleanly isolated. Some behavior lives in the wrong place. The old code and new code coexist, and you cannot tell which path runs when.</p>
+  <p><strong>Why it matters:</strong> A good seam lets you replace one part without corrupting others. A muddy seam means every change carries the risk of invisible breakage. Clean seams make testing easier (you can test each side independently) and refactoring safer (you know the boundary will hold).</p>
+
+  <h3>The Damage Pattern: How These Terms Break Down</h3>
+  <p>In a real codebase with real pain, the failure pattern is almost always this sequence:</p>
+
+  <div style="display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;">
+    <div style="padding:1rem 1.2rem;background:var(--bg-secondary);border-left:4px solid var(--accent-red);border-radius:4px;">
+      <strong style="color:var(--accent-red);">Step 1: One concern starts writing another concern's state</strong>
+      <p style="margin:0.5rem 0 0;color:var(--text-secondary);font-size:0.92rem;">UI code creates session records because it is faster than calling the session service. Boundary violation.</p>
+    </div>
+
+    <div style="padding:1rem 1.2rem;background:var(--bg-secondary);border-left:4px solid var(--accent-red);border-radius:4px;">
+      <strong style="color:var(--accent-red);">Step 2: Temporary state gets treated like canonical state</strong>
+      <p style="margin:0.5rem 0 0;color:var(--text-secondary);font-size:0.92rem;">A launch record that was meant to be transient gets persisted. Now it exists in two places: the canonical location and the temp location. Contract violation.</p>
+    </div>
+
+    <div style="padding:1rem 1.2rem;background:var(--bg-secondary);border-left:4px solid var(--accent-red);border-radius:4px;">
+      <strong style="color:var(--accent-red);">Step 3: Helper placement blurs ownership</strong>
+      <p style="margin:0.5rem 0 0;color:var(--text-secondary);font-size:0.92rem;">A helper function that should be in namespace A gets placed in namespace B because that is where it is called. Now nobody knows who owns it. Namespace violation.</p>
+    </div>
+
+    <div style="padding:1rem 1.2rem;background:var(--bg-secondary);border-left:4px solid var(--accent-red);border-radius:4px;">
+      <strong style="color:var(--accent-red);">Step 4: Old and new paths coexist</strong>
+      <p style="margin:0.5rem 0 0;color:var(--text-secondary);font-size:0.92rem;">You try to fix the mess by adding a new path that does it right. But the old path is still there. Now the same behavior has two entry points. Neither is definitive. Both encode different assumptions. Entry point violation.</p>
+    </div>
+
+    <div style="padding:1rem 1.2rem;background:var(--bg-secondary);border-left:4px solid var(--accent-red);border-radius:4px;">
+      <strong style="color:var(--accent-red);">Step 5: Cleanup logic cannot tell what is safe to delete</strong>
+      <p style="margin:0.5rem 0 0;color:var(--text-secondary);font-size:0.92rem;">You want to retire the old path. But you cannot tell if other code still depends on it. The seam is too muddy. So you leave it. The mess compounds.</p>
+    </div>
+  </div>
+
+  <p>This is the cycle that keeps killing long-lived codebases. It is not that the code is badly written. It is that these five boundaries eroded, and now you cannot tell what is safe to change.</p>
+
+  <h3>How AI Makes This Worse</h3>
+  <p>AI violates these categories with remarkable consistency, especially when unaware of them:</p>
+  <ul>
+    <li><strong>Namespace violation:</strong> "I'll put this helper right where it is called, in the UI file, because it is easier." Now the helper is in the wrong namespace and you cannot reuse it from session code without pulling UI code with it.</li>
+    <li><strong>Boundary violation:</strong> "UI code needs to update the session, so I'll call the write function directly from the UI handler." Now UI is writing canonical state and you cannot change the canonical storage without breaking UI.</li>
+    <li><strong>Contract violation:</strong> "This function sometimes returns null, sometimes a partial object, sometimes a full object. The caller will figure it out." Now the caller writes defensive code everywhere and contracts become unreadable.</li>
+    <li><strong>Entry point violation:</strong> "There are three places that need to launch sessions, so I'll add launch logic in each one." Now launches behave differently depending on which entry point is called, and testing one does not prove the others work.</li>
+    <li><strong>Seam violation:</strong> "The old implementation and the new one should coexist for now, for safety." Now nobody knows which one runs when, and you cannot retire either one without risking invisible breakage.</li>
+  </ul>
+
+  <h3>What To Do About It</h3>
+  <p><strong>Before AI writes code:</strong> Tell it the terms. Define your namespaces, boundaries, and contracts explicitly in CLAUDE.md. Name your entry points. Identify your seams. The clearer you are, the better the AI respects them.</p>
+  <p><strong>During code review:</strong> Use these terms in your review. Do not just say "this looks wrong." Say "this violates the boundary between session and UI" or "this creates a second entry point that will diverge." Be specific about which term is broken.</p>
+  <p><strong>When the AI proposes helper placement:</strong> Ask whether it belongs in the namespace where it is defined, or whether it is masquerading as something it is not.</p>
+  <p><strong>When cleanup is claimed:</strong> Verify that old paths are actually gone, not just renamed. Use the five terms as your checklist.</p>
+
+  <div class="aha"><strong>The antidote to boundary chaos is relentless clarity on these five terms.</strong> Write them down. Use them in conversation with the AI. Reference them in code review. When you see a violation, name it using these terms, not vague criticism. The moment these boundaries become part of your team's vocabulary, the pain of boundary bugs becomes visible — and preventable.</div>
+
+  <h3 style="margin-top:2rem;color:var(--accent-purple);">Future Possibility: Better Than Faster</h3>
+
+  <p><strong>Today's AI behaves like a very fast implementer, a mediocre architect, and an inconsistent custodian of invariants.</strong> It is strong at local tasks: code generation, pattern matching, mechanical refactors, filling in implementation once the shape is clear. It is much weaker at the architectural work: preserving intent across many files, killing old paths instead of extending them, noticing that a "working" shortcut violates a boundary, maintaining discipline when a hack is locally convenient.</p>
+
+  <p>The result is useful—faster coding than humans can do by hand. But it also creates a cleanup tax: after implementation, you spend weeks catching boundary violations that were locally convenient at the time, removing old paths that the AI preserved "just in case," and enforcing invariants that the AI ignored when they would have slowed down the code generation.</p>
+
+  <h4>What Current AI Excels At</h4>
+  <ul>
+    <li>Local code generation within a single file or function</li>
+    <li>Pattern matching — recognizing similar patterns in existing code and repeating them</li>
+    <li>Mechanical refactors — moving code, renaming variables, restructuring without changing behavior</li>
+    <li>Filling in implementation details once the shape is clear — given a function signature and docstring, producing the body</li>
+  </ul>
+
+  <h4>What Current AI Struggles With</h4>
+  <ul>
+    <li>Preserving architectural intent across many files — knowing that a decision made in one namespace should prevent a certain pattern in another</li>
+    <li>Killing old paths instead of extending them — actively removing code instead of preserving both old and new ways</li>
+    <li>Noticing that a "working" shortcut violates a boundary — recognizing when code that passes tests is architecturally wrong</li>
+    <li>Maintaining discipline when a hack is locally convenient — resisting the temptation to violate a boundary because it would make the current task faster</li>
+  </ul>
+
+  <h4>What Would Change Everything</h4>
+
+  <p>The jump in usefulness would not come from being faster at coding. It would come from being better at architecture:</p>
+
+  <ul>
+    <li><strong>Stronger architectural memory.</strong> The AI would hold the full model of your namespaces, boundaries, contracts, and seams in active memory throughout implementation. Not as a checklist to read once, but as a constraint that guides every decision.</li>
+    <li><strong>Stricter contract obedience.</strong> When a contract says "this function must guarantee uniqueness," the AI enforces it everywhere. When a boundary says "this side may not call that side," the AI refuses to cross it, even if crossing would make the code faster.</li>
+    <li><strong>Better detection of boundary drift.</strong> The AI notices when a shortcut being taken is actually a boundary violation in disguise. It actively surfaces these, rather than letting them pass as "working code."</li>
+    <li><strong>Refusal to preserve legacy paths unless explicitly told.</strong> When refactoring, the AI removes old code, not extends it. It does not keep the old way "just in case." You get a clean transition, not a muddy coexistence.</li>
+    <li><strong>Active protection of invariants even when a shortcut would be faster.</strong> The AI sacrifices speed for correctness. It takes the longer path that preserves an invariant, instead of the short path that violates it but lets the tests pass.</li>
+  </ul>
+
+  <p><strong>With these shifts, the cleanup tax would drop dramatically.</strong> Right now, 30–40% of the work after AI implementation is catching and fixing boundary violations, removing preserved old paths, and enforcing forgotten invariants. If AI actively protected those boundaries instead of just respecting them when told, the post-implementation work would shrink to testing, optimization, and integration. That would be a real jump in usefulness—not just faster coding, but cleaner coding that requires less cleanup.</p>
+
+  <p>That is not here yet. But it is the gap to watch for in future systems. When you evaluate a new AI tool, ask not "how fast can it code?" but "how well does it understand and enforce my architecture?" Speed is commoditized. Architectural discipline is still rare.</p>
+
+  <h3 style="margin-top:2rem;color:var(--accent-green);">Retrospective: The Real Skill Is Not Writing Rules</h3>
+
+  <p>It seems the problem is not adding enough guardrails and `.md` rules. <strong>The real problem is that you yourself need to know these ideas.</strong> The rules help, but only if you can recognize when the model is violating the underlying concept. Otherwise, the model can appear compliant while still drifting.</p>
+
+  <p>This is the hard truth: <strong>the durable skill is not "write more rules." It is being able to spot the violation yourself.</strong></p>
+
+  <p>Can you see when code is in the wrong namespace? Can you spot a boundary leaking across layers? Can you tell when temporary state is being treated as canonical authority? Can you recognize when a contract has gone ambiguous? Can you tell which old paths should have died instead of being preserved?</p>
+
+  <p>Once you develop that eye, the documentation becomes a sharper tool instead of fragile hope. Instead of hoping the AI internalized the rules, you actively catch violations as they happen and call them by their true name:</p>
+
+  <ul>
+    <li>"No, this is dual authority. Temporary state cannot be treated as canonical."</li>
+    <li>"No, this crosses the boundary. UI code must not mutate session records."</li>
+    <li>"No, this scratch artifact does not belong in canonical state."</li>
+    <li>"Delete the old path. We are not preserving both ways."</li>
+    <li>"This violates the contract. The function promised uniqueness. Now it does not."</li>
+  </ul>
+
+  <p>That feedback is much stronger than handing the AI a rule file and trusting it to internalize the philosophy. It is real time, specific, and tied to the actual code.</p>
+
+  <p><strong>The documents matter.</strong> They give you a language and a framework. They help you think clearly. But they are not a substitute for developing your own ability to see the patterns. The moment you can recognize a namespace violation or a boundary leak without consulting a rule, the documents stop being your guardrails and become your tools.</p>
+
+  <p>That is why these five terms—namespace, boundary, contract, entry point, seam—are worth internalizing. Not because they are clever terminology, but because once you see them, you cannot unsee them. And once you cannot unsee them, you can protect your architecture in real time instead of cleaning up drift afterward.</p>
+
 </section>
 
 <!-- ============================================ -->
@@ -4881,6 +5118,32 @@ Rules:
         <span style="color:var(--accent-green);font-weight:700;font-size:0.85rem;min-width:1.5rem;flex-shrink:0;">5</span>
         <span style="color:var(--text-secondary);font-size:0.92rem;">Review the preflight. If the plan is stale or the blast radius is larger than expected, adjust before proceeding.</span>
       </div>
+    </div>
+
+    <h3 style="margin-top:1.5rem;">Sample Execution Prompts</h3>
+
+    <p><strong>Basic plan execution:</strong></p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('Execute my-feature.md using RUN_PLAN.md as your constraint. Complete the preflight first, then proceed with implementation.')">Copy</button>
+      <pre><code>Execute my-feature.md using RUN_PLAN.md as your constraint.
+Complete the preflight first, then proceed with implementation.</code></pre>
+    </div>
+
+    <p><strong>Plan execution with architectural review:</strong></p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('Execute refactor-auth.md using RUN_PLAN.md. After implementation, do a tough review using PR_TOUGH.md and output findings to PR_REFACTOR_FINDINGS.md.')">Copy</button>
+      <pre><code>Execute refactor-auth.md using RUN_PLAN.md.
+After implementation, do a tough review using PR_TOUGH.md
+and output findings to PR_REFACTOR_FINDINGS.md.</code></pre>
+    </div>
+
+    <p><strong>High-risk execution with mandatory preflight review:</strong></p>
+    <div class="code-container">
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('Execute the plan using RUN_PLAN.md. Write the full Phase 0 preflight to PREFLIGHT.md and wait for my approval before touching any code. Do not proceed without explicit go/no-go from me.')">Copy</button>
+      <pre><code>Execute the plan using RUN_PLAN.md.
+Write the full Phase 0 preflight to PREFLIGHT.md
+and wait for my approval before touching any code.
+Do not proceed without explicit go/no-go from me.</code></pre>
     </div>
 
     <div class="insight"><strong>Require a preflight report before implementation on any risky change.</strong> For routine work, you can let the AI proceed after a brief Phase 0 summary. For anything that touches shared data, external contracts, or critical paths, require a full written preflight before a single file is edited. The report makes the AI's assumptions visible &mdash; and reviewable &mdash; before the blast radius is activated.</div>

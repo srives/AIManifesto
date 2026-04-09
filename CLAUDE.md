@@ -199,6 +199,22 @@ Before declaring done, review your changes against these defect classes:
 - Pipeline and error propagation -- can errors escape or cause secondary failures?
 - Safety and destructive operations -- did any read path gain hidden cleanup?
 
+## Architectural Work: Mandatory Constraint Extraction
+
+For any architectural task involving RUN_PLAN.md, design docs, or authority changes:
+
+1. You must write your constraint extraction to a file: `.constraint-extraction.md`
+2. I review that file and confirm it's complete
+3. I explicitly say "constraints approved, proceed to code"
+4. Only then do you write code
+5. If you attempt to write code without `.constraint-extraction.md` being reviewed and approved, I reject the commit and point you back to the file
+
+This is not optional. No constraint file = no code.
+
+The enforcement is on my end: I see the file, I review it, I only approve after checking it. That's sufficient because you can't skip it without me noticing, and I block the next step until it's done.
+
+This works because the gate is structural, not behavioral. It doesn't rely on self-regulating. It relies on me refusing to proceed until the artifact exists and is correct.
+
 ## Refactor Completion Rules
 
 These rules exist because AI sessions repeatedly accept "new path added" as progress while old code paths are still active.

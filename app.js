@@ -2559,6 +2559,23 @@ function generateContent(isAgents) {
       'it will mislead your AI, which reads comments as instructions.');
   }
 
+  {
+    const n = R();
+    parts.push('---\n\nRULE ' + n + ': ARCHITECTURAL WORK: MANDATORY CONSTRAINT EXTRACTION\n\n' +
+      'For any architectural task involving design docs, refactors, or authority changes:\n\n' +
+      '  1. You must write constraint extraction to a file: `.constraint-extraction.md`\n' +
+      '  2. The human reviews that file and confirms it is complete\n' +
+      '  3. Only after explicit approval does code writing begin\n' +
+      '  4. If code is written without approved constraint extraction, the commit is rejected\n\n' +
+      'This is not optional. No constraint file = no code.\n\n' +
+      'The gate is structural, not behavioral. The human sees the file, reviews it, and\n' +
+      'blocks code until it is correct. This prevents architectural decisions from being\n' +
+      'embedded in code and discovered in review. Constraints are extracted and approved first.\n\n' +
+      'This rule exists because architectural work fails when constraints are implicit.\n' +
+      'Making them explicit before code forces clarity. Code written from unclear constraints\n' +
+      'requires rework. Code written from approved constraints rarely does.');
+  }
+
   parts.push('---\n\nWHY THESE RULES EXIST\n\n' +
     'Every rule above addresses a specific class of production bug or refactoring cost\n' +
     'that compounds over time. None are style preferences. Each rule was written because\n' +
