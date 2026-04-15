@@ -62,6 +62,7 @@
     </div>
     <nav class="tab-bar">
       <button class="tab-btn active" data-tab="confession">The Manifesto</button>
+      <button class="tab-btn" data-tab="epistemology">New Epistemology</button>
       <button class="tab-btn" data-tab="shorter">Quick Quiz</button>
       <button class="tab-btn" data-tab="larger">Deep Quiz</button>
       <button class="tab-btn" data-tab="bonusquiz">Bonus Features Quiz</button>
@@ -6025,6 +6026,108 @@ Hold to them from the first commit.</code></pre>
   <p>In all honesty, engineering is not my goal. Immediate and powerful solutions have drawn me to AI (and Claude Code in particular). I can have a great app in 10 hours? Yes! But in that fever-pitched drive to a solution, I had a flaw. The flaw was in my thinking. I thought Claude was something it isn't. That is why I stepped back, studied Claude more closely, and wrote this site. I hope the manifesto does its work on you too. My problem was not bad prompting, but bad thinking, and I can't ignore engineering, because I needed to re-engineer my own thoughts. Ironically, our underlying subject is software that emulates human thinking, and as you correct your thoughts about AI, you are engineering the only biological brain you can change.</p>
 
   <p>For more, I point you to this interactive tutorial on the early history of AI, with videos: <a href="https://github.com/srives/Perceptron" style="color: var(--accent-blue);">github.com/srives/Perceptron</a></p>
+
+</section>
+
+<section id="epistemology" class="tab-panel">
+
+  <h2>The New Epistemology</h2>
+  <p style="font-size:1.05rem; color:var(--text-secondary);"><em>A philosophical retrospective on what AI programming is doing to the programmer.</em></p>
+
+  <div class="real-talk"><strong>This is not only faster coding.</strong> It is a change in how software is known. The dominant object is no longer the line, the file, or even the class. The dominant object is the system shape the human is trying to preserve while an AI writes inside it.</div>
+
+  <p>I am building up a mental model of what programming is becoming. The black CLI screen, the text prompt, the running agent inside the repository: these are not incidental surfaces. They change the way the work feels. The terminal is spare, verbal, procedural, and immediate. It is less like arranging objects in an IDE and more like addressing a machine intelligence in its own workshop.</p>
+
+  <p>That changes the programmer. The tool affects the thing it is designed to affect, but it also affects the practitioner. A hoe cuts the soil and raises blisters on the hand. LLM/CLI programming cuts through boilerplate and raises blisters in the mind.</p>
+
+  <p>At first there is pain. Then the calluses form. The callus is not numbness. It is trained sensitivity.</p>
+
+  <h3>The Medium Works Back</h3>
+
+  <p>McLuhan's line was that the medium is the message. The related lesson is that we shape our tools, and then our tools shape us. AI-assisted programming makes that literal. I prompt the model, but the model's habits teach me what I must become more precise about.</p>
+
+  <p>When I build now, I often do not see code first. I see blocks of intention: stores, boundaries, contracts, lifecycle flows, entry points, invariants, and seams. Handwritten code can feel small because it is local. The mental object is larger than the line. The line is only one visible trace of the object.</p>
+
+  <div class="insight"><strong>The cognitive leap is from authorship to stewardship.</strong> The AI can produce the local material. The human must preserve the system's identity across changes.</div>
+
+  <h3>From Files to Stores</h3>
+
+  <p>The word "file" names a physical artifact. The word "store" names a responsibility. A store is durable state with rules: where it lives, who may read it, who may mutate it, how writes are made atomic, how failure rolls back, and what shape must remain true afterward.</p>
+
+  <p>That shift matters because AI is often locally helpful and globally careless. It will write the direct file access if the direct file access solves the immediate problem. It will place a helper where it is convenient. It will preserve an old path "for safety." It will let two sources of truth coexist if nobody forces the question of ownership.</p>
+
+  <p>The new discipline is to ask, before the code appears: who owns this state? What boundary is being crossed? What is the one canonical path? What invariant must survive the edit?</p>
+
+  <h3>Seams and Boundaries</h3>
+
+  <p>A seam is the narrow handoff where one responsibility gives way to another. It is the place where behavior can be swapped, tested, or refactored without corrupting the rest of the system. A good seam preserves future freedom. A muddy seam destroys it.</p>
+
+  <p>This is why boundary bugs feel different from algorithm bugs. An algorithm bug is local. A boundary bug spreads. When canonical truth exists in two places, fixing one copy does not fix the system. When three entry points perform the same lifecycle differently, testing one path proves almost nothing about the others.</p>
+
+  <div class="aha"><strong>The vocabulary is part of the control system.</strong> Namespace, boundary, contract, entry point, seam, invariant, store: these words are not decoration. They are handles for detecting recurring AI failure classes before they harden into architecture.</div>
+
+  <h3>The Mental Blisters</h3>
+
+  <table class="compare-table">
+    <thead><tr><th>Blister</th><th>What Hurts First</th><th>The Callus That Forms</th></tr></thead>
+    <tbody>
+      <tr><td>Loss of tactile contact</td><td>The AI wrote code I did not personally touch.</td><td>Inspection through diffs, tests, logs, contracts, and invariants.</td></tr>
+      <tr><td>Boundary pain</td><td>The feature works, but the responsibility landed in the wrong place.</td><td>The reflex to ask who owns the behavior and what may cross the boundary.</td></tr>
+      <tr><td>Contract hunger</td><td>Ambiguous returns, partial objects, silent failure, and caller guesswork.</td><td>Explicit shapes, failure modes, cleanup duties, and canonical precedence.</td></tr>
+      <tr><td>Professional suspicion</td><td>The thing appears complete before it has proven itself.</td><td>Hostile review, preflight, targeted tests, and refusal to trust plausible output.</td></tr>
+      <tr><td>Memory externalization</td><td>The same hard-won lesson is lost between sessions.</td><td><code>CLAUDE.md</code>, <code>AGENTS.md</code>, memory files, plans, skills, hooks, and tests.</td></tr>
+      <tr><td>Token-cost consciousness</td><td>Context fills, attention thins, and old detail compacts away.</td><td>Compressed rules, durable documents, named patterns, and load-on-demand procedures.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The New Unit of Thought</h3>
+
+  <table class="compare-table">
+    <thead><tr><th>Before</th><th>After</th></tr></thead>
+    <tbody>
+      <tr><td>Line / function / file</td><td>Owner / boundary / contract / seam / invariant</td></tr>
+      <tr><td>Compiler error / bug</td><td>Drift / duplicated truth / muddy ownership / invisible second path</td></tr>
+      <tr><td>Developer remembers intent</td><td>Tests, rules files, architecture docs, prompts, hooks, and review protocols preserve intent</td></tr>
+      <tr><td>Write correct code</td><td>Shape a system so an AI can safely modify it</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Blind Potter</h3>
+
+  <p>I feel like a blind potter. The clay is no longer directly under my hand. It is behind a curtain, and I feel it through delayed signals: diffs, test failures, logs, runtime behavior, and architectural drift. Yet the cup can still be made. The bowl can still be shaped.</p>
+
+  <p>The millions and billions of tokens are the pounds of clay wasted while learning where the form is. They are not just cost. They are apprenticeship. The waste teaches touch.</p>
+
+  <div class="analogy-human">The programmer is not blind because sight is absent. The programmer is blind because the material is mediated. Mastery is learning which signals can be trusted.</div>
+
+  <h3>The Token Apprenticeship</h3>
+
+  <p>Tokens are not the real unit of learning, but they are a useful metaphor. The real unit is repeated, painful failure classes.</p>
+
+  <ul>
+    <li><strong>Awe:</strong> The output appears. The speed feels like proof.</li>
+    <li><strong>Pain:</strong> The product works, but repair becomes confusing. "Working" and "engineered" separate.</li>
+    <li><strong>Vocabulary:</strong> Failures get names: boundary violation, stale path, duplicated source of truth, missing test, wrong owner.</li>
+    <li><strong>Callus:</strong> Durable controls appear: <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>RUN_PLAN.md</code>, tests, hooks, review prompts, architecture rules.</li>
+    <li><strong>Second order:</strong> The programmer stops merely prompting the AI and starts designing the environment that shapes the AI's behavior.</li>
+  </ul>
+
+  <p>One brutal project can teach more than millions of pleasant tokens. The fast build gives power. The refactor gives epistemology.</p>
+
+  <h3>A Practical Discipline</h3>
+
+  <p>The next leap is not only to model what the AI builds. It is to model how the AI tends to fail.</p>
+
+  <ol>
+    <li>Name the failure class.</li>
+    <li>Decide whether it is local or architectural.</li>
+    <li>Add a rule only if the failure class will recur.</li>
+    <li>Add a test if the rule can be enforced mechanically.</li>
+    <li>Add a seam if future change needs protected freedom.</li>
+    <li>Add memory only for facts the next session must inherit.</li>
+  </ol>
+
+  <div class="insight"><strong>This is how the programmer stops being molded unconsciously and starts molding the medium back.</strong> The AI writes. The human increasingly defines the laws under which writing is allowed.</div>
 
 </section>
 
