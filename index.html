@@ -130,7 +130,7 @@
           <li><strong>Click the Code tab</strong> at the top of Claude Desktop. If it asks you to upgrade, you need a paid plan.</li>
           <li><strong>Choose where Claude runs:</strong> Select <strong>Local</strong> to use your own machine and files. (Remote = Anthropic-hosted cloud session. SSH = a remote machine you manage.)</li>
           <li><strong>Select your folder.</strong> Click <strong>Select folder</strong> and choose your project directory — the folder containing the code you want to work with. This is the equivalent of <code>cd C:\repos\MyProject</code> in the terminal.</li>
-          <li><strong>Pick your model</strong> from the dropdown. Note: you cannot change the model after the session starts.</li>
+          <li><strong>Pick your starting model</strong> from the dropdown. You can switch later mid-session with the <code>/model</code> command &mdash; covered in <a class="tab-btn-inline" data-tab="practitioner" data-anchor="ch15-3">Chapter 15.3</a>.</li>
           <li><strong>Start typing.</strong> Claude now has access to that folder's files. By default it will ask permission before making changes (Ask permissions mode), showing a diff with Accept/Reject buttons.</li>
         </ol>
       </li>
@@ -394,7 +394,29 @@
     <p>Rules files are discovered recursively, so you can organize them into subfolders. They stack on top of CLAUDE.md rather than replacing it. Project rules (<code>.claude/rules/</code>) can be committed to git and shared with the team the same way CLAUDE.md can.</p>
     <div class="gotcha"><strong>Rules files do not solve the token cost problem.</strong> Every rules file that loads still costs tokens on every message, just like CLAUDE.md. Splitting one long CLAUDE.md into several rules files keeps your repo tidy, but the total token cost is the same. If you want to reduce token overhead, move content to skills — not to rules files.</div>
 
-    <div class="aha"><strong>CLAUDE.md is not unique to Claude.</strong> Codex uses a file called <code>AGENT.md</code> in the same way — loaded at session start, same purpose, same format. If you have a well-crafted CLAUDE.md, you can copy it to <code>AGENT.md</code> and Codex will pick it up. Your architecture decisions, coding rules, and anti-patterns travel with you to a different AI tool with zero extra work.</div>
+    <h3>The Smarter Way: <code>@</code>-Imports</h3>
+    <p>Splitting CLAUDE.md into rules files is one way to organize. The <strong>better</strong> way, supported directly by Claude Code, is the <code>@</code>-import syntax:</p>
+<pre><code># CLAUDE.md (root, kept short)
+See @docs/style-guide.md for code style.
+See @docs/testing-standards.md for testing rules.
+See @docs/api-conventions.md for API patterns.
+Personal preferences: @~/.claude/my-preferences.md
+</code></pre>
+    <p>Claude Code resolves <code>@path/to/file.md</code> as if its content were inlined &mdash; but only when the file is referenced. Use <code>@~/.claude/file.md</code> for user-level files that live outside the project. Imports can be recursive up to 5 levels deep.</p>
+    <p>When you reference a file with <code>@</code> in a prompt (e.g., "review @src/auth/login.ts"), Claude Code <strong>also auto-pulls adjacent <code>CLAUDE.md</code> files</strong> from that file's directory and its parents. This is "dynamic context priming" &mdash; localized rules load when you're working in that part of the tree.</p>
+    <div class="aha"><strong>The 200-line rule.</strong> Anthropic's official guidance is to keep <code>CLAUDE.md</code> under 200 lines, ideally <strong>80&ndash;120 lines</strong>. Frontier models follow roughly 150&ndash;200 instructions before compliance measurably drops, and Claude Code's own system prompt already consumes ~50 of them. Past 200 lines, large blocks get ignored entirely. Past 500 words of dense rules, adherence collapses. The fix when CLAUDE.md gets long is <em>not</em> "split into rules files" (same token cost) &mdash; it's <code>@</code>-imports (loaded only when needed) or move it to a skill (zero cost until invoked).</div>
+
+    <h3>The AGENTS.md Standard</h3>
+    <p>CLAUDE.md is the Anthropic file. Other tools have their own conventions &mdash; until the industry agreed on a shared format.</p>
+    <p>On <strong>December 9, 2025</strong>, OpenAI and Anthropic donated <code>AGENTS.md</code> (along with MCP and Block's Goose) to the Linux Foundation's new <strong>Agentic AI Foundation (AAIF)</strong>. <code>AGENTS.md</code> is now an open standard:</p>
+    <ul>
+      <li>Adopted by <strong>60,000+ open-source projects</strong></li>
+      <li>Read natively by Codex CLI, Cursor, Gemini CLI, GitHub Copilot, Cline, Aider, Jules, Factory, Devin, Augment, Amazon Q, OpenHands &mdash; <em>most agentic coding tools shipped after late 2025</em></li>
+      <li>Standard markdown, no required schema, recommended sections (build commands, code style, testing instructions, security notes)</li>
+    </ul>
+    <div class="gotcha"><strong>Claude Code is the outlier.</strong> As of mid-2026, Claude Code does <em>not</em> natively read <code>AGENTS.md</code> &mdash; <a href="https://github.com/anthropics/claude-code/issues/6235" style="color:var(--accent-blue)">issue #6235</a> tracks the feature request. The community workaround: add <code>See @AGENTS.md</code> at the top of your <code>CLAUDE.md</code>, and Claude Code will pull AGENTS.md in via the import. This gives you one cross-tool file (<code>AGENTS.md</code>) plus a tiny <code>CLAUDE.md</code> that just imports it &mdash; works for every tool, no duplication.</div>
+
+    <div class="aha"><strong>CLAUDE.md is not unique to Claude.</strong> If you have a well-crafted CLAUDE.md, copy it to <code>AGENTS.md</code> and most other AI coding tools will pick it up immediately. Your architecture decisions, coding rules, and anti-patterns travel with you across Codex, Cursor, Gemini, Copilot, Aider, and the rest. The day-1 prompt wizard in <a class="tab-btn-inline" data-tab="casestudy" data-anchor="anchor-day1prompt" href="#">Case Studies</a> generates both files at once.</div>
 
     <h3>Architectural Work: Mandatory Constraint Extraction</h3>
     <p>For any architectural task involving design docs, refactors, or authority changes, a critical gate exists: <strong>constraint extraction must happen before code is written.</strong></p>
@@ -592,12 +614,21 @@ Ask me for the component name and path before starting.</code></pre>
     <div class="analogy-human">Like an out-of-office rule in Outlook. You don't manually reply to every email that arrives while you're on vacation — you set up a rule once: "When an email arrives, send this reply automatically." Hooks are the same idea: "When Claude finishes editing a file, run the linter automatically." You set it up once; it fires every time without you having to remember. HR professionals know this as a workflow trigger in an HRIS system — when an employee status changes, automatically send the onboarding checklist.</div>
 
     <h3>Hook Events</h3>
-    <ul>
-      <li><strong>Before tool use:</strong> Runs before Claude uses a tool (e.g., before editing a file). Can block the action.</li>
-      <li><strong>After tool use:</strong> Runs after a tool completes (e.g., after a file edit, run tests).</li>
-      <li><strong>Session start:</strong> Runs when a new session begins.</li>
-      <li><strong>Notification:</strong> Runs when Claude sends a notification.</li>
-    </ul>
+    <p>The current hook surface (per the <a href="https://code.claude.com/docs/en/hooks" style="color:var(--accent-blue)">official hooks reference</a>) covers three cadences:</p>
+    <table class="compare-table">
+      <thead><tr><th>Cadence</th><th>Events</th><th>When It Fires</th></tr></thead>
+      <tbody>
+        <tr><td>Once per session</td><td><code>SessionStart</code>, <code>SessionEnd</code></td><td>Session begins (also on resume) / session terminates</td></tr>
+        <tr><td>Once per turn</td><td><code>UserPromptSubmit</code>, <code>Stop</code>, <code>StopFailure</code></td><td>You send a prompt / Claude finishes / Claude bails out with an error</td></tr>
+        <tr><td>Tool execution</td><td><code>PreToolUse</code>, <code>PostToolUse</code>, <code>PostToolUseFailure</code></td><td>Before / after / on failure of any tool call</td></tr>
+        <tr><td>Permissions</td><td><code>PermissionRequest</code>, <code>PermissionDenied</code></td><td>Claude asks for permission; user denies. Hooks can auto-approve or auto-deny.</td></tr>
+        <tr><td>Subagents</td><td><code>SubagentStart</code>, <code>SubagentStop</code></td><td>A subagent spawned via the Task tool starts / completes</td></tr>
+        <tr><td>Maintenance</td><td><code>PreCompact</code>, <code>Notification</code></td><td>Before context compaction / when Claude sends a system notification</td></tr>
+        <tr><td>Async (environment)</td><td><code>FileChanged</code>, <code>ConfigChange</code>, <code>CwdChanged</code></td><td>External filesystem / config / working-directory changes</td></tr>
+      </tbody>
+    </table>
+    <p>Hook types can be <strong>command</strong> (shell scripts), <strong>HTTP</strong> (call a webhook), <strong>MCP tool</strong>, <strong>prompt-based</strong>, or <strong>agent subprocess</strong>. Configure them in <code>.claude/settings.json</code> (project) or <code>~/.claude/settings.json</code> (user).</p>
+    <div class="aha">The <strong>PreCompact</strong> hook is the secret to never losing your meta-skill (the plugin "table of contents"). Wire PreCompact to re-inject the meta-skill, and your plugin survives every <code>/compact</code>, <code>/clear</code>, and resume without manual re-invocation.</div>
 
     <h3>Why Hooks Matter</h3>
     <p>CLAUDE.md is advisory: "Please run tests after editing." Claude usually follows it, but it's not guaranteed. A hook is <em>enforcement</em>: the test suite runs whether Claude remembers or not. It's the difference between a code review comment and a CI gate.</p>
@@ -1061,7 +1092,7 @@ Ask me for the component name and path before starting.</code></pre>
     <p>A bloated CLAUDE.md is like a high recurring expense: it reduces your available budget for everything else. This is why architecture (skills for on-demand loading, concise CLAUDE.md, memory for cross-session persistence) matters so much.</p>
 
     <h3>What "Extended Context Model" Actually Means</h3>
-    <p>Anthropic uses the phrase "extended context model" on their pricing and Enterprise pages. It sounds like a different, fancier AI. It isn't. It is <strong>the same Opus 4.6 or Sonnet 4.6 you already use, with a larger reading window enabled</strong>. Think of it as the same brain, with more desk space to spread out on.</p>
+    <p>Anthropic uses the phrase "extended context model" on their pricing and Enterprise pages. It sounds like a different, fancier AI. It isn't. It is <strong>the same Opus 4.7 or Sonnet 4.6 you already use, with a larger reading window enabled</strong>. Think of it as the same brain, with more desk space to spread out on.</p>
 
     <table class="compare-table">
       <thead><tr><th>Plan</th><th>Context window</th><th>Awareness (pages)</th><th>Monthly cost</th><th>How to unlock</th></tr></thead>
@@ -1596,6 +1627,54 @@ claude --dangerously-skip-permissions -p "your prompt here"</code></pre>
     <div class="analogy-human">Like a consultant who goes quiet for a day before sending their recommendation. You asked for their analysis on Monday, and they didn't respond until Tuesday. That pause wasn't procrastination — they were working through the problem carefully. The extended thinking pause in Claude is the same. The response will be better because it wasn't rushed.</div>
 
     <p><strong>Practical tip:</strong> If you're doing simple tasks (rename a variable, add a comment), use Haiku &mdash; it doesn't need to think deeply. Save Opus + extended thinking for the problems that actually require deep reasoning.</p>
+
+    <h3>Adaptive Thinking (2026)</h3>
+    <p>In February 2026, Anthropic replaced the old fixed-budget thinking model with <strong>adaptive thinking</strong>. Instead of specifying a token budget (<code>budget_tokens: 50000</code>), you set an <strong>effort level</strong>:</p>
+    <ul>
+      <li><code>low</code> &mdash; quick check, minimal reasoning</li>
+      <li><code>medium</code> &mdash; standard reasoning depth (default)</li>
+      <li><code>high</code> &mdash; deep reasoning, multi-step planning</li>
+      <li><code>xhigh</code> &mdash; deeper still; Opus 4.7 added this level for hard architectural problems</li>
+      <li><code>max</code> &mdash; maximum reasoning, slowest, most expensive</li>
+    </ul>
+    <p>This shifts thinking from "spend exactly N tokens" to "spend whatever it takes for this much effort." Claude decides how many thinking tokens to use within the effort envelope you set.</p>
+  </div>
+
+  <!-- 15.11 Plan Mode -->
+  <div class="chapter" id="ch15-11">
+    <div class="chapter-number">15.11</div>
+    <h2>Plan Mode (Read-Only Exploration Before Code)</h2>
+    <p>Plan Mode is Claude Code's built-in safety wheel for non-trivial changes. Activate by pressing <strong><code>Shift+Tab</code> twice</strong> (the status bar cycles through <code>default &rarr; acceptEdits &rarr; plan</code>) or by typing <code>/plan</code>.</p>
+
+    <p>In Plan Mode, Claude is restricted to read-only tools &mdash; Glob, Grep, Read. It explores the codebase, reasons about architecture, and produces an implementation plan. <strong>It cannot edit files or run commands.</strong> When the plan is ready, Claude calls the <code>ExitPlanMode</code> tool, which prompts you to approve. Only after approval does it switch to acting mode and execute.</p>
+
+    <div class="analogy">Like asking an architect to draw blueprints before pouring concrete. The architect can walk the site, measure, sketch. They cannot lift a hammer. You review the blueprint. Once you approve, the build phase begins.</div>
+
+    <div class="analogy-human">Like asking a consultant to write the proposal before billing for the engagement. The proposal is free to discard. The engagement is not. Plan Mode separates the cheap "what should we do?" phase from the expensive "doing it" phase.</div>
+
+    <h3>The Official 4-Phase Workflow</h3>
+    <p>Anthropic explicitly recommends a four-phase workflow in their <a href="https://code.claude.com/docs/en/best-practices" style="color:var(--accent-blue)">best practices doc</a>:</p>
+    <ol>
+      <li><strong>Explore</strong> &mdash; Plan Mode reads the code, asks clarifying questions, builds context</li>
+      <li><strong>Plan</strong> &mdash; Claude drafts the implementation plan; you review and edit (press <code>Ctrl+G</code> to open the plan in your editor)</li>
+      <li><strong>Implement</strong> &mdash; You approve via <code>ExitPlanMode</code>; Claude executes</li>
+      <li><strong>Commit</strong> &mdash; Descriptive commit and PR</li>
+    </ol>
+    <p>The insight: phases 1 and 2 are the <strong>cheapest in tokens and the most valuable in outcome</strong>. Skipping them is the #1 way to burn budget on the wrong implementation.</p>
+
+    <h3>When to Use Plan Mode</h3>
+    <ul>
+      <li>Any change touching 3+ files</li>
+      <li>Schema changes, migrations, breaking-contract edits</li>
+      <li>Security-sensitive code</li>
+      <li>Anything where the wrong approach will be expensive to undo</li>
+    </ul>
+    <p>For one-line typo fixes or read-only Q&amp;A, skip it. Plan Mode is a discipline, not a ritual.</p>
+
+    <h3>Plan Mode vs. RUN_PLAN.md</h3>
+    <div class="aha">Plan Mode is Anthropic's built-in lightweight planning. <code>RUN_PLAN.md</code> (covered in the <a class="tab-btn-inline" data-tab="runplan" href="#">RUN_PLAN tab</a>) is a heavier discipline for architecturally significant work: preflight, constraint extraction, validation, self-review. Use Plan Mode for "let me think before I touch this." Use <code>RUN_PLAN.md</code> for "this change has a blast radius and needs to be defended in review." They compose: Plan Mode opens the door, <code>RUN_PLAN.md</code> walks you through it.</div>
+
+    <div class="real-talk"><strong>The 2026 core trio.</strong> Consensus across the Claude Code community in 2026: <strong>Plan Mode + git worktrees + subagents</strong> is the foundation of high-throughput, high-quality work. Plan Mode keeps the main session honest. Worktrees keep risky changes isolated. Subagents do parallel research without polluting the main context. Mastery of Claude Code is mastery of those three.</div>
   </div>
 
 </section>
@@ -1759,7 +1838,7 @@ claude --dangerously-skip-permissions -p "your prompt here"</code></pre>
       <tr><td><strong>Team / Enterprise</strong></td><td class="check">~1,333 pages</td><td>1M</td><td>$150+/user</td><td>Automatic + org governance</td></tr>
     </tbody>
   </table>
-  <p><strong>"Extended context model" is not a different AI.</strong> It is the same Opus 4.6 or Sonnet 4.6, with the reading window expanded from 267 pages to 1,333 pages. Same IQ. Five times more Awareness. The difference between seeing a chapter and seeing the whole book.</p>
+  <p><strong>"Extended context model" is not a different AI.</strong> It is the same Opus 4.7 or Sonnet 4.6, with the reading window expanded from 267 pages to 1,333 pages. Same IQ. Five times more Awareness. The difference between seeing a chapter and seeing the whole book.</p>
 
   <table class="compare-table">
     <thead><tr><th>Real-world reference</th><th>Pages</th><th>Fits in Pro (267 pages)?</th><th>Fits in Max (1,333 pages)?</th></tr></thead>
@@ -1851,14 +1930,14 @@ claude --dangerously-skip-permissions -p "your prompt here"</code></pre>
   <div class="compare-section-title blue">IQ vs. Awareness: What You're Actually Buying</div>
   <p>Think of it like fidelity in images. A single photograph can be ultra-high-resolution — every pixel tiny, every detail captured. That's high IQ. A movie has thousands of frames, covering far more ground — but each individual frame may be lower resolution than a still photo. That's high Awareness.</p>
   <p>You want both — but they are separate dials. When you pay more for AI, you might be buying a sharper photograph (better reasoning per frame), more frames (larger context window), or both. A high-IQ model on a small plan sees 267 pages with brilliant resolution. The same model on a Max plan sees 1,333 pages — five times the movie, same sharpness per frame.</p>
-  <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;"><strong>Editorial teaching model — not benchmark scores.</strong> IQ numbers are estimated shorthand for relative reasoning quality (Opus 4.6 = 100 baseline), not official measurements. Awareness numbers are calculated from published token limits and are factual. &nbsp;<span style="color:var(--accent-blue)">&#9632;</span> IQ = editorial estimate &nbsp;<span style="color:var(--accent-green)">&#9632;</span> Awareness = official fact</p>
+  <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;"><strong>Editorial teaching model — not benchmark scores.</strong> IQ numbers are estimated shorthand for relative reasoning quality (Opus 4.7 = 100 baseline), not official measurements. Awareness numbers are calculated from published token limits and are factual. &nbsp;<span style="color:var(--accent-blue)">&#9632;</span> IQ = editorial estimate &nbsp;<span style="color:var(--accent-green)">&#9632;</span> Awareness = official fact</p>
   <div id="iq-awareness-chart-pricing"></div>
   <script>
   (function() {
     const models2 = [
-      { name:'Claude Opus 4.6',      sub:'Max/Enterprise plan', iq:100, aware:1333 },
+      { name:'Claude Opus 4.7',      sub:'Max/Enterprise plan', iq:100, aware:1333 },
       { name:'Claude Sonnet 4.6',    sub:'Max/Enterprise plan', iq:85,  aware:1333 },
-      { name:'Claude Opus 4.6',      sub:'Pro plan',            iq:100, aware:267  },
+      { name:'Claude Opus 4.7',      sub:'Pro plan',            iq:100, aware:267  },
       { name:'Claude Sonnet 4.6',    sub:'Pro plan',            iq:85,  aware:267  },
       { name:'Claude Haiku 4.5',     sub:'any plan',            iq:55,  aware:267  },
       { name:'GPT-5',                sub:'ChatGPT Plus',        iq:90,  aware:363  },
@@ -1880,7 +1959,7 @@ claude --dangerously-skip-permissions -p "your prompt here"</code></pre>
       html += `<div class="bar-wrap"><div class="bar ${awareColor}" style="width:${awarePct}%"><span class="bar-label${awarePct < 20 ? ' outside' : ''}">${m.aware.toLocaleString()} pages</span></div></div>`;
     });
     html += '</div>';
-    html += '<p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">IQ = relative reasoning quality (editorial estimate, Opus 4.6 = 100 baseline). Awareness = context window in pages. A high-Awareness low-IQ model can still recall anything on any page it has read — it just cannot reason as deeply about it. Both dimensions matter for different tasks.</p>';
+    html += '<p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">IQ = relative reasoning quality (editorial estimate, Opus 4.7 = 100 baseline). Awareness = context window in pages. A high-Awareness low-IQ model can still recall anything on any page it has read — it just cannot reason as deeply about it. Both dimensions matter for different tasks.</p>';
     el2.innerHTML = html;
   })();
   </script>
@@ -2023,7 +2102,7 @@ claude --dangerously-skip-permissions -p "your prompt here"</code></pre>
   </div>
 
   <div class="compare-section-title">Why Opus Was Unavailable When Sonnet Was Not</div>
-  <p>Different models run on different hardware pools. Opus 4.6 is a larger model than Sonnet 4.6. Larger model means:</p>
+  <p>Different models run on different hardware pools. Opus 4.7 is a larger model than Sonnet 4.6. Larger model means:</p>
   <ul>
     <li>More parameters means more GPUs needed just to hold the model weights</li>
     <li>Larger KV cache per token means more VRAM consumed per active session</li>
@@ -3005,7 +3084,7 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
       <tr class="anthropic-row">
         <td><strong>"Extended Context Model"</strong></td>
         <td>A different, more powerful AI model</td>
-        <td>The same Opus 4.6 or Sonnet 4.6, with a larger reading window enabled (1M instead of 200K tokens). Same brain, more desk space. Not a new model.</td>
+        <td>The same Opus 4.7 or Sonnet 4.6, with a larger reading window enabled (1M instead of 200K tokens). Same brain, more desk space. Not a new model.</td>
         <td>Anthropic</td>
       </tr>
       <tr class="anthropic-row">
@@ -3285,21 +3364,32 @@ await runCommand(['plugin', 'update', 'my-jira-plugin@my-jira-plugin'])</code></
     <h2>Ask for a Plan Before Making a Real Change</h2>
     <p>Pick something non-trivial you've been meaning to do in the project. Before Claude touches any files, ask for a plan:</p>
     <pre><code>I want to [add feature X / refactor Y / fix bug Z]. Before you start, describe your approach: which files you'll change, in what order, and what risks to watch for.</code></pre>
-    <p>Or press <strong>Shift+Tab</strong> to enter Plan Mode, then describe the task. Claude will produce a plan for you to review before anything gets touched.</p>
+    <p>Or press <strong>Shift+Tab twice</strong> (or type <code>/plan</code>) to enter Plan Mode, then describe the task. Claude will produce a plan for you to review before anything gets touched. Approve with <code>ExitPlanMode</code> when you're satisfied. See <a class="tab-btn-inline" data-tab="practitioner" data-anchor="ch15-11">Chapter 15.11</a> for the full workflow.</p>
     <p>Reviewing the plan takes 30 seconds and catches misunderstandings before they become edits you have to undo.</p>
   </div>
 
   <div class="chapter">
     <div class="chapter-number">Step 8</div>
-    <h2>Learn These Four Commands</h2>
+    <h2>Learn These Commands</h2>
     <p>Before you end your session, try each of these:</p>
     <table class="compare-table">
       <thead><tr><th>Command</th><th>What it does</th><th>When to use it</th></tr></thead>
       <tbody>
-        <tr><td><code>/help</code></td><td>Lists all available slash commands and built-in commands</td><td>Whenever you're not sure what's available</td></tr>
-        <tr><td><code>/compact</code></td><td>Compresses conversation history to free context window space</td><td>Long sessions, before starting a new major task in the same session</td></tr>
+        <tr><td><code>/help</code></td><td>Lists all available slash commands</td><td>Whenever you're not sure what's available</td></tr>
+        <tr><td><code>/init</code></td><td>Generates a starter <code>CLAUDE.md</code> by analyzing the codebase</td><td>First time in a project, or any time you want a fresh baseline</td></tr>
+        <tr><td><code>/compact</code></td><td>Compresses conversation history to free context window space</td><td>Long sessions, before starting a new major task</td></tr>
+        <tr><td><code>/clear</code></td><td>Resets context completely between unrelated tasks</td><td>Switching from one feature to a totally different one</td></tr>
         <tr><td><code>/cost</code></td><td>Shows token usage and estimated cost for this session</td><td>Whenever you're curious about spend, or before a long expensive task</td></tr>
-        <tr><td><code>Ctrl+C</code> then <code>claude --continue</code></td><td>Exit and resume the same session later</td><td>When you need to stop and come back; keeps all context intact</td></tr>
+        <tr><td><code>/model</code></td><td>Switches between Opus, Sonnet, Haiku without restarting</td><td>Hard problem &rarr; Opus; daily &rarr; Sonnet; cleanup &rarr; Haiku</td></tr>
+        <tr><td><code>/plan</code> or <code>Shift+Tab &times; 2</code></td><td>Enters Plan Mode (read-only exploration, then approve before changes)</td><td>Any non-trivial change &mdash; 3+ files, schema changes, security-touching code</td></tr>
+        <tr><td><code>/rewind</code> or <code>Esc Esc</code></td><td>Restores prior conversation or file state from an automatic checkpoint</td><td>Claude did something you want to undo; try a different approach</td></tr>
+        <tr><td><code>/agents</code></td><td>Lists and manages custom subagent definitions</td><td>Reviewing or configuring named agents you've defined</td></tr>
+        <tr><td><code>/memory</code></td><td>View and edit auto-loaded MEMORY.md for this project</td><td>Discovered facts Claude wrote about your codebase</td></tr>
+        <tr><td><code>/statusline</code></td><td>Toggles real-time context-usage status bar</td><td>When you want to see how much of the context window you've spent</td></tr>
+        <tr><td><code>/doctor</code></td><td>Diagnoses Claude Code configuration issues</td><td>When something's wrong and you can't tell why</td></tr>
+        <tr><td><code>/btw</code></td><td>Ask a quick side question without bloating main context</td><td>"By the way, how does X work?" without polluting the active task</td></tr>
+        <tr><td><code>/extra-usage</code></td><td>Pro users opt into 1M context (Sonnet 4.6 / Opus 4.7)</td><td>When 200K isn't enough for a large-codebase session on the Pro plan</td></tr>
+        <tr><td><code>Ctrl+C</code> then <code>claude --continue</code></td><td>Exit and resume the same session later</td><td>When you need to stop and come back; keeps context intact</td></tr>
       </tbody>
     </table>
     <p><code>--resume</code> (instead of <code>--continue</code>) shows a list of all previous sessions to choose from. Useful when you have multiple projects or sessions running.</p>
@@ -3818,8 +3908,10 @@ else if (platform == "codex") { doZ() }</code></pre>
 
   <h2>Other AI Coding CLIs</h2>
   <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0 1.5rem;">
-  <div class="real-talk"><strong>Snapshot comparison as of March 2026.</strong> This space moves fast. Feature parity between tools changes with every release. Re-check vendor docs before relying on fine details. The table below favors concept-level comparisons over brittle feature minutiae — if a specific capability matters to your decision, verify it against the current docs for that tool.</div>
+  <div class="real-talk"><strong>Snapshot comparison as of May 2026.</strong> This space moves fast. Feature parity between tools changes with every release. Re-check vendor docs before relying on fine details. The table below favors concept-level comparisons over brittle feature minutiae — if a specific capability matters to your decision, verify it against the current docs for that tool.</div>
   <p>Claude Code isn't the only AI coding CLI. Here's how the major players compare on the features discussed in this guide. All of these are <strong>terminal-based</strong> coding assistants &mdash; not IDE plugins, not chat UIs.</p>
+
+  <div class="aha"><strong>The big standardization story of 2025–2026:</strong> On December 9, 2025, OpenAI and Anthropic donated <code>AGENTS.md</code> and the <strong>Model Context Protocol (MCP)</strong> to the Linux Foundation's new <strong>Agentic AI Foundation (AAIF)</strong>. <code>AGENTS.md</code> is now an open standard adopted by 60,000+ open-source projects and most of the tools below &mdash; Codex, Cursor, Gemini CLI, Copilot, Cline, Aider, Jules, Factory, Devin. Claude Code is the notable exception: it primarily reads <code>CLAUDE.md</code> and does not yet natively load <code>AGENTS.md</code> (<a href="https://github.com/anthropics/claude-code/issues/6235" style="color:var(--accent-blue)">open feature request</a>). The community workaround is to add <code>See @AGENTS.md</code> at the top of <code>CLAUDE.md</code>.</div>
 
   <table class="compare-table">
     <thead>
@@ -3874,32 +3966,32 @@ else if (platform == "codex") { doZ() }</code></pre>
         <td><span class="cross">No</span></td>
       </tr>
       <tr>
-        <td>Project Instructions (CLAUDE.md equivalent)</td>
-        <td><span class="check">CLAUDE.md</span></td>
+        <td>Project Instructions</td>
+        <td><span class="check">CLAUDE.md</span> &mdash; AGENTS.md not native (<a href="https://github.com/anthropics/claude-code/issues/6235" style="color:var(--accent-blue)">#6235</a>)</td>
+        <td><span class="check">AGENTS.md</span> (native)</td>
+        <td><span class="check">AGENTS.md</span> + copilot-instructions.md</td>
         <td><span class="check">AGENTS.md</span></td>
-        <td><span class="check">copilot-instructions.md</span></td>
-        <td><span class="check">AGENTS.md</span></td>
-        <td><span class="check">GEMINI.md</span></td>
+        <td><span class="check">AGENTS.md</span> + GEMINI.md fallback</td>
       </tr>
       <tr>
         <td>Skills / Instruction Files</td>
-        <td><span class="check">Yes</span> &mdash; SKILL.md in .claude/</td>
+        <td><span class="check">Yes</span> &mdash; most mature SKILL.md impl</td>
+        <td><span class="check">Yes</span> &mdash; SKILL.md in ~/.agents/skills/ (Dec 2025)</td>
+        <td><span class="partial">Partial</span> &mdash; <a href="https://agentskills.io" style="color:var(--accent-blue)">Agent Skills spec</a> support</td>
         <td><span class="cross">No</span></td>
-        <td><span class="cross">No</span></td>
-        <td><span class="cross">No</span></td>
-        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes</span> &mdash; subagents w/ skill-like profiles</td>
       </tr>
       <tr>
         <td>Slash Commands</td>
         <td><span class="check">Yes</span> &mdash; .claude/commands/</td>
+        <td><span class="check">Yes</span> &mdash; including <code>/goal</code> Ralph loop</td>
+        <td><span class="check">Yes</span> &mdash; built-in commands</td>
         <td><span class="cross">No</span></td>
-        <td><span class="cross">No</span></td>
-        <td><span class="cross">No</span></td>
-        <td><span class="cross">No</span></td>
+        <td><span class="check">Yes</span> &mdash; <code>/mcp</code>, custom commands</td>
       </tr>
       <tr>
         <td>Hooks (Event Triggers)</td>
-        <td><span class="check">Yes</span> &mdash; pre/post tool use, session start</td>
+        <td><span class="check">Yes</span> &mdash; 16 events (SessionStart/End, Pre/PostToolUse, UserPromptSubmit, PreCompact, Stop, SubagentStop, PermissionRequest, FileChanged, &hellip;)</td>
         <td><span class="cross">No</span></td>
         <td><span class="cross">No</span></td>
         <td><span class="cross">No</span></td>
@@ -4091,7 +4183,7 @@ else if (platform == "codex") { doZ() }</code></pre>
   <table class="compare-table">
     <thead><tr><th>Model</th><th>Coding ability</th><th>Speed</th><th>Cost</th><th>Use for</th></tr></thead>
     <tbody>
-      <tr><td><strong>Claude Opus 4.6</strong></td><td>Excellent — deep reasoning</td><td>Slow</td><td>Highest</td><td>Complex architecture, hard bugs, design decisions</td></tr>
+      <tr><td><strong>Claude Opus 4.7</strong></td><td>Excellent — deep reasoning</td><td>Slow</td><td>Highest</td><td>Complex architecture, hard bugs, design decisions</td></tr>
       <tr><td><strong>Claude Sonnet 4.6</strong></td><td>Very good — well balanced</td><td>Fast</td><td>Medium</td><td>Daily coding work — the recommended default</td></tr>
       <tr><td><strong>Claude Haiku 4.5</strong></td><td>Adequate for simple tasks</td><td>Fastest</td><td>Lowest</td><td>Quick edits, boilerplate, simple lookups — NOT complex coding</td></tr>
     </tbody>
@@ -4102,15 +4194,15 @@ else if (platform == "codex") { doZ() }</code></pre>
   <p>The same separation applies to other CLIs: Copilot CLI lets you choose between Claude Haiku, GPT-4.1, and GPT-5 Mini. OpenCode can point at any model via Ollama or an API. The CLI is the tool; the model is the engine. You can swap engines.</p>
 
   <div class="compare-section-title blue">AI Has Two Dimensions: IQ and Awareness</div>
-  <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;"><strong>Editorial teaching model — not benchmark scores.</strong> IQ numbers are estimated shorthand for relative reasoning quality (Opus 4.6 = 100 baseline), not official measurements. Awareness numbers are calculated from published token limits and are factual. &nbsp;<span style="color:var(--accent-blue)">&#9632;</span> IQ = editorial estimate &nbsp;<span style="color:var(--accent-green)">&#9632;</span> Awareness = official fact</p>
+  <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;"><strong>Editorial teaching model — not benchmark scores.</strong> IQ numbers are estimated shorthand for relative reasoning quality (Opus 4.7 = 100 baseline), not official measurements. Awareness numbers are calculated from published token limits and are factual. &nbsp;<span style="color:var(--accent-blue)">&#9632;</span> IQ = editorial estimate &nbsp;<span style="color:var(--accent-green)">&#9632;</span> Awareness = official fact</p>
   <div id="iq-awareness-chart"></div>
   <script>
   // IQ/Awareness master chart — rendered as CSS bar chart
   // IQ: relative score 0-100 (Opus=100 baseline). Awareness: pages (1 page = 750 tokens).
   const models = [
-    { name:'Claude Opus 4.6',      sub:'(Claude Code Max/Enterprise)', iq:100, aware:1333 },
+    { name:'Claude Opus 4.7',      sub:'(Claude Code Max/Enterprise)', iq:100, aware:1333 },
     { name:'Claude Sonnet 4.6',    sub:'(Claude Code Max/Enterprise)', iq:85,  aware:1333 },
-    { name:'Claude Opus 4.6',      sub:'(Claude Code Pro)',            iq:100, aware:267  },
+    { name:'Claude Opus 4.7',      sub:'(Claude Code Pro)',            iq:100, aware:267  },
     { name:'Claude Sonnet 4.6',    sub:'(Claude Code Pro)',            iq:85,  aware:267  },
     { name:'Claude Haiku 4.5',     sub:'(any plan)',                   iq:55,  aware:267  },
     { name:'GPT-5',                sub:'(Codex CLI / ChatGPT Plus)',   iq:90,  aware:363  },
@@ -4136,7 +4228,7 @@ else if (platform == "codex") { doZ() }</code></pre>
       html += `<div class="bar-wrap"><div class="bar ${awareBarColor}" style="width:${awarePct}%"><span class="bar-label${awarePct < 20 ? ' outside' : ''}">${m.aware.toLocaleString()} pages</span></div></div>`;
     });
     html += '</div>';
-    html += '<p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">IQ = relative reasoning quality (Opus 4.6 = 100 baseline, editorial estimate). Awareness = context window in pages (1 page ≈ 500 words ≈ 750 tokens). Max/Enterprise plan required for 1,333-page Awareness on Claude models.</p>';
+    html += '<p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">IQ = relative reasoning quality (Opus 4.7 = 100 baseline, editorial estimate). Awareness = context window in pages (1 page ≈ 500 words ≈ 750 tokens). Max/Enterprise plan required for 1,333-page Awareness on Claude models.</p>';
     el.innerHTML = html;
   }
   </script>
@@ -4163,7 +4255,7 @@ else if (platform == "codex") { doZ() }</code></pre>
     </thead>
     <tbody>
       <tr><td>Claude Code — Free / Pro</td><td>Opus, Sonnet, Haiku</td><td>200K tokens</td><td class="partial"><strong>~267 pages</strong></td><td>Standard. Pro users can opt into 1M by typing <code>/extra-usage</code></td></tr>
-      <tr><td>Claude Code — Max, Team, Enterprise</td><td>Opus 4.6, Sonnet 4.6</td><td>1M tokens</td><td class="check"><strong>~1,333 pages</strong></td><td>Automatic 1M context on Max/Team/Enterprise as of March 2026</td></tr>
+      <tr><td>Claude Code — Max, Team, Enterprise</td><td>Opus 4.7, Sonnet 4.6</td><td>1M tokens</td><td class="check"><strong>~1,333 pages</strong></td><td>Automatic 1M context on Max/Team/Enterprise as of March 2026</td></tr>
       <tr><td>Claude Code — Enterprise (extended)</td><td>Sonnet 4.6</td><td>Up to 1M+</td><td class="check"><strong>~1,333+ pages</strong></td><td>Enterprise negotiates custom context. Verify with Anthropic sales.</td></tr>
       <tr><td>Codex CLI / ChatGPT Plus</td><td>GPT-5</td><td>~272K tokens</td><td class="partial"><strong>~363 pages</strong></td><td>Solid but well below Claude Max</td></tr>
       <tr><td>Copilot CLI</td><td>Claude Haiku, GPT-4.1, GPT-5 Mini</td><td>Varies by model selected</td><td class="partial"><strong>~170–267 pages</strong></td><td>Copilot may cap context below the model's native maximum</td></tr>
@@ -4216,7 +4308,12 @@ else if (platform == "codex") { doZ() }</code></pre>
   <table class="compare-table">
     <thead><tr><th>Term</th><th>Definition</th></tr></thead>
     <tbody>
-      <tr><td>Aider</td><td>An open-source, Python-based AI coding assistant that runs in the terminal. Works with multiple AI models. Predates Claude Code and has a loyal following among developers who prefer open-source tools.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
+      <tr><td><code>@</code>-imports</td><td>CLAUDE.md syntax for pulling content from other files: <code>@docs/style.md</code>, <code>@~/.claude/personal.md</code>. Recursive up to 5 levels deep. The recommended way to keep <code>CLAUDE.md</code> short while still covering complex projects. When you <code>@</code>-reference a file in a prompt, Claude Code also auto-pulls adjacent <code>CLAUDE.md</code> files from that file's directory and its parents.<a class="gloss-link" data-tab="confession" data-anchor="ch2" href="#">&rarr; Chapter III</a></td></tr>
+      <tr><td>A2A</td><td><strong>Agent2Agent protocol.</strong> Google-originated open standard, now stewarded by the Linux Foundation. Defines how AI agents discover each other (Agent Cards), structure work (Tasks), and exchange it over HTTP / SSE / JSON-RPC. 150+ organizations in production as of April 2026 (Google, Microsoft, AWS, Salesforce, SAP, ServiceNow, IBM). Where MCP connects an agent to tools, A2A connects agents to each other.</td></tr>
+      <tr><td>AAIF</td><td><strong>Agentic AI Foundation.</strong> A Linux Foundation initiative formed December 9, 2025. Stewards the AGENTS.md spec, the Model Context Protocol (MCP), and Block's Goose agent. Platinum members include Anthropic, AWS, Block, Bloomberg, Cloudflare, Google, Microsoft, OpenAI.</td></tr>
+      <tr><td>Adaptive Thinking</td><td>A 2026 Anthropic feature that replaced fixed thinking-token budgets with effort levels: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>. You set the effort; Claude decides how many thinking tokens to spend. Opus 4.7 added the <code>xhigh</code> level.<a class="gloss-link" data-tab="confession" data-anchor="ch15-10" href="#">&rarr; Chapter 15.10</a></td></tr>
+      <tr><td>AGENTS.md</td><td>An open-standard agent-instructions file (README for AI agents). Created by OpenAI in August 2025; donated to the Linux Foundation Agentic AI Foundation in December 2025; now adopted by 60,000+ projects. Read natively by Codex CLI, Cursor, Gemini CLI, GitHub Copilot, Cline, Aider, Jules, Devin, Factory, and most other agentic coding tools. Claude Code does not natively read it yet (<a href="https://github.com/anthropics/claude-code/issues/6235" style="color:var(--accent-blue)">issue #6235</a>); the workaround is to add <code>See @AGENTS.md</code> inside <code>CLAUDE.md</code>.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
+      <tr><td>Aider</td><td>An open-source, Python-based AI coding assistant that runs in the terminal. Works with multiple AI models. Predates Claude Code and has a loyal following among developers who prefer open-source tools. Distinctive 2026 features: <code>--architect</code> mode (strong reasoning model proposes, fast editor model writes the diff), repo-map for ranked codebase context, voice mode. Supports AGENTS.md via configuration.<a class="gloss-link" data-tab="compare" data-anchor="compare" href="#">&rarr; Other AI CLIs</a></td></tr>
       <tr><td>acli / acli.exe</td><td>The Atlassian CLI — a command-line tool for interacting with JIRA and other Atlassian products. More token-efficient than calling the JIRA REST API directly. Claude Code plugins use it to look up tickets, transition statuses, assign issues, and update custom fields. The <code>.exe</code> version is the Windows executable. Configured once with your server URL, email, and API token via <code>acli.exe jira --server ... --save-config</code>. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Building a Plugin</a></td></tr>
       <tr><td>Agent / Subagent</td><td>A separate Claude instance spawned to handle a subtask. Runs in its own context, reports results back. Like a child process.</td></tr>
       <tr><td>Allowlist</td><td>A list of pre-approved tools/commands in settings.json. Claude won't ask permission for allowlisted actions.<a class="gloss-link" data-tab="confession" data-anchor="ch15-5" href="#">&rarr; Chapter 15.5</a></td></tr>
@@ -4314,7 +4411,8 @@ else if (platform == "codex") { doZ() }</code></pre>
       <tr><td>OSS</td><td><strong>Open Source Software.</strong> Software whose source code is publicly available. OpenCode is OSS. Claude Code is not.</td></tr>
       <tr><td>Personal Access Token (PAT)</td><td>A security credential string you generate on a site like GitHub to prove your identity to an API. Starts with <code>ghp_</code> on GitHub. Has nothing to do with AI text tokens &mdash; a PAT is an auth secret, not a billing unit or a unit of text.<a class="gloss-link" data-tab="demystify" data-anchor="demystify" href="#">&rarr; Confusing Terms</a></td></tr>
       <tr><td>Plugin (Claude Code)</td><td>A program installed into Claude Code that provides slash commands, skills, hooks, and/or agents. Lives on your local disk at <code>~/.claude/plugins/cache/</code>. Dormant between sessions; wakes up via hooks at session start. Not the same as an MCP server &mdash; plugins provide workflows and methodologies; MCP servers expose API tools. <a class="gloss-link" data-tab="makeplugin" data-anchor="makeplugin" href="#">&rarr; Making a Plugin</a></td></tr>
-      <tr><td>Plan / Plan Mode</td><td>A Claude Code mode activated with Shift+Tab. Claude describes its intended approach before making any changes. You review and approve the plan first. Same discipline as an Architecture Decision Record &mdash; describe your approach before touching files.<a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">&rarr; Chapter IX</a></td></tr>
+      <tr><td>Plan / Plan Mode</td><td>A Claude Code mode activated with <strong>Shift+Tab twice</strong> or by typing <code>/plan</code>. Claude is restricted to read-only tools (Glob, Grep, Read) until you approve its proposed plan via the <code>ExitPlanMode</code> tool. Same discipline as an Architecture Decision Record &mdash; describe your approach before touching files. Press <code>Ctrl+G</code> in plan mode to open the plan in your editor for direct edits.<a class="gloss-link" data-tab="confession" data-anchor="ch8" href="#">&rarr; Chapter IX</a> <a class="gloss-link" data-tab="practitioner" data-anchor="ch15-11" href="#">&rarr; Chapter 15.11</a></td></tr>
+      <tr><td>ExitPlanMode</td><td>The Claude Code tool that exits Plan Mode after you approve the proposed plan. Until you call it, Claude cannot edit files or run commands.</td></tr>
       <tr><td>PowerShell</td><td>Microsoft's command-line shell and scripting language for Windows. More powerful than the old Command Prompt. The recommended terminal for Windows developers. Like bash, but for Windows.</td></tr>
       <tr><td>Prefill phase</td><td>The fast phase where all input tokens are processed in parallel as one batch. What you pay input token prices for ($3/M on Sonnet). Contrast with the generation phase (output tokens), which is slow and sequential.</td></tr>
       <tr><td>Premium requests</td><td><em>Copilot's term</em> for using more capable AI models. Not a Claude term &mdash; but you'll see it when comparing platforms. Plain term: higher-IQ model requests.</td></tr>
@@ -6163,7 +6261,14 @@ const glossaryTerms = {
   'API Usage': 'The same thing as token consumption — just described from the billing side. "API usage billed separately" means: every prompt sent and response received burns tokens, charged at per-token rates. It IS tokens, counted and charged.',
   'Governance': 'Controls that let an organization manage and restrict how employees use a tool. Audit logs, SSO, RBAC, SCIM. Makes IT and legal happy. Does not make Claude smarter.',
   'REST': 'Representational State Transfer. A common style for web APIs using HTTP methods (GET, POST, etc.) on URLs.',
-  'MCP': 'Model Context Protocol. The standard that lets external tools (plugins) connect to Claude and give it new capabilities.',
+  'MCP': 'Model Context Protocol. The standard that lets external tools (plugins) connect to Claude and give it new capabilities. Donated to the Linux Foundation Agentic AI Foundation in December 2025.',
+  'AGENTS.md': 'An open-standard agent-instructions file (think README for AI agents). Created by OpenAI in August 2025, donated to the Linux Foundation Agentic AI Foundation in December 2025, now adopted by 60,000+ projects. Read natively by Codex CLI, Cursor, Gemini CLI, GitHub Copilot, Cline, Aider, Jules, Devin, Factory, and most other agentic coding tools. Claude Code does not natively read it yet (issue #6235); add "See @AGENTS.md" inside CLAUDE.md as a workaround.',
+  'AAIF': 'Agentic AI Foundation. A Linux Foundation initiative formed December 9, 2025. Stewards the AGENTS.md spec, the Model Context Protocol (MCP), and Block\'s Goose agent. Platinum members include Anthropic, AWS, Block, Bloomberg, Cloudflare, Google, Microsoft, OpenAI.',
+  'A2A': 'Agent2Agent protocol. Google-originated open standard, now under the Linux Foundation. Defines how multiple AI agents discover each other, advertise capabilities, and exchange tasks. 150+ organizations in production as of April 2026.',
+  'Plan Mode': 'A Claude Code mode where Claude is restricted to read-only tools (Glob, Grep, Read) until you approve its proposed plan via the ExitPlanMode tool. Activate by pressing Shift+Tab twice or typing /plan. The standard workflow for non-trivial changes.',
+  'ExitPlanMode': 'A Claude Code tool that exits Plan Mode after you approve the proposed plan. Claude then switches to acting mode and executes the approved plan.',
+  'Adaptive Thinking': 'A 2026 Anthropic feature that replaces fixed thinking-token budgets with effort levels (low/medium/high/xhigh/max). You set the effort; Claude decides how many thinking tokens to spend.',
+  '@-imports': 'CLAUDE.md syntax for pulling content from other files: @docs/style.md, @~/.claude/personal.md. Recursive up to 5 levels deep. The recommended way to keep CLAUDE.md short while still covering complex projects.',
   'SDK': 'Software Development Kit. A library that makes it easier to use an API or protocol. Like pre-built Lego pieces instead of raw plastic.',
   'Latency': 'The delay between sending your message and seeing the first word of the response (time-to-first-token). Increases with context size — more prior tokens means more GPU work before output begins.',
   'LLM': 'Large Language Model. The AI brain that powers Claude, GPT, Gemini, etc. Trained on massive text datasets.',
