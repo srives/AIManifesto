@@ -39,6 +39,7 @@
           <button class="tab-btn" data-tab="pluginquiz">Plugin-Builder Quiz</button>
           <button class="tab-btn" data-tab="demystify">Confusing Terms</button>
           <button class="tab-btn" data-tab="glossary">Glossary</button>
+          <button class="tab-btn" data-tab="aiauditor">AI Auditor</button>
           <button class="tab-btn" data-tab="about">About</button>
           <div class="drawer-divider"></div>
           <label class="gloss-toggle-label"><input type="checkbox" id="gloss-popup-toggle" checked> Show Glossary Pop-ups</label>
@@ -4519,6 +4520,204 @@ else if (platform == "codex") { doZ() }</code></pre>
       <a class="tab-btn-inline" data-tab="confession-personal" href="#">Confessions &rarr;</a>
     </div>
   </div>
+</section>
+
+<!-- ============================================ -->
+<!-- TAB: AI AUDITOR                               -->
+<!-- ============================================ -->
+<section id="aiauditor" class="tab-panel">
+
+  <h2>AI Auditor</h2>
+  <div class="time-estimate">Estimated reading time: 12 minutes &mdash; plus one audit run in your own repo</div>
+
+  <p>The AI tooling space moved more in the last three months than it did in the previous twelve. Your <code>CLAUDE.md</code>, <code>AGENTS.md</code>, <code>PR_TOUGH.md</code>, and <code>RUN_PLAN.md</code> were probably written under assumptions that no longer hold. This page exists to fix that.</p>
+
+  <p>It does three things:</p>
+  <ol>
+    <li>Summarizes what changed in AI agentic coding from <strong>February through May 2026</strong>.</li>
+    <li>Walks you through the practical implications &mdash; what to update, what to discard, what to add.</li>
+    <li>Hands you a portable consultant prompt, <code>ai-audit.md</code>, that runs an audit of your four governance files in any repo and produces a structured findings report.</li>
+  </ol>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;">
+
+  <!-- ====== Three Months of Advances ====== -->
+  <h2>What Changed in the Last Three Months</h2>
+  <p>Selected highlights from February through May 2026. None of these were on the radar of most CLAUDE.md / AGENTS.md files written in 2025.</p>
+
+  <h3>Models</h3>
+  <ul>
+    <li><strong>Claude Opus 4.7</strong> shipped April 16, 2026. Step-change improvement in agentic coding over 4.6, plus 3&times; vision resolution, self-verification, and a new <code>xhigh</code> effort level. Requires Claude Code v2.1.111 or later.</li>
+    <li><strong>Claude Sonnet 4.6</strong> shipped February 17, 2026. The first time a Sonnet model is preferred over the previous generation's Opus in coding evaluations. Handles 90%+ of coding tasks at $3/$15 per million tokens &mdash; the new daily driver.</li>
+    <li><strong>Adaptive thinking</strong> (February 2026) replaced fixed token budgets with effort levels: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>. You set the effort; Claude decides how many thinking tokens to spend.</li>
+    <li><strong>Prompt caching workspace-level isolation</strong> (February 5, 2026) replaced org-level isolation. Important if you're billed per workspace.</li>
+  </ul>
+
+  <h3>The Cross-Tool Standards Era Began</h3>
+  <ul>
+    <li><strong>December 9, 2025:</strong> OpenAI and Anthropic donated <code>AGENTS.md</code> and the Model Context Protocol (MCP) to the new Linux Foundation <strong>Agentic AI Foundation (AAIF)</strong>. Platinum members include Anthropic, AWS, Block, Bloomberg, Cloudflare, Google, Microsoft, OpenAI. <code>AGENTS.md</code> now has 60,000+ open-source adopters and is read natively by Codex, Cursor, Gemini CLI, GitHub Copilot, Cline, Aider, Jules, Devin, Factory, Augment, Amazon Q, and OpenHands.</li>
+    <li><strong>Claude Code remains the outlier</strong> &mdash; it primarily reads <code>CLAUDE.md</code> and does not yet natively load <code>AGENTS.md</code> (<a href="https://github.com/anthropics/claude-code/issues/6235" style="color:var(--accent-blue)">issue #6235</a>). The bridging pattern is to add <code>See @AGENTS.md</code> at the top of <code>CLAUDE.md</code> so Claude Code pulls it in via an import.</li>
+    <li><strong>Skills became a cross-tool standard.</strong> The <a href="https://agentskills.io" style="color:var(--accent-blue)">Agent Skills</a> spec is now adopted by Claude Code, OpenAI Codex CLI, Cursor, Gemini CLI, and GitHub Copilot. A skill you write today may work in tools you adopt tomorrow.</li>
+    <li><strong>A2A (Agent2Agent) protocol</strong> crossed 150+ organizations in production by April 2026 &mdash; Google, Microsoft, AWS, Salesforce, SAP, ServiceNow, IBM. Where MCP connects an agent to tools, A2A connects agents to each other.</li>
+  </ul>
+
+  <h3>Claude Code Features That Most Tutorials Miss</h3>
+  <ul>
+    <li><strong>Plan Mode</strong> (<code>Shift+Tab</code> twice or <code>/plan</code>): Claude is restricted to read-only tools until you approve the plan via <code>ExitPlanMode</code>. Press <code>Ctrl+G</code> to edit the plan in your editor. This is the official lightweight planning loop &mdash; pair it with <code>RUN_PLAN.md</code> for heavyweight work.</li>
+    <li><strong>The 4-phase workflow:</strong> Explore &rarr; Plan &rarr; Implement &rarr; Commit. Anthropic's own guidance. Phases 1 and 2 are the cheapest in tokens and the most valuable in outcome.</li>
+    <li><strong>16 hook events</strong>, not 3. The under-known ones: <code>PreCompact</code>, <code>SubagentStop</code>, <code>PermissionRequest</code>, <code>SessionEnd</code>, <code>UserPromptSubmit</code>, <code>FileChanged</code>, <code>ConfigChange</code>.</li>
+    <li><strong>Agent View</strong> and <strong>Agent Teams</strong> (May 2026): dashboard for managing parallel Claude Code sessions; an orchestrator-with-workers pattern for distributed tasks.</li>
+    <li><strong>CLAUDE.md <code>@</code>-imports</strong> with recursive 5-level depth, dynamic context priming (auto-pulls adjacent CLAUDE.md files when you reference a file with <code>@</code>).</li>
+    <li><strong>1M context window for Pro users</strong> via <code>/extra-usage</code>. Default on Max/Team/Enterprise.</li>
+  </ul>
+
+  <h3>Ecosystem Shifts</h3>
+  <ul>
+    <li><strong>Devin 2.0</strong> dropped its price from $500/mo to $20/mo (priced ~$2.25/ACU). If your team's "Devin is too expensive" calculus was based on 2024 pricing, redo the math.</li>
+    <li><strong>Roo Code shut down May 15, 2026.</strong> The Cline fork that some 2025 tutorials recommended is gone. Users are being redirected to Cline or roomote.dev.</li>
+    <li><strong>Cursor's Composer</strong> (October 2025) made Cursor model-independent. The framing "Cursor uses Claude/GPT under the hood" is now incomplete.</li>
+    <li><strong>GitHub Copilot agent mode</strong> went GA in JetBrains in March 2026 &mdash; no longer VS Code-exclusive. Copilot CLI agent shipped May 2026.</li>
+    <li><strong>Spec-driven development converged:</strong> GitHub Spec Kit, AWS Kiro, OpenSpec, BMAD, Tessl, Google Antigravity. Standard artifacts are aligning on <code>spec.md</code>, <code>plan.md</code>, <code>tasks.md</code>, <code>constitution.md</code>.</li>
+    <li><strong>Cursor's <code>.cursorrules</code> is officially deprecated</strong> in favor of <code>.cursor/rules/*.mdc</code> (or AGENTS.md). Agent mode in Cursor does not load the legacy file at all.</li>
+    <li><strong>The 2026 "core trio":</strong> Plan Mode + git worktrees + subagents. Mastery of Claude Code is now mastery of those three.</li>
+  </ul>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;">
+
+  <!-- ====== Summary of you-are-wrong.md ====== -->
+  <h2>Practical Implications: What to Fix in Your Existing Setup</h2>
+  <p>The points below come from a self-audit of this site (filed as <code>you-are-wrong.md</code> in the repo). They are the recurring mistakes people make &mdash; including, embarrassingly, the AI that wrote this site's own governance files. Each one is the cheapest, highest-leverage change you can make.</p>
+
+  <h3>1. CLAUDE.md Should Live Under 200 Lines</h3>
+  <p>Anthropic's official guidance is to keep <code>CLAUDE.md</code> under 200 lines, ideally 80&ndash;120. Frontier models follow roughly 150&ndash;200 instructions before adherence measurably drops, and Claude Code's system prompt already eats about 50 of them. Past 200 lines, large blocks get ignored. Past 500 words of dense rules, adherence collapses entirely.</p>
+  <p>This is the single highest-leverage finding for most teams. If your <code>CLAUDE.md</code> is 600 lines because someone synthesized "best of all" guidance into it, that file will make Claude follow rules <em>worse</em> than a tight 100-line version would.</p>
+
+  <h3>2. Use <code>@</code>-Imports to Modularize Without Token Cost</h3>
+  <p>Splitting a long <code>CLAUDE.md</code> into rules files (<code>.claude/rules/</code>) keeps the file tidy but doesn't reduce token cost &mdash; every rules file still loads on every message. The right tool is <code>@</code>-imports:</p>
+<pre><code># CLAUDE.md (kept short)
+See @docs/agents/style.md
+See @docs/agents/testing.md
+See @docs/agents/platform-wpf.md
+Personal preferences: @~/.claude/personal.md
+</code></pre>
+  <p>Recursive up to five levels deep. When you <code>@</code>-reference a file in a prompt, Claude Code also auto-pulls adjacent <code>CLAUDE.md</code> files from that file's directory and parents &mdash; "dynamic context priming."</p>
+
+  <h3>3. AGENTS.md Is Now the Cross-Tool Primary</h3>
+  <p>The recommended layering for 2026 projects:</p>
+  <ul>
+    <li><strong>AGENTS.md</strong> owns the cross-tool universal rules &mdash; project overview, build commands, code style, testing instructions, security considerations.</li>
+    <li><strong>CLAUDE.md</strong> imports AGENTS.md (<code>See @AGENTS.md</code>) and adds only Anthropic-specific extensions: hooks, skills, subagents, MCP integration details, Plan Mode references.</li>
+    <li>Tomorrow, when you try Codex or Cursor or Gemini CLI on the same repo, they read AGENTS.md natively. Zero migration cost.</li>
+  </ul>
+
+  <h3>4. Plan Mode + Worktrees + Subagents Is the Foundation</h3>
+  <p>Three techniques most teams use one of, occasionally. In 2026 they are consensus best practice as a trio:</p>
+  <ul>
+    <li><strong>Plan Mode</strong> for any change touching 3+ files, schema changes, or security-sensitive code.</li>
+    <li><strong>Git worktrees</strong> for risky experiments &mdash; the agent works in an isolated directory; if it fails, your real files were never touched.</li>
+    <li><strong>Subagents</strong> not just for parallelism but for <em>context hygiene</em>: a long research task in a subagent does not pollute your main session.</li>
+  </ul>
+
+  <h3>5. Give Claude a Way to Verify Its Work</h3>
+  <p>Anthropic's stated #1 highest-leverage practice: include tests, screenshots, or expected outputs in any prompt that produces code. Claude performs dramatically better with clear success criteria and the ability to check itself. Without verification, you become the only feedback loop, and the loop is slow.</p>
+
+  <h3>6. Skills Beat Rules Files for Repeat Workflows</h3>
+  <p>Rules files cost tokens on every message; skills cost zero tokens until invoked. If a workflow is "always relevant," it belongs in <code>CLAUDE.md</code> (kept short). If it's "sometimes relevant," it belongs in a skill &mdash; especially with <code>paths:</code> glob frontmatter that loads the skill only when files matching that pattern are touched.</p>
+
+  <h3>7. Pin to Current Models and Watch for Drift</h3>
+  <p>If your governance files still mention "Opus 4.5" or "Sonnet 4," they're stale. As of May 2026: <strong>Opus 4.7, Sonnet 4.6, Haiku 4.5</strong>. Stale model references are a tell that the file hasn't been reviewed in months &mdash; usually the rest is stale too.</p>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;">
+
+  <!-- ====== The AI Audit Card ====== -->
+  <div class="day1-card" style="margin: 1.5rem 0;">
+    <div class="day1-card-header">&#128270; The AI Audit</div>
+    <div class="day1-card-body">
+      <p style="margin-top:0;"><strong>A 5-minute job that prevents months of drift.</strong></p>
+      <p>Drop <code>ai-audit.md</code> into any repo. Tell Claude (or any agentic AI):</p>
+      <pre style="margin: 0.5rem 0;"><code>Audit my governance files using ai-audit.md.
+Output findings to ai-audit-findings.md.</code></pre>
+      <p>You get back a structured report: per-file grades A&ndash;F, findings ordered by severity with file:line citations, cross-file conflicts, project-fit gaps (informed by your actual git history), a <strong>decomposition proposal</strong> with concrete line-by-line splits for any file over budget, and a top-5 fix list ordered by impact.</p>
+      <p>The audit is project-agnostic. It detects your stack from file signals (<code>*.csproj</code>, <code>package.json</code>, <code>index.html</code>+<code>app.js</code>+<code>style.css</code>, <code>*.ps1</code>, &hellip;) and applies the right checks for that platform.</p>
+    </div>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;">
+
+  <!-- ====== The Four Files ====== -->
+  <h2>The Four Files Being Audited</h2>
+  <p>The audit checks these four governance files. If you don't have them yet, the <a class="tab-btn-inline" data-tab="casestudy" data-anchor="anchor-day1prompt" href="#">Day-1 Prompt wizard</a> generates a starter <code>CLAUDE.md</code> and <code>AGENTS.md</code>, and the <a class="tab-btn-inline" data-tab="runplan" href="#">Running a Plan</a> tab gives you the canonical <code>RUN_PLAN.md</code> and <code>PR_TOUGH.md</code> templates.</p>
+
+  <table class="compare-table">
+    <thead><tr><th>File</th><th>Loaded</th><th>Purpose</th><th>Typical Length</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CLAUDE.md</strong></td><td>Every session, every message (auto)</td><td>Anthropic-specific rules: hooks, skills, subagents, Plan Mode, MCP. Plus <code>See @AGENTS.md</code> to bridge to the cross-tool standard.</td><td>80&ndash;200 lines</td></tr>
+      <tr><td><strong>AGENTS.md</strong></td><td>Every session by most other tools (auto). Loaded by Claude Code via <code>@</code>-import from CLAUDE.md.</td><td>Cross-tool universal rules: project overview, build commands, code style, testing instructions, security considerations, commit conventions.</td><td>50&ndash;150 lines</td></tr>
+      <tr><td><strong>PR_TOUGH.md</strong></td><td>On demand (invoked for code review)</td><td>Tough architectural PR review framework. Hard gates (build-fail = D-, hidden mutation = F), defect categories specific to the project, output format with severity scale.</td><td>200&ndash;600 lines</td></tr>
+      <tr><td><strong>RUN_PLAN.md</strong></td><td>On demand (invoked for plan execution)</td><td>Execution discipline: preflight, constraint extraction, one-bounded-change-at-a-time implementation, validation lanes, self-review. The methodology for architecturally significant work.</td><td>300&ndash;800 lines</td></tr>
+    </tbody>
+  </table>
+
+  <div class="aha"><strong>Loaded-every-message files must be short. Load-on-demand files can be longer.</strong> CLAUDE.md and AGENTS.md cost tokens on every prompt forever, so length directly degrades compliance. PR_TOUGH.md and RUN_PLAN.md are invoked deliberately for specific tasks, so they can afford to be comprehensive. The audit applies different length thresholds to each pair.</div>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;">
+
+  <!-- ====== Download Section ====== -->
+  <h2>Get Your Copy of <code>ai-audit.md</code></h2>
+  <p>The full audit prompt is <strong>about 480 lines of structured checks</strong>. Drop it into any project's root or <code>docs/</code> folder. Three ways to grab it:</p>
+
+  <div style="margin: 1.25rem 0; display: flex; flex-wrap: wrap; gap: 0.75rem;">
+    <a class="wizard-btn wizard-btn-claude" href="ai-audit.md" download="ai-audit.md">&#8595; Download ai-audit.md</a>
+    <button class="wizard-btn wizard-btn-codex" onclick="copyAiAudit()">&#128203; Copy to Clipboard</button>
+    <a class="wizard-btn wizard-btn-codex" href="https://github.com/srives/AIManifesto/blob/master/ai-audit.md" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">&#128279; View on GitHub</a>
+  </div>
+  <div id="aiaudit-copy-status" style="font-size:0.85rem;color:var(--text-muted);min-height:1.25rem;"></div>
+
+  <h3>How to Run an Audit</h3>
+  <ol>
+    <li><strong>Put <code>ai-audit.md</code> in your project root</strong> (next to <code>CLAUDE.md</code>). Optionally check it into git so the team has it.</li>
+    <li><strong>Start a fresh Claude Code session</strong> in that project: <code>cd C:\repos\YourProject &amp;&amp; claude</code>.</li>
+    <li><strong>Prompt:</strong>
+<pre><code>Audit my governance files using ai-audit.md.
+Output findings to ai-audit-findings.md.</code></pre>
+    </li>
+    <li><strong>Review the report.</strong> <code>ai-audit-findings.md</code> will contain per-file grades, findings ordered by severity (CRITICAL first), cross-file conflicts, project-fit gaps, and a decomposition proposal for any file that's too long.</li>
+    <li><strong>Apply fixes incrementally.</strong> Don't try to fix everything at once. Start with the top three findings by impact. The audit will be cheaper to re-run after each pass than the first one was.</li>
+  </ol>
+
+  <h3>Variants You Can Use</h3>
+  <p>The audit prompt is flexible. Some useful scopings:</p>
+  <ul>
+    <li><strong>Audit a single file:</strong> <code>"Audit only CLAUDE.md using ai-audit.md. Skip cross-file checks."</code></li>
+    <li><strong>Audit and propose fixes (without applying):</strong> <code>"Audit per ai-audit.md, then propose specific edits for the top 3 findings as a follow-up. Do NOT apply them. Wait for me to approve."</code></li>
+    <li><strong>Audit and produce a decomposition only:</strong> <code>"Run the §2.5 Decomposition Proposal in ai-audit.md against CLAUDE.md. Output proposed splits with line ranges."</code></li>
+    <li><strong>Run it as a recurring check:</strong> Schedule a quarterly audit. Drift accumulates fast; catching it at three months is much cheaper than catching it at twelve.</li>
+  </ul>
+
+  <h3>When to Run an Audit</h3>
+  <ul>
+    <li>After copying governance files from another project into a new one.</li>
+    <li>After a major Claude Code or Anthropic release (model upgrade, feature drop).</li>
+    <li>When you notice Claude ignoring rules that used to work &mdash; usually means CLAUDE.md grew past the compliance threshold.</li>
+    <li>Before onboarding a new team member who'll inherit the existing setup.</li>
+    <li>Quarterly. Set a calendar reminder.</li>
+  </ul>
+
+  <div class="real-talk"><strong>The audit is meant to be honest, not flattering.</strong> If your governance files have problems, the report will say so &mdash; including problems the AI itself may have introduced when it synthesized those files for you. That's the point. A consultant who only ever says "looks great" is a bad consultant.</div>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;">
+
+  <h3>What the Audit Catches That You Might Miss</h3>
+  <ul>
+    <li><strong>Stale content from another project</strong> &mdash; references to MongoDB collections, WPF view-models, or PowerShell modules that don't exist in the current repo. Copy-pasted CLAUDE.md is the most common source of AI confusion.</li>
+    <li><strong>Internal contradictions</strong> between CLAUDE.md and AGENTS.md &mdash; different build commands, different architectural vocabulary, different test conventions.</li>
+    <li><strong>Failure modes the git log proves are real</strong> &mdash; if you've had to fix the same kind of bug three times in six months, the audit will flag the missing guardrail.</li>
+    <li><strong>Universal rules that are actually noise for your stack</strong> &mdash; WPF rules in a static site, Mongo guidance in a Python project. The audit flags them for extraction to <code>@</code>-imported files or deletion.</li>
+    <li><strong>Modern features your governance files never adopted</strong> &mdash; no Plan Mode coverage, no <code>@</code>-imports usage, no AGENTS.md, no mention of adaptive thinking effort levels.</li>
+  </ul>
+
+  <p style="margin-top:1.5rem;">The full audit prompt &mdash; including the §2.5 Decomposition Proposal section with line-by-line split recommendations &mdash; is in <code>ai-audit.md</code> at the repo root. Download it above, drop it into any project, run an audit. Five minutes.</p>
+
 </section>
 
 <section id="comments" class="tab-panel">

@@ -2628,3 +2628,45 @@ function downloadWizardFile(type) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+// Fetches ai-audit.md from the deployed site and copies it to the clipboard.
+// Falls back gracefully on file:// (where fetch may fail) by telling the user
+// to use the Download button instead.
+function copyAiAudit() {
+  const status = document.getElementById('aiaudit-copy-status');
+  function setStatus(msg, isError) {
+    if (!status) return;
+    status.textContent = msg;
+    status.style.color = isError ? 'var(--accent-red, #e57373)' : 'var(--accent-green, #4caf50)';
+  }
+  setStatus('Fetching ai-audit.md...', false);
+  fetch('ai-audit.md', { cache: 'no-cache' })
+    .then(function(resp) {
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return resp.text();
+    })
+    .then(function(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).then(function() {
+          setStatus('Copied ' + text.length.toLocaleString() + ' characters to clipboard.', false);
+        });
+      }
+      // Legacy fallback
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        setStatus('Copied ' + text.length.toLocaleString() + ' characters to clipboard.', false);
+      } catch (e) {
+        setStatus('Copy not supported in this browser. Use the Download button instead.', true);
+      }
+      document.body.removeChild(ta);
+    })
+    .catch(function(err) {
+      setStatus('Could not fetch ai-audit.md (' + err.message + '). Use the Download button instead.', true);
+    });
+}
