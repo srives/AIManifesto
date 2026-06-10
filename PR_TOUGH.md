@@ -37,6 +37,18 @@ These conditions force a grade floor regardless of any other strengths in the di
 
 ## 2. Preflight Before Writing Findings
 
+### 2.0. Mechanical preconditions — run this block first, no substitutions, no skipping.
+
+```text
+git diff --check
+<project build command>
+<project test command>
+<project formatter/lint check>
+git status --short
+```
+
+Whitespace errors from `git diff --check` are blocking. Build failures are blocking. Test failures on existing tests are blocking. Untracked files that tracked files reference are blocking. Review the **entire working tree including untracked files** — never only the executor's claimed file list; an executor's claims about its own diff carry no evidentiary weight. This same block is the executor's close-out gate (`CLAUDE.md` §3.6); a diff arriving at review without it having been run is already a finding.
+
 ### 2.1. Targeted drift search.
 
 Before writing any findings, grep for the drift patterns specific to your repo. Examples (replace with patterns from your AGENTS.md):
